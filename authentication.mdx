@@ -1,0 +1,61 @@
+---
+title: "Authentication"
+description: "How to authenticate with the Trakyo API using API keys."
+---
+
+All API requests require authentication via an API key passed in the `Authorization` header.
+
+## Header format
+
+```
+Authorization: Bearer tky_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+## Key format
+
+API keys follow this structure:
+
+| Part | Example | Description |
+|------|---------|-------------|
+| Prefix | `tky_` | Identifies this as a Trakyo key |
+| Environment | `live_` | `live_` for production, `test_` for sandbox |
+| Secret | `1c126b6b...` | 32 random hex characters |
+
+Full example: `tky_live_1c126b6be11622008e729749f963c425`
+
+## Key management
+
+- Keys are **account-level** -- they grant access to the account's data regardless of which team member created them.
+- The full key is shown **once** at creation. Store it securely.
+- Keys can be revoked at any time from the Trakyo dashboard.
+
+## Security
+
+- Keys are hashed with bcrypt before storage. Trakyo never stores your plaintext key.
+- Always send requests over HTTPS. The API rejects plain HTTP.
+- Never include API keys in URLs, client-side code, or version control.
+- If a key is compromised, revoke it immediately and generate a new one.
+
+## Error responses
+
+Missing or invalid keys return a `401` error:
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Invalid API key."
+}
+```
+
+Expired keys return a distinct error:
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/key_expired",
+  "title": "API key expired",
+  "status": 401,
+  "detail": "API key has expired. Generate a new key in your Trakyo dashboard."
+}
+```

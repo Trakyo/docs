@@ -1,16 +1,14 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Trakyo API",
+    "version": "1.0.0",
+    "description": "The Trakyo API lets you programmatically access your link analytics, tracking events, and lead data."
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://app.trakyo.io/api/v1",
+      "description": "Production"
     }
   ],
   "security": [
@@ -18,199 +16,181 @@
       "bearerAuth": []
     }
   ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key with `tky_` prefix. Pass as: `Authorization: Bearer tky_live_...`"
+      }
+    },
+    "schemas": {
+      "ClicksResponse": {
+        "type": "object",
+        "required": ["total_clicks"],
+        "properties": {
+          "total_clicks": {
+            "type": "integer",
+            "description": "The number of clicks for the specified period.",
+            "example": 42809
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "description": "Error response following [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) (Problem Details for HTTP APIs).",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URI identifying the error type. Resolves to documentation.",
+            "example": "https://trakyo.io/docs/errors/not_found"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short human-readable summary of the error.",
+            "example": "Not found"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code.",
+            "example": 404
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation of the error.",
+            "example": "No link found with key 'abc123' for this account."
+          },
+          "instance": {
+            "type": "string",
+            "description": "The request path that caused the error.",
+            "example": "/api/v1/links/abc123/clicks"
+          }
+        }
+      }
+    }
+  },
   "paths": {
-    "/plants": {
+    "/links/{key}/clicks": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "operationId": "getLinkClicks",
+        "summary": "Get click count for a link",
+        "description": "Returns the total number of clicks for a short link. Use `period=all` for all-time count (default) or `period=24h` for clicks in the last 24 hours.",
+        "tags": ["Links"],
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "description": "The short link key (e.g., `abc12345`).",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "example": "abc12345"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Time period for click count. `all` returns lifetime clicks, `24h` returns clicks in the last 24 hours.",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "24h"],
+              "default": "all"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Click count for the link.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/ClicksResponse"
+                },
+                "examples": {
+                  "all-time": {
+                    "summary": "All-time clicks",
+                    "value": {
+                      "total_clicks": 42809
+                    }
+                  },
+                  "24h": {
+                    "summary": "Last 24 hours",
+                    "value": {
+                      "total_clicks": 156
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "description": "Invalid request parameters.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/bad_request",
+                  "title": "Bad request",
+                  "status": 400,
+                  "detail": "Invalid period 'weekly'. Must be 'all' or '24h'."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Link not found or does not belong to this account.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/not_found",
+                  "title": "Not found",
+                  "status": 404,
+                  "detail": "No link found with key 'abc123' for this account.",
+                  "instance": "/api/v1/links/abc123/clicks"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
                 }
               }
             }
           }
         }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
       }
     }
   }

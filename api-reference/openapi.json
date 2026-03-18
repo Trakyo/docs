@@ -59,25 +59,36 @@
           "detail": {
             "type": "string",
             "description": "A human-readable explanation of the error.",
-            "example": "No link found with key 'abc123' for this account."
+            "example": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account."
           },
           "instance": {
             "type": "string",
             "description": "The request path that caused the error.",
-            "example": "/api/v1/links/abc123/clicks"
+            "example": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
           }
         }
       }
     }
   },
   "paths": {
-    "/links/{key}/clicks": {
+    "/links/{domainId}/{key}/clicks": {
       "get": {
         "operationId": "getLinkClicks",
         "summary": "Get click count for a link",
-        "description": "Returns the total number of clicks for a short link. Use `period=all` for all-time count (default) or `period=24h` for clicks in the last 24 hours.",
+        "description": "Returns the total number of clicks for a short link. Links are identified by the composite key of `domainId` + `key`. Use the sentinel domain ID `00000000-0000-0000-0000-000000000000` for links on the default Trakyo domain.",
         "tags": ["Links"],
         "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "The short link domain ID (UUID). Use `00000000-0000-0000-0000-000000000000` for the default Trakyo domain.",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000000"
+            }
+          },
           {
             "name": "key",
             "in": "path",
@@ -168,8 +179,8 @@
                   "type": "https://trakyo.io/docs/errors/not_found",
                   "title": "Not found",
                   "status": 404,
-                  "detail": "No link found with key 'abc123' for this account.",
-                  "instance": "/api/v1/links/abc123/clicks"
+                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
+                  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
                 }
               }
             }

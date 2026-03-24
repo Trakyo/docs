@@ -14,8 +14,8 @@ Every error response uses the `application/problem+json` content type and includ
   "type": "https://trakyo.io/docs/errors/not_found",
   "title": "Not found",
   "status": 404,
-  "detail": "No link found with key 'abc123' for this account.",
-  "instance": "/api/v1/links/abc123/clicks"
+  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
+  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
 }
 ```
 
@@ -90,8 +90,8 @@ Resource doesn't exist or doesn't belong to your account.
   "type": "https://trakyo.io/docs/errors/not_found",
   "title": "Not found",
   "status": 404,
-  "detail": "No link found with key 'abc123' for this account.",
-  "instance": "/api/v1/links/abc123/clicks"
+  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
+  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
 }
 ```
 

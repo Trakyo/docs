@@ -85,8 +85,9 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo-light.svg",
+    "dark": "/logo-dark.svg",
+    "href": "https://trakyo.io"
   },
   "navbar": {
     "links": [

@@ -4,9 +4,9 @@
   "theme": "mint",
   "name": "Trakyo",
   "colors": {
-    "primary": "#0C8C5E",
-    "light": "#18E299",
-    "dark": "#0C8C5E"
+    "primary": "#1c64f2",
+    "light": "#3f83f8",
+    "dark": "#1a56db"
   },
   "favicon": "/favicon.svg",
   "navigation": {

@@ -3,11 +3,15 @@
   "info": {
     "title": "Trakyo API",
     "version": "1.0.0",
-    "description": "The Trakyo API lets you programmatically manage short links, custom domains, and click analytics."
+    "description": "Public API for managing short links, custom domains, and click analytics.",
+    "contact": {
+      "name": "Trakyo",
+      "url": "https://trakyo.io"
+    }
   },
   "servers": [
     {
-      "url": "https://api.trakyo.io/v1",
+      "url": "https://api.trakyo.io",
       "description": "Production"
     }
   ],
@@ -27,7 +31,7 @@
     "schemas": {
       "Link": {
         "type": "object",
-        "required": ["key", "url", "shortLink", "domainId", "clicks", "isCustomSlug", "createdAt"],
+        "required": ["key", "url", "shortLink", "domainId", "contentItemId", "clicks", "isCustomSlug", "lastClickedAt", "createdAt"],
         "properties": {
           "key": {
             "type": "string",
@@ -139,6 +143,7 @@
       },
       "ProblemDetails": {
         "type": "object",
+        "required": ["type", "title", "status", "detail"],
         "description": "Error response following [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) (Problem Details for HTTP APIs).",
         "properties": {
           "type": {
@@ -811,7 +816,7 @@
         "operationId": "getLinkClicks",
         "summary": "Get link clicks",
         "description": "Returns the click count for a short link. Supports preset time periods (`all`, `24h`, `7d`, `30d`, `90d`) or a custom date range via `startDate` and `endDate`. The `period` and date range parameters are mutually exclusive.\n\n`period=all` uses a denormalized counter for O(1) performance. All other modes query the tracking events table.",
-        "tags": ["Links"],
+        "tags": ["Analytics"],
         "parameters": [
           {
             "$ref": "#/components/parameters/domainId"

@@ -14,9 +14,19 @@ The Trakyo API enforces rate limits to ensure fair usage and protect the service
 
 Limits are applied per API key.
 
+## Response headers
+
+Every authenticated response includes rate limit headers:
+
+| Header | Description | Example |
+|--------|-------------|---------|
+| `x-ratelimit-limit` | Maximum requests per window | `120` |
+| `x-ratelimit-remaining` | Requests remaining in current window | `117` |
+| `x-ratelimit-reset` | UTC epoch seconds when the window resets | `1711324800` |
+
 ## Rate limit response
 
-When you exceed the limit, the API returns a `429` status:
+When you exceed the limit, the API returns a `429` status with a `Retry-After` header:
 
 ```json
 {
@@ -27,7 +37,7 @@ When you exceed the limit, the API returns a `429` status:
 }
 ```
 
-The response includes a `Retry-After` header indicating how many seconds to wait.
+The `Retry-After` header indicates how many seconds to wait before retrying.
 
 ## Best practices
 

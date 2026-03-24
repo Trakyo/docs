@@ -1,0 +1,31 @@
+---
+title: "Not Found"
+description: "The requested resource does not exist or does not belong to your account."
+---
+
+## 404 — Not Found
+
+The resource you requested could not be found, or it belongs to a different account.
+
+### Common causes
+
+- Incorrect `domainId` or `key` in the URL path
+- The link was deleted
+- The domain does not belong to your account
+- Using the wrong domain ID (use `00000000-0000-0000-0000-000000000000` for the default `trakyo.link` domain)
+
+### Example response
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/not_found",
+  "title": "Not found",
+  "status": 404,
+  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
+  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
+}
+```
+
+### How to fix
+
+Verify the `domainId` and `key` are correct. Use [GET /links](/api-reference/introduction) to list all links on your account. Use [GET /domains](/api-reference/introduction) to list your available domains.

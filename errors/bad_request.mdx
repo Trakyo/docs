@@ -1,0 +1,30 @@
+---
+title: "Bad Request"
+description: "The request was invalid or malformed."
+---
+
+## 400 — Bad Request
+
+Your request could not be processed because it contains invalid parameters or a malformed body.
+
+### Common causes
+
+- Missing a required field (e.g., `url` when creating a link)
+- Invalid field value (e.g., non-UUID `domainId`, unsupported `period`)
+- Mixing mutually exclusive parameters (e.g., `period` with `startDate`/`endDate`)
+- Empty request body on `POST` or `PATCH` endpoints
+
+### Example response
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/bad_request",
+  "title": "Bad request",
+  "status": 400,
+  "detail": "Missing required field: url"
+}
+```
+
+### How to fix
+
+Check the `detail` field for specifics on what was wrong. Review the [API Reference](/api-reference/introduction) for required parameters and accepted values.

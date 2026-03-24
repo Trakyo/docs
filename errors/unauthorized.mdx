@@ -1,0 +1,36 @@
+---
+title: "Unauthorized"
+description: "Missing or invalid API key."
+---
+
+## 401 — Unauthorized
+
+The request did not include a valid API key.
+
+### Common causes
+
+- Missing `Authorization` header
+- Incorrect header format (must be `Authorization: Bearer tky_...`)
+- Revoked or deactivated API key
+- Typo in the API key
+
+### Example response
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Invalid API key."
+}
+```
+
+### How to fix
+
+Ensure your request includes the header:
+
+```
+Authorization: Bearer tky_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Generate a new key from your [Trakyo dashboard](https://app.trakyo.io) if your current key is no longer valid. See [Authentication](/authentication) for details.

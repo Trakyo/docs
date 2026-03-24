@@ -1,0 +1,28 @@
+---
+title: "Conflict"
+description: "The resource already exists."
+---
+
+## 409 — Conflict
+
+The request conflicts with an existing resource.
+
+### Common causes
+
+- The custom slug you specified is already taken on this domain
+- Attempting to create a duplicate resource
+
+### Example response
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/conflict",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "Slug 'my-page' is already taken on this domain."
+}
+```
+
+### How to fix
+
+Choose a different slug, or omit the `slug` field to let Trakyo auto-generate one. Use [GET /links](/api-reference/introduction) to check which slugs are in use.

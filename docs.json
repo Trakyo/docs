@@ -1,5 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "basePath": "/docs",
   "theme": "mint",
   "name": "Trakyo",
   "colors": {
@@ -27,11 +28,25 @@
               "concepts/rate-limiting",
               "concepts/errors"
             ]
+          },
+          {
+            "group": "Error Reference",
+            "pages": [
+              "errors/bad_request",
+              "errors/unauthorized",
+              "errors/key_expired",
+              "errors/forbidden",
+              "errors/not_found",
+              "errors/conflict",
+              "errors/rate_limited",
+              "errors/internal_error"
+            ]
           }
         ]
       },
       {
         "tab": "API Reference",
+        "openapi": "api-reference/openapi.json",
         "groups": [
           {
             "group": "Overview",
@@ -42,18 +57,18 @@
           {
             "group": "Links",
             "pages": [
-              "api-reference/links/list-links",
-              "api-reference/links/create-a-link",
-              "api-reference/links/get-a-link",
-              "api-reference/links/update-a-link",
-              "api-reference/links/delete-a-link",
-              "api-reference/links/get-link-clicks"
+              "GET /links",
+              "POST /links",
+              "GET /links/{domainId}/{key}",
+              "PATCH /links/{domainId}/{key}",
+              "DELETE /links/{domainId}/{key}",
+              "GET /links/{domainId}/{key}/clicks"
             ]
           },
           {
             "group": "Domains",
             "pages": [
-              "api-reference/domains/list-domains"
+              "GET /domains"
             ]
           }
         ]

@@ -29,107 +29,15 @@ Every error response uses the `application/problem+json` content type and includ
 
 ## Error codes
 
-### 400 -- Bad Request
+The `type` field in every error is a URL that links to a detailed reference page for that error.
 
-Invalid parameters or request body.
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/bad_request",
-  "title": "Bad request",
-  "status": 400,
-  "detail": "Missing required field: url"
-}
-```
-
-### 401 -- Unauthorized
-
-Missing or invalid API key.
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/unauthorized",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Invalid API key."
-}
-```
-
-### 401 -- Key Expired
-
-API key has expired.
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/key_expired",
-  "title": "API key expired",
-  "status": 401,
-  "detail": "API key has expired. Generate a new key in your Trakyo dashboard."
-}
-```
-
-### 403 -- Forbidden
-
-API key doesn't have access to this resource.
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/forbidden",
-  "title": "Forbidden",
-  "status": 403,
-  "detail": "Account not found for this API key."
-}
-```
-
-### 404 -- Not Found
-
-Resource doesn't exist or doesn't belong to your account.
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/not_found",
-  "title": "Not found",
-  "status": 404,
-  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
-}
-```
-
-### 409 -- Conflict
-
-Resource already exists (e.g., slug taken on a domain).
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/conflict",
-  "title": "Conflict",
-  "status": 409,
-  "detail": "Slug 'my-page' is already taken on this domain."
-}
-```
-
-### 429 -- Rate Limited
-
-Too many requests. See [Rate Limiting](/concepts/rate-limiting).
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/rate_limited",
-  "title": "Rate limited",
-  "status": 429,
-  "detail": "Rate limit exceeded. Max 120 requests per minute."
-}
-```
-
-### 500 -- Internal Error
-
-Something went wrong on our end. If this persists, contact support@trakyo.io.
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/internal_error",
-  "title": "Internal error",
-  "status": 500,
-  "detail": "An unexpected error occurred."
-}
-```
+| Status | Code | Description |
+|--------|------|-------------|
+| 400 | [bad_request](/errors/bad_request) | Invalid parameters or request body |
+| 401 | [unauthorized](/errors/unauthorized) | Missing or invalid API key |
+| 401 | [key_expired](/errors/key_expired) | API key has expired |
+| 403 | [forbidden](/errors/forbidden) | API key doesn't have access to this resource |
+| 404 | [not_found](/errors/not_found) | Resource doesn't exist or doesn't belong to your account |
+| 409 | [conflict](/errors/conflict) | Resource already exists (e.g., slug taken) |
+| 429 | [rate_limited](/errors/rate_limited) | Too many requests |
+| 500 | [internal_error](/errors/internal_error) | Something went wrong on our end |

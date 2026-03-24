@@ -1,0 +1,28 @@
+---
+title: "Forbidden"
+description: "The API key does not have access to this resource."
+---
+
+## 403 — Forbidden
+
+Your API key is valid but does not have permission to access the requested resource.
+
+### Common causes
+
+- The API key's associated account was not found
+- Attempting to access a resource owned by a different account
+
+### Example response
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/forbidden",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "Account not found for this API key."
+}
+```
+
+### How to fix
+
+Verify you are using the correct API key for your account. Contact support@trakyo.io if you believe this is an error.

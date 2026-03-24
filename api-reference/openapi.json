@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://app.trakyo.io/api/v1",
+      "url": "https://api.trakyo.io/v1",
       "description": "Production"
     }
   ],
@@ -84,26 +84,16 @@
       },
       "Pagination": {
         "type": "object",
-        "required": ["page", "limit", "total", "hasMore"],
+        "required": ["limit", "hasMore"],
         "properties": {
-          "page": {
-            "type": "integer",
-            "description": "Current page number.",
-            "example": 1
-          },
           "limit": {
             "type": "integer",
             "description": "Results per page.",
             "example": 50
           },
-          "total": {
-            "type": "integer",
-            "description": "Total number of results.",
-            "example": 127
-          },
           "hasMore": {
             "type": "boolean",
-            "description": "Whether there are more pages.",
+            "description": "Whether there are more results after this page. Use the last item's `domainId:key` as the `starting_after` cursor to fetch the next page.",
             "example": true
           }
         }
@@ -175,7 +165,7 @@
           "instance": {
             "type": "string",
             "description": "The request path that caused the error.",
-            "example": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
+            "example": "/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
           }
         }
       }
@@ -205,7 +195,7 @@
     }
   },
   "paths": {
-    "/links": {
+    "/v1/links": {
       "get": {
         "operationId": "listLinks",
         "summary": "List links",
@@ -213,14 +203,13 @@
         "tags": ["Links"],
         "parameters": [
           {
-            "name": "page",
+            "name": "starting_after",
             "in": "query",
             "required": false,
-            "description": "Page number (1-indexed).",
+            "description": "Cursor for pagination. Pass `{domainId}:{key}` from the last item of the previous page to fetch the next page.",
             "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1
+              "type": "string",
+              "example": "00000000-0000-0000-0000-000000000000:abc123"
             }
           },
           {
@@ -303,9 +292,7 @@
                     }
                   ],
                   "pagination": {
-                    "page": 1,
                     "limit": 50,
-                    "total": 127,
                     "hasMore": true
                   }
                 }
@@ -501,7 +488,7 @@
         }
       }
     },
-    "/links/{domainId}/{key}": {
+    "/v1/links/{domainId}/{key}": {
       "get": {
         "operationId": "getLink",
         "summary": "Get a link",
@@ -581,7 +568,7 @@
                   "title": "Not found",
                   "status": 404,
                   "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-                  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
+                  "instance": "/v1/links/00000000-0000-0000-0000-000000000000/abc123"
                 }
               }
             }
@@ -819,7 +806,7 @@
         }
       }
     },
-    "/links/{domainId}/{key}/clicks": {
+    "/v1/links/{domainId}/{key}/clicks": {
       "get": {
         "operationId": "getLinkClicks",
         "summary": "Get link clicks",
@@ -985,7 +972,7 @@
                   "title": "Not found",
                   "status": 404,
                   "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-                  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
+                  "instance": "/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
                 }
               }
             }
@@ -1009,7 +996,7 @@
         }
       }
     },
-    "/domains": {
+    "/v1/domains": {
       "get": {
         "operationId": "listDomains",
         "summary": "List domains",

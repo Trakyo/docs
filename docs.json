@@ -57,18 +57,18 @@
           {
             "group": "Links",
             "pages": [
-              "GET /links",
-              "POST /links",
-              "GET /links/{domainId}/{key}",
-              "PATCH /links/{domainId}/{key}",
-              "DELETE /links/{domainId}/{key}",
-              "GET /links/{domainId}/{key}/clicks"
+              "GET /v1/links",
+              "POST /v1/links",
+              "GET /v1/links/{domainId}/{key}",
+              "PATCH /v1/links/{domainId}/{key}",
+              "DELETE /v1/links/{domainId}/{key}",
+              "GET /v1/links/{domainId}/{key}/clicks"
             ]
           },
           {
             "group": "Domains",
             "pages": [
-              "GET /domains"
+              "GET /v1/domains"
             ]
           }
         ]

@@ -61,7 +61,12 @@
               "POST /v1/links",
               "GET /v1/links/{domainId}/{key}",
               "PATCH /v1/links/{domainId}/{key}",
-              "DELETE /v1/links/{domainId}/{key}",
+              "DELETE /v1/links/{domainId}/{key}"
+            ]
+          },
+          {
+            "group": "Analytics",
+            "pages": [
               "GET /v1/links/{domainId}/{key}/clicks"
             ]
           },

@@ -25,12 +25,39 @@ Successful responses return JSON with endpoint-specific fields.
 
 Error responses use [RFC 9457 Problem Details](/concepts/errors) with the `application/problem+json` content type.
 
+## Link identifier
+
+Links are identified by a composite key of `domainId` (UUID) + `key` (slug). Use the sentinel domain ID `00000000-0000-0000-0000-000000000000` for links on the default `trakyo.link` domain.
+
 ## Available endpoints
 
+### Links
+
 <CardGroup cols={1}>
+  <Card title="GET /links" icon="list">
+    List all short links with pagination, filtering, and sorting.
+  </Card>
+  <Card title="POST /links" icon="plus">
+    Create a new short link. Deduplicates automatically.
+  </Card>
+  <Card title="GET /links/{domainId}/{key}" icon="link">
+    Retrieve a single short link.
+  </Card>
+  <Card title="PATCH /links/{domainId}/{key}" icon="pen">
+    Update a link's destination URL or slug.
+  </Card>
+  <Card title="DELETE /links/{domainId}/{key}" icon="trash">
+    Delete a short link.
+  </Card>
   <Card title="GET /links/{domainId}/{key}/clicks" icon="chart-bar">
-    Get total click count for a short link, either all-time or last 24 hours.
+    Get click count with preset periods or custom date ranges.
   </Card>
 </CardGroup>
 
-More endpoints coming soon.
+### Domains
+
+<CardGroup cols={1}>
+  <Card title="GET /domains" icon="globe">
+    List all shortlink domains available to your account.
+  </Card>
+</CardGroup>

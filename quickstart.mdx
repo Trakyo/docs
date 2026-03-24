@@ -18,14 +18,14 @@ tky_live_1c126b6be11622008e729749f963c425
 <CodeGroup>
 ```bash curl
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "https://app.trakyo.io/api/v1/links/YOUR_DOMAIN_ID/YOUR_LINK_KEY/clicks"
+  "https://app.trakyo.io/api/v1/links"
 ```
 
 ```python Python
 import requests
 
 response = requests.get(
-    "https://app.trakyo.io/api/v1/links/YOUR_DOMAIN_ID/YOUR_LINK_KEY/clicks",
+    "https://app.trakyo.io/api/v1/links",
     headers={"Authorization": "Bearer YOUR_API_KEY"}
 )
 print(response.json())
@@ -33,7 +33,7 @@ print(response.json())
 
 ```javascript JavaScript
 const response = await fetch(
-  "https://app.trakyo.io/api/v1/links/YOUR_DOMAIN_ID/YOUR_LINK_KEY/clicks",
+  "https://app.trakyo.io/api/v1/links",
   { headers: { "Authorization": "Bearer YOUR_API_KEY" } }
 );
 const data = await response.json();
@@ -45,11 +45,80 @@ console.log(data);
 
 ```json
 {
-  "total_clicks": 42809
+  "links": [
+    {
+      "key": "abc123",
+      "url": "https://example.com/page",
+      "shortLink": "https://trakyo.link/abc123",
+      "domainId": "00000000-0000-0000-0000-000000000000",
+      "contentItemId": null,
+      "clicks": 42,
+      "isCustomSlug": false,
+      "lastClickedAt": "2026-03-20T15:30:00Z",
+      "createdAt": "2026-03-01T10:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 50,
+    "total": 1,
+    "hasMore": false
+  }
 }
 ```
 
-That's it. You can also pass `?period=24h` to get clicks from the last 24 hours only.
+## 4. Create a short link
+
+<CodeGroup>
+```bash curl
+curl -X POST "https://app.trakyo.io/api/v1/links" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com/my-page"}'
+```
+
+```python Python
+response = requests.post(
+    "https://app.trakyo.io/api/v1/links",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json"
+    },
+    json={"url": "https://example.com/my-page"}
+)
+print(response.json())
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://app.trakyo.io/api/v1/links",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer YOUR_API_KEY",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ url: "https://example.com/my-page" })
+  }
+);
+const data = await response.json();
+console.log(data);
+```
+</CodeGroup>
+
+```json
+{
+  "key": "a1b2c3d4",
+  "url": "https://example.com/my-page",
+  "shortLink": "https://trakyo.link/a1b2c3d4",
+  "domainId": "00000000-0000-0000-0000-000000000000",
+  "contentItemId": null,
+  "clicks": 0,
+  "isCustomSlug": false,
+  "lastClickedAt": null,
+  "createdAt": "2026-03-24T12:00:00Z"
+}
+```
 
 ## Next steps
 

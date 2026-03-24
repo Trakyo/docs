@@ -15,7 +15,7 @@ Every error response uses the `application/problem+json` content type and includ
   "title": "Not found",
   "status": 404,
   "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
+  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
 }
 ```
 
@@ -38,7 +38,7 @@ Invalid parameters or request body.
   "type": "https://trakyo.io/docs/errors/bad_request",
   "title": "Bad request",
   "status": 400,
-  "detail": "Invalid period 'weekly'. Must be 'all' or '24h'."
+  "detail": "Missing required field: url"
 }
 ```
 
@@ -91,7 +91,20 @@ Resource doesn't exist or doesn't belong to your account.
   "title": "Not found",
   "status": 404,
   "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
+  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
+}
+```
+
+### 409 -- Conflict
+
+Resource already exists (e.g., slug taken on a domain).
+
+```json
+{
+  "type": "https://trakyo.io/docs/errors/conflict",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "Slug 'my-page' is already taken on this domain."
 }
 ```
 

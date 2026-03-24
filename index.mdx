@@ -28,10 +28,16 @@ All API requests use the following base URL:
 https://app.trakyo.io/api/v1
 ```
 
-## Current Endpoints
+## Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /links/{domainId}/{key}/clicks` | Get click count for a short link (all-time or last 24h) |
+| `GET /links` | List all short links with pagination and filtering |
+| `POST /links` | Create a new short link |
+| `GET /links/{domainId}/{key}` | Get a single short link |
+| `PATCH /links/{domainId}/{key}` | Update a short link |
+| `DELETE /links/{domainId}/{key}` | Delete a short link |
+| `GET /links/{domainId}/{key}/clicks` | Get click count (all-time, preset period, or custom date range) |
+| `GET /domains` | List all shortlink domains |
 
-More endpoints are coming soon. If you need access to data not yet available via the API, reach out to support@trakyo.io.
+If you need access to data not yet available via the API, reach out to support@trakyo.io.

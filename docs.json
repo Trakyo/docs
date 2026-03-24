@@ -41,7 +41,13 @@
           },
           {
             "group": "Links",
-            "openapi": "api-reference/openapi.json"
+            "openapi": "api-reference/openapi.json",
+            "tag": "Links"
+          },
+          {
+            "group": "Domains",
+            "openapi": "api-reference/openapi.json",
+            "tag": "Domains"
           }
         ]
       }

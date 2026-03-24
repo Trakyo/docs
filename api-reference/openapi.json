@@ -3,7 +3,7 @@
   "info": {
     "title": "Trakyo API",
     "version": "1.0.0",
-    "description": "The Trakyo API lets you programmatically access your link analytics, tracking events, and lead data."
+    "description": "The Trakyo API lets you programmatically manage short links, custom domains, and click analytics."
   },
   "servers": [
     {
@@ -25,14 +25,125 @@
       }
     },
     "schemas": {
-      "ClicksResponse": {
+      "Link": {
         "type": "object",
-        "required": ["total_clicks"],
+        "required": ["key", "url", "shortLink", "domainId", "clicks", "isCustomSlug", "createdAt"],
         "properties": {
-          "total_clicks": {
+          "key": {
+            "type": "string",
+            "description": "The short link slug.",
+            "example": "abc123"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The destination URL.",
+            "example": "https://example.com/page"
+          },
+          "shortLink": {
+            "type": "string",
+            "format": "uri",
+            "description": "The full short link URL.",
+            "example": "https://trakyo.link/abc123"
+          },
+          "domainId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The shortlink domain ID.",
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          "contentItemId": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Associated content item ID, or null.",
+            "example": null
+          },
+          "clicks": {
             "type": "integer",
-            "description": "The number of clicks for the specified period.",
-            "example": 42809
+            "description": "Total click count.",
+            "example": 42
+          },
+          "isCustomSlug": {
+            "type": "boolean",
+            "description": "Whether the slug was user-provided.",
+            "example": false
+          },
+          "lastClickedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Timestamp of the last click, or null.",
+            "example": "2026-03-20T15:30:00Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the link was created.",
+            "example": "2026-03-01T10:00:00Z"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": ["page", "limit", "total", "hasMore"],
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number.",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Results per page.",
+            "example": 50
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of results.",
+            "example": 127
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more pages.",
+            "example": true
+          }
+        }
+      },
+      "Domain": {
+        "type": "object",
+        "required": ["id", "hostname", "isDefault", "linkCount", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The domain ID.",
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "The domain hostname.",
+            "example": "trakyo.link"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Whether this is the default Trakyo domain.",
+            "example": true
+          },
+          "defaultRedirectUrl": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "description": "Where to redirect when no slug matches, or null.",
+            "example": null
+          },
+          "linkCount": {
+            "type": "integer",
+            "description": "Number of links on this domain.",
+            "example": 85
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the domain was added.",
+            "example": "2026-01-01T00:00:00Z"
           }
         }
       },
@@ -68,46 +179,690 @@
           }
         }
       }
+    },
+    "parameters": {
+      "domainId": {
+        "name": "domainId",
+        "in": "path",
+        "required": true,
+        "description": "The shortlink domain ID (UUID). Use `00000000-0000-0000-0000-000000000000` for the default Trakyo domain.",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "example": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "key": {
+        "name": "key",
+        "in": "path",
+        "required": true,
+        "description": "The short link key (e.g., `abc12345`).",
+        "schema": {
+          "type": "string",
+          "example": "abc12345"
+        }
+      }
     }
   },
   "paths": {
-    "/links/{domainId}/{key}/clicks": {
+    "/links": {
       "get": {
-        "operationId": "getLinkClicks",
-        "summary": "Get click count for a link",
-        "description": "Returns the total number of clicks for a short link. Links are identified by the composite key of `domainId` + `key`. Use the sentinel domain ID `00000000-0000-0000-0000-000000000000` for links on the default Trakyo domain.",
+        "operationId": "listLinks",
+        "summary": "List links",
+        "description": "Returns a paginated list of all short links. Supports filtering by domain and sorting by creation date or click count.",
         "tags": ["Links"],
         "parameters": [
           {
-            "name": "domainId",
-            "in": "path",
-            "required": true,
-            "description": "The short link domain ID (UUID). Use `00000000-0000-0000-0000-000000000000` for the default Trakyo domain.",
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number (1-indexed).",
             "schema": {
-              "type": "string",
-              "format": "uuid",
-              "example": "00000000-0000-0000-0000-000000000000"
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
             }
           },
           {
-            "name": "key",
-            "in": "path",
-            "required": true,
-            "description": "The short link key (e.g., `abc12345`).",
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Results per page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "Field to sort by.",
             "schema": {
               "type": "string",
-              "example": "abc12345"
+              "enum": ["createdAt", "clicks"],
+              "default": "createdAt"
             }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "Sort direction.",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc"
+            }
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "description": "Filter by shortlink domain ID (UUID).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of links.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["links", "pagination"],
+                  "properties": {
+                    "links": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Link"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                },
+                "example": {
+                  "links": [
+                    {
+                      "key": "abc123",
+                      "url": "https://example.com/page",
+                      "shortLink": "https://trakyo.link/abc123",
+                      "domainId": "00000000-0000-0000-0000-000000000000",
+                      "contentItemId": null,
+                      "clicks": 42,
+                      "isCustomSlug": false,
+                      "lastClickedAt": "2026-03-20T15:30:00Z",
+                      "createdAt": "2026-03-01T10:00:00Z"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 50,
+                    "total": 127,
+                    "hasMore": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createLink",
+        "summary": "Create a link",
+        "description": "Creates a new short link. If a link with the same `url`, `contentItemId`, and `domain` already exists, returns the existing link with `200 OK` instead of creating a duplicate.",
+        "tags": ["Links"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["url"],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Destination URL. Must use `http` or `https` scheme. Cannot point to `trakyo.link`.",
+                    "example": "https://example.com/my-page"
+                  },
+                  "domain": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Shortlink domain ID. Defaults to the `trakyo.link` sentinel UUID if omitted.",
+                    "example": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "description": "Custom slug. Auto-generated 8-character hex string if omitted.",
+                    "example": "my-page"
+                  },
+                  "contentItemId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Associated content item ID."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Link created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                },
+                "example": {
+                  "key": "my-page",
+                  "url": "https://example.com/my-page",
+                  "shortLink": "https://trakyo.link/my-page",
+                  "domainId": "00000000-0000-0000-0000-000000000000",
+                  "contentItemId": null,
+                  "clicks": 0,
+                  "isCustomSlug": true,
+                  "lastClickedAt": null,
+                  "createdAt": "2026-03-24T12:00:00Z"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Existing link returned (deduplicated).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/bad_request",
+                  "title": "Bad request",
+                  "status": 400,
+                  "detail": "Missing required field: url"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain or content item not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/not_found",
+                  "title": "Not found",
+                  "status": 404,
+                  "detail": "Domain not found or not owned by this account."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Slug already taken on this domain.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/conflict",
+                  "title": "Conflict",
+                  "status": 409,
+                  "detail": "Slug 'my-page' is already taken on this domain."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/links/{domainId}/{key}": {
+      "get": {
+        "operationId": "getLink",
+        "summary": "Get a link",
+        "description": "Retrieves a single short link by its composite primary key (`domainId` + `key`).",
+        "tags": ["Links"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/domainId"
+          },
+          {
+            "$ref": "#/components/parameters/key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                },
+                "example": {
+                  "key": "abc123",
+                  "url": "https://example.com/page",
+                  "shortLink": "https://trakyo.link/abc123",
+                  "domainId": "00000000-0000-0000-0000-000000000000",
+                  "contentItemId": null,
+                  "clicks": 42,
+                  "isCustomSlug": false,
+                  "lastClickedAt": "2026-03-20T15:30:00Z",
+                  "createdAt": "2026-03-01T10:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain ID format.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/bad_request",
+                  "title": "Bad request",
+                  "status": 400,
+                  "detail": "Invalid domain ID format. Must be a UUID."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Link not found or does not belong to this account.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/not_found",
+                  "title": "Not found",
+                  "status": 404,
+                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
+                  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateLink",
+        "summary": "Update a link",
+        "description": "Updates a short link. Supports partial updates — at least one field (`url` or `slug`) must be provided. Slug changes invalidate the old KV cache and warm the new one.",
+        "tags": ["Links"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/domainId"
+          },
+          {
+            "$ref": "#/components/parameters/key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "New destination URL. Must use `http` or `https` scheme. Cannot point to `trakyo.link`.",
+                    "example": "https://example.com/updated-page"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "description": "New slug. Validated for format and uniqueness on the domain.",
+                    "example": "new-slug"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                },
+                "example": {
+                  "key": "new-slug",
+                  "url": "https://example.com/updated-page",
+                  "shortLink": "https://trakyo.link/new-slug",
+                  "domainId": "00000000-0000-0000-0000-000000000000",
+                  "contentItemId": null,
+                  "clicks": 42,
+                  "isCustomSlug": true,
+                  "lastClickedAt": "2026-03-20T15:30:00Z",
+                  "createdAt": "2026-03-01T10:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or domain ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/bad_request",
+                  "title": "Bad request",
+                  "status": 400,
+                  "detail": "At least one of 'url' or 'slug' is required."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Link not found or does not belong to this account.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/not_found",
+                  "title": "Not found",
+                  "status": 404,
+                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Slug already taken on this domain.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/conflict",
+                  "title": "Conflict",
+                  "status": 409,
+                  "detail": "Slug 'new-slug' is already taken on this domain."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteLink",
+        "summary": "Delete a link",
+        "description": "Deletes a short link and invalidates its KV cache. Returns the deleted link for confirmation.",
+        "tags": ["Links"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/domainId"
+          },
+          {
+            "$ref": "#/components/parameters/key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Link not found or does not belong to this account.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/not_found",
+                  "title": "Not found",
+                  "status": 404,
+                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/links/{domainId}/{key}/clicks": {
+      "get": {
+        "operationId": "getLinkClicks",
+        "summary": "Get link clicks",
+        "description": "Returns the click count for a short link. Supports preset time periods (`all`, `24h`, `7d`, `30d`, `90d`) or a custom date range via `startDate` and `endDate`. The `period` and date range parameters are mutually exclusive.\n\n`period=all` uses a denormalized counter for O(1) performance. All other modes query the tracking events table.",
+        "tags": ["Links"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/domainId"
+          },
+          {
+            "$ref": "#/components/parameters/key"
           },
           {
             "name": "period",
             "in": "query",
             "required": false,
-            "description": "Time period for click count. `all` returns lifetime clicks, `24h` returns clicks in the last 24 hours.",
+            "description": "Preset time period. Cannot be combined with `startDate`/`endDate`.",
             "schema": {
               "type": "string",
-              "enum": ["all", "24h"],
+              "enum": ["all", "24h", "7d", "30d", "90d"],
               "default": "all"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "description": "Start of a custom date range (ISO 8601). Must be used with `endDate`. Cannot be combined with `period`.",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-01-01T00:00:00.000Z"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "description": "End of a custom date range (ISO 8601). Must be used with `startDate`. Cannot be combined with `period`.",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-03-01T00:00:00.000Z"
             }
           }
         ],
@@ -117,19 +872,69 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ClicksResponse"
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["clicks", "period"],
+                      "properties": {
+                        "clicks": {
+                          "type": "integer",
+                          "description": "Number of clicks.",
+                          "example": 42
+                        },
+                        "period": {
+                          "type": "string",
+                          "description": "The time period used.",
+                          "example": "7d"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": ["clicks", "startDate", "endDate"],
+                      "properties": {
+                        "clicks": {
+                          "type": "integer",
+                          "description": "Number of clicks.",
+                          "example": 15
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Start of the date range.",
+                          "example": "2026-01-01T00:00:00.000Z"
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "End of the date range.",
+                          "example": "2026-03-01T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  ]
                 },
                 "examples": {
                   "all-time": {
                     "summary": "All-time clicks",
                     "value": {
-                      "total_clicks": 42809
+                      "clicks": 42809,
+                      "period": "all"
                     }
                   },
-                  "24h": {
-                    "summary": "Last 24 hours",
+                  "7d": {
+                    "summary": "Last 7 days",
                     "value": {
-                      "total_clicks": 156
+                      "clicks": 312,
+                      "period": "7d"
+                    }
+                  },
+                  "custom-range": {
+                    "summary": "Custom date range",
+                    "value": {
+                      "clicks": 15,
+                      "startDate": "2026-01-01T00:00:00.000Z",
+                      "endDate": "2026-03-01T00:00:00.000Z"
                     }
                   }
                 }
@@ -147,7 +952,7 @@
                   "type": "https://trakyo.io/docs/errors/bad_request",
                   "title": "Bad request",
                   "status": 400,
-                  "detail": "Invalid period 'weekly'. Must be 'all' or '24h'."
+                  "detail": "Cannot combine 'period' with 'startDate'/'endDate'."
                 }
               }
             }
@@ -181,6 +986,87 @@
                   "status": 404,
                   "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
                   "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/rate_limited",
+                  "title": "Rate limited",
+                  "status": 429,
+                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains": {
+      "get": {
+        "operationId": "listDomains",
+        "summary": "List domains",
+        "description": "Returns all shortlink domains available to the authenticated user. The default `trakyo.link` domain is always listed first.",
+        "tags": ["Domains"],
+        "responses": {
+          "200": {
+            "description": "List of domains.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["domains"],
+                  "properties": {
+                    "domains": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Domain"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "domains": [
+                    {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "hostname": "trakyo.link",
+                      "isDefault": true,
+                      "defaultRedirectUrl": null,
+                      "linkCount": 85,
+                      "createdAt": "2026-01-01T00:00:00Z"
+                    },
+                    {
+                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "hostname": "go.mybrand.com",
+                      "isDefault": false,
+                      "defaultRedirectUrl": "https://mybrand.com",
+                      "linkCount": 12,
+                      "createdAt": "2026-02-15T10:00:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://trakyo.io/docs/errors/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "detail": "Invalid API key."
                 }
               }
             }

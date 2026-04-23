@@ -18,11 +18,12 @@ The resource you requested could not be found, or it belongs to a different acco
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/not_found",
-  "title": "Not found",
-  "status": 404,
-  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
+  "error": {
+    "code": "not_found",
+    "message": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000'.",
+    "doc_url": "https://trakyo.io/docs/errors/not_found",
+    "request_id": "req_7e31..."
+  }
 }
 ```
 

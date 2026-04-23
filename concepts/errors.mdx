@@ -1,43 +1,48 @@
 ---
 title: "Errors"
-description: "How the Trakyo API reports errors using RFC 9457 Problem Details."
+description: "How the Trakyo API reports errors."
 ---
 
-The Trakyo API uses [RFC 9457 (Problem Details for HTTP APIs)](https://www.rfc-editor.org/rfc/rfc9457.html) for all error responses. This is the same standard used by Cloudflare, Stripe, and other major APIs.
+The Trakyo API uses a nested `error` envelope for all failure responses, matching the Stripe, Google, and Microsoft Graph convention that most SDK generators and retry libraries expect.
 
 ## Error format
 
-Every error response uses the `application/problem+json` content type and includes these fields:
+Every error response uses `Content-Type: application/json` and this shape:
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/not_found",
-  "title": "Not found",
-  "status": 404,
-  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-  "instance": "/api/v1/links/00000000-0000-0000-0000-000000000000/abc123"
+  "error": {
+    "code": "not_found",
+    "message": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000'.",
+    "doc_url": "https://trakyo.io/docs/errors/not_found",
+    "request_id": "req_7e31c1a4e9ab4c9d8f2a3b1c5d6e7f80",
+    "param": "key"
+  }
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `type` | string | URI identifying the error. Links to this documentation. |
-| `title` | string | Short human-readable summary. |
-| `status` | integer | HTTP status code. |
-| `detail` | string | Detailed explanation of what went wrong. |
-| `instance` | string | The request path that caused the error (when applicable). |
+| `code` | string | Stable machine-readable error code — pattern-match against this, not `message`. |
+| `message` | string | Human-readable explanation. May change over time. |
+| `doc_url` | string | Canonical link to this error's documentation page. |
+| `request_id` | string | Unique ID for this request. Also returned as the `X-Request-Id` response header. Include it in support requests. |
+| `param` | string | Optional. Names the specific field that caused the error (validation errors). |
+| `details` | array | Optional. Structured extras — typically per-field validation errors. |
 
 ## Error codes
 
-The `type` field in every error is a URL that links to a detailed reference page for that error.
-
 | Status | Code | Description |
 |--------|------|-------------|
-| 400 | [bad_request](/errors/bad_request) | Invalid parameters or request body |
-| 401 | [unauthorized](/errors/unauthorized) | Missing or invalid API key |
-| 401 | [key_expired](/errors/key_expired) | API key has expired |
-| 403 | [forbidden](/errors/forbidden) | API key doesn't have access to this resource |
+| 400 | [bad_request](/errors/bad_request) | Invalid URL parameters, malformed body, or mutually-exclusive fields |
+| 401 | [unauthorized](/errors/unauthorized) | Missing, invalid, or expired API key |
+| 403 | [forbidden](/errors/forbidden) | Key is valid but lacks access to the resource |
 | 404 | [not_found](/errors/not_found) | Resource doesn't exist or doesn't belong to your account |
 | 409 | [conflict](/errors/conflict) | Resource already exists (e.g., slug taken) |
-| 429 | [rate_limited](/errors/rate_limited) | Too many requests |
-| 500 | [internal_error](/errors/internal_error) | Something went wrong on our end |
+| 422 | [unprocessable_entity](/errors/unprocessable_entity) | Body was valid JSON but failed schema validation |
+| 429 | [rate_limit_exceeded](/errors/rate_limit_exceeded) | Too many requests |
+| 500 | [internal_server_error](/errors/internal_server_error) | Something went wrong on our end |
+
+## Request IDs
+
+Every response — success or error — carries an `X-Request-Id` header with a value like `req_3f02586b7266c812ce7f7937bb9c9e8e`. Error bodies include the same value as `request_id`. When filing a support ticket, include this ID so we can trace the exact request.

@@ -1,27 +1,42 @@
 ---
 title: "Unauthorized"
-description: "Missing or invalid API key."
+description: "Missing, invalid, or expired API key."
 ---
 
 ## 401 — Unauthorized
 
-The request did not include a valid API key.
+The request did not include a valid API key, or the key has expired.
 
 ### Common causes
 
 - Missing `Authorization` header
 - Incorrect header format (must be `Authorization: Bearer tky_...`)
-- Revoked or deactivated API key
+- Revoked, deactivated, or expired API key
 - Typo in the API key
 
 ### Example response
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/unauthorized",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Invalid API key."
+  "error": {
+    "code": "unauthorized",
+    "message": "Invalid API key.",
+    "doc_url": "https://trakyo.io/docs/errors/unauthorized",
+    "request_id": "req_9bb9b4d8bb5d71681021704b17395995"
+  }
+}
+```
+
+Expired keys return the same `unauthorized` code with a distinct message:
+
+```json
+{
+  "error": {
+    "code": "unauthorized",
+    "message": "API key has expired. Generate a new key in your Trakyo dashboard.",
+    "doc_url": "https://trakyo.io/docs/errors/unauthorized",
+    "request_id": "req_3a2f..."
+  }
 }
 ```
 
@@ -33,4 +48,4 @@ Ensure your request includes the header:
 Authorization: Bearer tky_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-Generate a new key from your [Trakyo dashboard](https://app.trakyo.io) if your current key is no longer valid. See [Authentication](/authentication) for details.
+If your current key is revoked or expired, generate a new one from your [Trakyo dashboard](https://app.trakyo.io). See [Authentication](/authentication) for details.

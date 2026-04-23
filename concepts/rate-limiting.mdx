@@ -16,13 +16,13 @@ Limits are applied per API key.
 
 ## Response headers
 
-Every authenticated response includes rate limit headers:
+Every authenticated response includes two header families — the GitHub/legacy form and the in-progress [IETF `RateLimit` draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/). Both carry the same information, so clients can parse whichever they prefer.
 
-| Header | Description | Example |
-|--------|-------------|---------|
-| `x-ratelimit-limit` | Maximum requests per window | `120` |
-| `x-ratelimit-remaining` | Requests remaining in current window | `117` |
-| `x-ratelimit-reset` | UTC epoch seconds when the window resets | `1711324800` |
+| Header (legacy) | Header (IETF draft) | Description | Example |
+|---|---|---|---|
+| `X-RateLimit-Limit` | `RateLimit-Limit` | Maximum requests per window | `120` |
+| `X-RateLimit-Remaining` | `RateLimit-Remaining` | Requests remaining in current window | `117` |
+| `X-RateLimit-Reset` | `RateLimit-Reset` | Legacy: UTC epoch seconds when the window resets. IETF: seconds until reset. | `1711324800` / `60` |
 
 ## Rate limit response
 
@@ -30,10 +30,12 @@ When you exceed the limit, the API returns a `429` status with a `Retry-After` h
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/rate_limited",
-  "title": "Rate limited",
-  "status": 429,
-  "detail": "Rate limit exceeded. Max 120 requests per minute."
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Rate limit exceeded. Max 120 requests per 60 seconds.",
+    "doc_url": "https://trakyo.io/docs/errors/rate_limit_exceeded",
+    "request_id": "req_9e8b..."
+  }
 }
 ```
 
@@ -41,7 +43,7 @@ The `Retry-After` header indicates how many seconds to wait before retrying.
 
 ## Best practices
 
-- **Cache responses** when possible. All-time click counts change slowly -- caching for 60 seconds is safe.
+- **Cache responses** when possible. All-time click counts change slowly — caching for 60 seconds is safe.
 - **Batch your requests** rather than making them one at a time. If you're fetching clicks for 62 links, you have budget for all of them within one minute (62 x 2 = 124 requests, just over the limit). Space them slightly or make two batches.
 - **Use exponential backoff** when you receive a 429. Wait the `Retry-After` duration, then retry with increasing delays.
 - **Don't poll more often than needed.** Hourly updates are sufficient for most leaderboard use cases.

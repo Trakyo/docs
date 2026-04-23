@@ -25,7 +25,7 @@ Full example: `tky_live_1c126b6be11622008e729749f963c425`
 
 ## Key management
 
-- Keys are **account-level** -- they grant access to the account's data regardless of which team member created them.
+- Keys are **account-level** — they grant access to the account's data regardless of which team member created them.
 - The full key is shown **once** at creation. Store it securely.
 - Keys can be revoked at any time from the Trakyo dashboard.
 
@@ -38,24 +38,17 @@ Full example: `tky_live_1c126b6be11622008e729749f963c425`
 
 ## Error responses
 
-Missing or invalid keys return a `401` error:
+Missing, invalid, or expired keys all return a `401` with code `unauthorized`. The `message` field distinguishes the cause:
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/unauthorized",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Invalid API key."
+  "error": {
+    "code": "unauthorized",
+    "message": "Invalid API key.",
+    "doc_url": "https://trakyo.io/docs/errors/unauthorized",
+    "request_id": "req_9bb9b4d8bb5d71681021704b17395995"
+  }
 }
 ```
 
-Expired keys return a distinct error:
-
-```json
-{
-  "type": "https://trakyo.io/docs/errors/key_expired",
-  "title": "API key expired",
-  "status": 401,
-  "detail": "API key has expired. Generate a new key in your Trakyo dashboard."
-}
-```
+See the [unauthorized error reference](/errors/unauthorized) for the full list of `message` variants (missing header, bad format, invalid key, expired key).

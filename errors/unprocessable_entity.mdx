@@ -1,0 +1,38 @@
+---
+title: "Unprocessable Entity"
+description: "The request body was well-formed but failed schema validation."
+---
+
+## 422 — Unprocessable Entity
+
+The request was syntactically valid JSON but failed one or more schema checks — for example, a required field was missing, a value was out of range, or a field had the wrong type.
+
+Where `bad_request` (400) covers malformed requests and invalid URL parameters, `unprocessable_entity` covers semantic validation failures on a well-formed body.
+
+### Example response
+
+```json
+{
+  "error": {
+    "code": "unprocessable_entity",
+    "message": "Expected string, received number.",
+    "doc_url": "https://trakyo.io/docs/errors/unprocessable_entity",
+    "request_id": "req_5c9d...",
+    "param": "url",
+    "details": [
+      {
+        "path": ["url"],
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "number"
+      }
+    ]
+  }
+}
+```
+
+The `details` array, when present, contains per-field validation errors.
+
+### How to fix
+
+Inspect `param` and `details` to identify which field failed and why. Adjust your request payload to match the endpoint's documented schema in the [API Reference](/api-reference/introduction).

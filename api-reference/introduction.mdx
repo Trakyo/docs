@@ -21,13 +21,15 @@ See [Authentication](/authentication) for details on obtaining and managing API 
 
 ## Response format
 
-Successful responses return JSON with endpoint-specific fields.
+Successful responses return JSON with endpoint-specific fields. List endpoints return a Stripe-style envelope: `{ "object": "list", "data": [...], "has_more": boolean, "url": "/v1/..." }`.
 
-Error responses use [RFC 9457 Problem Details](/concepts/errors) with the `application/problem+json` content type.
+Error responses use a nested `error` envelope — see [Errors](/concepts/errors) for the full shape.
+
+Every response (success or error) carries an `X-Request-Id` header (`req_<hex>`). Include it when reporting issues — error bodies expose the same value as `request_id`.
 
 ## CORS
 
-The API allows cross-origin requests from any origin (`Access-Control-Allow-Origin: *`). Rate limit headers are exposed to browsers via `Access-Control-Expose-Headers`.
+The API allows cross-origin requests from any origin (`Access-Control-Allow-Origin: *`). Rate-limit headers and `X-Request-Id` are exposed to browsers via `Access-Control-Expose-Headers`.
 
 ## Idempotency
 

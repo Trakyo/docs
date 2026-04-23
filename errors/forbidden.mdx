@@ -16,10 +16,12 @@ Your API key is valid but does not have permission to access the requested resou
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/forbidden",
-  "title": "Forbidden",
-  "status": 403,
-  "detail": "Account not found for this API key."
+  "error": {
+    "code": "forbidden",
+    "message": "Account not found for this API key.",
+    "doc_url": "https://trakyo.io/docs/errors/forbidden",
+    "request_id": "req_1b8c..."
+  }
 }
 ```
 

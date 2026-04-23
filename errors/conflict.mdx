@@ -16,10 +16,13 @@ The request conflicts with an existing resource.
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/conflict",
-  "title": "Conflict",
-  "status": 409,
-  "detail": "Slug 'my-page' is already taken on this domain."
+  "error": {
+    "code": "conflict",
+    "message": "Slug already in use on this domain.",
+    "doc_url": "https://trakyo.io/docs/errors/conflict",
+    "request_id": "req_4d1f...",
+    "param": "slug"
+  }
 }
 ```
 

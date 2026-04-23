@@ -1,0 +1,35 @@
+---
+title: "Rate Limit Exceeded"
+description: "Too many requests. Slow down and retry."
+---
+
+## 429 — Rate Limit Exceeded
+
+You have exceeded the maximum number of requests allowed per minute.
+
+### Limits
+
+| Tier | Limit |
+|------|-------|
+| Default | 120 requests per minute per API key |
+
+### Example response
+
+```json
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Rate limit exceeded. Max 120 requests per 60 seconds.",
+    "doc_url": "https://trakyo.io/docs/errors/rate_limit_exceeded",
+    "request_id": "req_9e8b..."
+  }
+}
+```
+
+The response includes a `Retry-After` header indicating how many seconds to wait before retrying, plus the full rate-limit header set (see [Rate Limiting](/concepts/rate-limiting)).
+
+### How to fix
+
+Wait the duration indicated by `Retry-After`, then retry. Implement exponential backoff in your client. If you consistently need higher limits, contact support@trakyo.io.
+
+See [Rate Limiting](/concepts/rate-limiting) for best practices.

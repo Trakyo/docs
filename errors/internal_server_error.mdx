@@ -1,9 +1,9 @@
 ---
-title: "Internal Error"
+title: "Internal Server Error"
 description: "Something went wrong on our end."
 ---
 
-## 500 — Internal Error
+## 500 — Internal Server Error
 
 An unexpected error occurred while processing your request. This is our fault, not yours.
 
@@ -11,10 +11,12 @@ An unexpected error occurred while processing your request. This is our fault, n
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/internal_error",
-  "title": "Internal error",
-  "status": 500,
-  "detail": "An unexpected error occurred."
+  "error": {
+    "code": "internal_server_error",
+    "message": "An unexpected error occurred.",
+    "doc_url": "https://trakyo.io/docs/errors/internal_server_error",
+    "request_id": "req_6b14..."
+  }
 }
 ```
 
@@ -24,4 +26,5 @@ Retry the request. If the error persists, contact support@trakyo.io with:
 
 - The endpoint you called
 - The approximate time of the request
+- The `request_id` from the error response
 - The full error response body

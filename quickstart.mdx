@@ -45,7 +45,8 @@ console.log(data);
 
 ```json
 {
-  "links": [
+  "object": "list",
+  "data": [
     {
       "key": "abc123",
       "url": "https://example.com/page",
@@ -54,16 +55,20 @@ console.log(data);
       "contentItemId": null,
       "clicks": 42,
       "isCustomSlug": false,
+      "appendTrackingParam": true,
+      "ogTitle": null,
+      "ogDescription": null,
+      "ogImage": null,
       "lastClickedAt": "2026-03-20T15:30:00Z",
       "createdAt": "2026-03-01T10:00:00Z"
     }
   ],
-  "pagination": {
-    "limit": 50,
-    "hasMore": false
-  }
+  "has_more": false,
+  "url": "/v1/links"
 }
 ```
+
+List endpoints use Stripe-style cursor pagination. Pass the last result's `{domainId}:{key}` as `starting_after` to fetch the next page, and check `has_more` to know when you're done.
 
 ## 4. Create a short link
 

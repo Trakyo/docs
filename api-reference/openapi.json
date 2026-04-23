@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Trakyo API",
-    "version": "1.0.0",
     "description": "Public API for managing short links, custom domains, and click analytics.",
+    "version": "1.0.0",
     "contact": {
       "name": "Trakyo",
       "url": "https://trakyo.io"
@@ -25,313 +25,279 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "API key with `tky_` prefix. Pass as: `Authorization: Bearer tky_live_...`"
-      }
-    },
-    "schemas": {
-      "Link": {
-        "type": "object",
-        "required": ["key", "url", "shortLink", "domainId", "contentItemId", "clicks", "isCustomSlug", "lastClickedAt", "createdAt"],
-        "properties": {
-          "key": {
-            "type": "string",
-            "description": "The short link slug.",
-            "example": "abc123"
-          },
-          "url": {
-            "type": "string",
-            "format": "uri",
-            "description": "The destination URL.",
-            "example": "https://example.com/page"
-          },
-          "shortLink": {
-            "type": "string",
-            "format": "uri",
-            "description": "The full short link URL.",
-            "example": "https://trakyo.link/abc123"
-          },
-          "domainId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The shortlink domain ID.",
-            "example": "00000000-0000-0000-0000-000000000000"
-          },
-          "contentItemId": {
-            "type": ["string", "null"],
-            "format": "uuid",
-            "description": "Associated content item ID, or null.",
-            "example": null
-          },
-          "clicks": {
-            "type": "integer",
-            "description": "Total click count.",
-            "example": 42
-          },
-          "isCustomSlug": {
-            "type": "boolean",
-            "description": "Whether the slug was user-provided.",
-            "example": false
-          },
-          "lastClickedAt": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "Timestamp of the last click, or null.",
-            "example": "2026-03-20T15:30:00Z"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the link was created.",
-            "example": "2026-03-01T10:00:00Z"
-          }
-        }
-      },
-      "Pagination": {
-        "type": "object",
-        "required": ["limit", "hasMore"],
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "description": "Results per page.",
-            "example": 50
-          },
-          "hasMore": {
-            "type": "boolean",
-            "description": "Whether there are more results after this page. Use the last item's `domainId:key` as the `starting_after` cursor to fetch the next page.",
-            "example": true
-          }
-        }
-      },
-      "Domain": {
-        "type": "object",
-        "required": ["id", "hostname", "isDefault", "linkCount", "createdAt"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The domain ID.",
-            "example": "00000000-0000-0000-0000-000000000000"
-          },
-          "hostname": {
-            "type": "string",
-            "description": "The domain hostname.",
-            "example": "trakyo.link"
-          },
-          "isDefault": {
-            "type": "boolean",
-            "description": "Whether this is the default Trakyo domain.",
-            "example": true
-          },
-          "defaultRedirectUrl": {
-            "type": ["string", "null"],
-            "format": "uri",
-            "description": "Where to redirect when no slug matches, or null.",
-            "example": null
-          },
-          "linkCount": {
-            "type": "integer",
-            "description": "Number of links on this domain.",
-            "example": 85
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the domain was added.",
-            "example": "2026-01-01T00:00:00Z"
-          }
-        }
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "required": ["type", "title", "status", "detail"],
-        "description": "Error response following [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) (Problem Details for HTTP APIs).",
-        "properties": {
-          "type": {
-            "type": "string",
-            "format": "uri",
-            "description": "A URI identifying the error type. Resolves to documentation.",
-            "example": "https://trakyo.io/docs/errors/not_found"
-          },
-          "title": {
-            "type": "string",
-            "description": "A short human-readable summary of the error.",
-            "example": "Not found"
-          },
-          "status": {
-            "type": "integer",
-            "description": "The HTTP status code.",
-            "example": 404
-          },
-          "detail": {
-            "type": "string",
-            "description": "A human-readable explanation of the error.",
-            "example": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account."
-          },
-          "instance": {
-            "type": "string",
-            "description": "The request path that caused the error.",
-            "example": "/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
-          }
-        }
-      }
-    },
-    "parameters": {
-      "domainId": {
-        "name": "domainId",
-        "in": "path",
-        "required": true,
-        "description": "The shortlink domain ID (UUID). Use `00000000-0000-0000-0000-000000000000` for the default Trakyo domain.",
-        "schema": {
-          "type": "string",
-          "format": "uuid",
-          "example": "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "key": {
-        "name": "key",
-        "in": "path",
-        "required": true,
-        "description": "The short link key (e.g., `abc12345`).",
-        "schema": {
-          "type": "string",
-          "example": "abc12345"
-        }
+        "description": "API key (starts with tky_)"
       }
     }
   },
+  "tags": [
+    {
+      "name": "Links",
+      "description": "Short link CRUD operations"
+    },
+    {
+      "name": "Analytics",
+      "description": "Click analytics and metrics"
+    },
+    {
+      "name": "Domains",
+      "description": "Custom shortlink domain management"
+    }
+  ],
   "paths": {
     "/v1/links": {
       "get": {
-        "operationId": "listLinks",
-        "summary": "List links",
-        "description": "Returns a paginated list of all short links. Supports filtering by domain and sorting by creation date or click count.",
-        "tags": ["Links"],
-        "parameters": [
-          {
-            "name": "starting_after",
-            "in": "query",
-            "required": false,
-            "description": "Cursor for pagination. Pass `{domainId}:{key}` from the last item of the previous page to fetch the next page.",
-            "schema": {
-              "type": "string",
-              "example": "00000000-0000-0000-0000-000000000000:abc123"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "description": "Results per page.",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 50
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "required": false,
-            "description": "Field to sort by.",
-            "schema": {
-              "type": "string",
-              "enum": ["createdAt", "clicks"],
-              "default": "createdAt"
-            }
-          },
-          {
-            "name": "order",
-            "in": "query",
-            "required": false,
-            "description": "Sort direction.",
-            "schema": {
-              "type": "string",
-              "enum": ["asc", "desc"],
-              "default": "desc"
-            }
-          },
-          {
-            "name": "domain",
-            "in": "query",
-            "required": false,
-            "description": "Filter by shortlink domain ID (UUID).",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
+        "operationId": "getV1Links",
+        "tags": [
+          "Links"
         ],
+        "summary": "List short links",
+        "description": "Paginated list of short links owned by the authenticated user. Uses Stripe-style cursor pagination (`starting_after` / `ending_before` / `limit`).",
         "responses": {
           "200": {
-            "description": "Paginated list of links.",
+            "description": "List of links",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": ["links", "pagination"],
                   "properties": {
-                    "links": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Link"
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "shortLink": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "domainId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "contentItemId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "clicks": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "isCustomSlug": {
+                            "type": "boolean"
+                          },
+                          "appendTrackingParam": {
+                            "type": "boolean"
+                          },
+                          "ogTitle": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "ogDescription": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "ogImage": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "lastClickedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "url",
+                          "shortLink",
+                          "domainId",
+                          "contentItemId",
+                          "clicks",
+                          "isCustomSlug",
+                          "appendTrackingParam",
+                          "ogTitle",
+                          "ogDescription",
+                          "ogImage",
+                          "lastClickedAt",
+                          "createdAt"
+                        ]
                       }
                     },
-                    "pagination": {
-                      "$ref": "#/components/schemas/Pagination"
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "url": {
+                      "type": "string"
                     }
-                  }
-                },
-                "example": {
-                  "links": [
-                    {
-                      "key": "abc123",
-                      "url": "https://example.com/page",
-                      "shortLink": "https://trakyo.link/abc123",
-                      "domainId": "00000000-0000-0000-0000-000000000000",
-                      "contentItemId": null,
-                      "clicks": 42,
-                      "isCustomSlug": false,
-                      "lastClickedAt": "2026-03-20T15:30:00Z",
-                      "createdAt": "2026-03-01T10:00:00Z"
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "url"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
                     }
-                  ],
-                  "pagination": {
-                    "limit": 50,
-                    "hasMore": true
-                  }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "Missing or invalid API key.",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
@@ -339,153 +305,403 @@
         }
       },
       "post": {
-        "operationId": "createLink",
-        "summary": "Create a link",
-        "description": "Creates a new short link. If a link with the same `url`, `contentItemId`, and `domain` already exists, returns the existing link with `200 OK` instead of creating a duplicate.",
-        "tags": ["Links"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["url"],
-                "properties": {
-                  "url": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "Destination URL. Must use `http` or `https` scheme. Cannot point to `trakyo.link`.",
-                    "example": "https://example.com/my-page"
-                  },
-                  "domain": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Shortlink domain ID. Defaults to the `trakyo.link` sentinel UUID if omitted.",
-                    "example": "00000000-0000-0000-0000-000000000000"
-                  },
-                  "slug": {
-                    "type": "string",
-                    "description": "Custom slug. Auto-generated 8-character hex string if omitted.",
-                    "example": "my-page"
-                  },
-                  "contentItemId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Associated content item ID."
-                  }
-                }
-              }
-            }
-          }
-        },
+        "operationId": "postV1Links",
+        "tags": [
+          "Links"
+        ],
+        "summary": "Create a short link",
+        "description": "Creates a new short link. Returns existing link (200) if same url + contentItemId + domain already exists (dedup). Returns 201 for new links.",
         "responses": {
-          "201": {
-            "description": "Link created.",
+          "200": {
+            "description": "Existing link returned (dedup)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Link"
-                },
-                "example": {
-                  "key": "my-page",
-                  "url": "https://example.com/my-page",
-                  "shortLink": "https://trakyo.link/my-page",
-                  "domainId": "00000000-0000-0000-0000-000000000000",
-                  "contentItemId": null,
-                  "clicks": 0,
-                  "isCustomSlug": true,
-                  "lastClickedAt": null,
-                  "createdAt": "2026-03-24T12:00:00Z"
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "shortLink": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "domainId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "contentItemId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "clicks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "isCustomSlug": {
+                      "type": "boolean"
+                    },
+                    "appendTrackingParam": {
+                      "type": "boolean"
+                    },
+                    "ogTitle": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogDescription": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogImage": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastClickedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "url",
+                    "shortLink",
+                    "domainId",
+                    "contentItemId",
+                    "clicks",
+                    "isCustomSlug",
+                    "appendTrackingParam",
+                    "ogTitle",
+                    "ogDescription",
+                    "ogImage",
+                    "lastClickedAt",
+                    "createdAt"
+                  ]
                 }
               }
             }
           },
-          "200": {
-            "description": "Existing link returned (deduplicated).",
+          "201": {
+            "description": "Link created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Link"
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "shortLink": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "domainId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "contentItemId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "clicks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "isCustomSlug": {
+                      "type": "boolean"
+                    },
+                    "appendTrackingParam": {
+                      "type": "boolean"
+                    },
+                    "ogTitle": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogDescription": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogImage": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastClickedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "url",
+                    "shortLink",
+                    "domainId",
+                    "contentItemId",
+                    "clicks",
+                    "isCustomSlug",
+                    "appendTrackingParam",
+                    "ogTitle",
+                    "ogDescription",
+                    "ogImage",
+                    "lastClickedAt",
+                    "createdAt"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request body.",
+            "description": "Invalid input",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/bad_request",
-                  "title": "Bad request",
-                  "status": 400,
-                  "detail": "Missing required field: url"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "404": {
-            "description": "Domain or content item not found.",
+            "description": "Domain or content item not found",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/not_found",
-                  "title": "Not found",
-                  "status": 404,
-                  "detail": "Domain not found or not owned by this account."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "409": {
-            "description": "Slug already taken on this domain.",
+            "description": "Slug already in use",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/conflict",
-                  "title": "Conflict",
-                  "status": 409,
-                  "detail": "Slug 'my-page' is already taken on this domain."
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
@@ -495,586 +711,1077 @@
     },
     "/v1/links/{domainId}/{key}": {
       "get": {
-        "operationId": "getLink",
-        "summary": "Get a link",
-        "description": "Retrieves a single short link by its composite primary key (`domainId` + `key`).",
-        "tags": ["Links"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/domainId"
-          },
-          {
-            "$ref": "#/components/parameters/key"
-          }
+        "operationId": "getV1LinksByDomainIdByKey",
+        "tags": [
+          "Links"
         ],
+        "summary": "Retrieve a short link",
+        "description": "Get a single short link by its composite primary key (domainId + key).",
         "responses": {
           "200": {
-            "description": "The link.",
+            "description": "Link details",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Link"
-                },
-                "example": {
-                  "key": "abc123",
-                  "url": "https://example.com/page",
-                  "shortLink": "https://trakyo.link/abc123",
-                  "domainId": "00000000-0000-0000-0000-000000000000",
-                  "contentItemId": null,
-                  "clicks": 42,
-                  "isCustomSlug": false,
-                  "lastClickedAt": "2026-03-20T15:30:00Z",
-                  "createdAt": "2026-03-01T10:00:00Z"
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "shortLink": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "domainId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "contentItemId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "clicks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "isCustomSlug": {
+                      "type": "boolean"
+                    },
+                    "appendTrackingParam": {
+                      "type": "boolean"
+                    },
+                    "ogTitle": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogDescription": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogImage": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastClickedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "url",
+                    "shortLink",
+                    "domainId",
+                    "contentItemId",
+                    "clicks",
+                    "isCustomSlug",
+                    "appendTrackingParam",
+                    "ogTitle",
+                    "ogDescription",
+                    "ogImage",
+                    "lastClickedAt",
+                    "createdAt"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid domain ID format.",
+            "description": "Invalid parameters",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/bad_request",
-                  "title": "Bad request",
-                  "status": 400,
-                  "detail": "Invalid domain ID format. Must be a UUID."
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "404": {
-            "description": "Link not found or does not belong to this account.",
+            "description": "Link not found",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/not_found",
-                  "title": "Not found",
-                  "status": 404,
-                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-                  "instance": "/v1/links/00000000-0000-0000-0000-000000000000/abc123"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "operationId": "updateLink",
-        "summary": "Update a link",
-        "description": "Updates a short link. Supports partial updates — at least one field (`url` or `slug`) must be provided. Slug changes invalidate the old KV cache and warm the new one.",
-        "tags": ["Links"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/domainId"
-          },
-          {
-            "$ref": "#/components/parameters/key"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "url": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "New destination URL. Must use `http` or `https` scheme. Cannot point to `trakyo.link`.",
-                    "example": "https://example.com/updated-page"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
                   },
-                  "slug": {
-                    "type": "string",
-                    "description": "New slug. Validated for format and uniqueness on the domain.",
-                    "example": "new-slug"
-                  }
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           }
         },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "domainId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "patchV1LinksByDomainIdByKey",
+        "tags": [
+          "Links"
+        ],
+        "summary": "Update a short link",
+        "description": "Partial update of a short link. Supports changing destination URL, slug, OG fields, and/or the append-tracking-param flag. At least one field required.",
         "responses": {
           "200": {
-            "description": "Updated link.",
+            "description": "Updated link",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Link"
-                },
-                "example": {
-                  "key": "new-slug",
-                  "url": "https://example.com/updated-page",
-                  "shortLink": "https://trakyo.link/new-slug",
-                  "domainId": "00000000-0000-0000-0000-000000000000",
-                  "contentItemId": null,
-                  "clicks": 42,
-                  "isCustomSlug": true,
-                  "lastClickedAt": "2026-03-20T15:30:00Z",
-                  "createdAt": "2026-03-01T10:00:00Z"
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "shortLink": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "domainId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "contentItemId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "clicks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "isCustomSlug": {
+                      "type": "boolean"
+                    },
+                    "appendTrackingParam": {
+                      "type": "boolean"
+                    },
+                    "ogTitle": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogDescription": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogImage": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastClickedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "url",
+                    "shortLink",
+                    "domainId",
+                    "contentItemId",
+                    "clicks",
+                    "isCustomSlug",
+                    "appendTrackingParam",
+                    "ogTitle",
+                    "ogDescription",
+                    "ogImage",
+                    "lastClickedAt",
+                    "createdAt"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request body or domain ID.",
+            "description": "Invalid input",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/bad_request",
-                  "title": "Bad request",
-                  "status": 400,
-                  "detail": "At least one of 'url' or 'slug' is required."
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "404": {
-            "description": "Link not found or does not belong to this account.",
+            "description": "Link not found",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/not_found",
-                  "title": "Not found",
-                  "status": 404,
-                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "409": {
-            "description": "Slug already taken on this domain.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/conflict",
-                  "title": "Conflict",
-                  "status": 409,
-                  "detail": "Slug 'new-slug' is already taken on this domain."
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "operationId": "deleteLink",
-        "summary": "Delete a link",
-        "description": "Deletes a short link and invalidates its KV cache. Returns the deleted link for confirmation.",
-        "tags": ["Links"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/domainId"
-          },
-          {
-            "$ref": "#/components/parameters/key"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The deleted link.",
+            "description": "Slug already in use",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Link"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "domainId",
+            "required": true
           },
-          "401": {
-            "description": "Missing or invalid API key.",
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteV1LinksByDomainIdByKey",
+        "tags": [
+          "Links"
+        ],
+        "summary": "Delete a short link",
+        "description": "Delete a short link and invalidate its KV cache. Returns the deleted link for confirmation.",
+        "responses": {
+          "200": {
+            "description": "Deleted link",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "shortLink": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "domainId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "contentItemId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "clicks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "isCustomSlug": {
+                      "type": "boolean"
+                    },
+                    "appendTrackingParam": {
+                      "type": "boolean"
+                    },
+                    "ogTitle": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogDescription": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ogImage": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastClickedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "url",
+                    "shortLink",
+                    "domainId",
+                    "contentItemId",
+                    "clicks",
+                    "isCustomSlug",
+                    "appendTrackingParam",
+                    "ogTitle",
+                    "ogDescription",
+                    "ogImage",
+                    "lastClickedAt",
+                    "createdAt"
+                  ]
                 }
               }
             }
           },
           "404": {
-            "description": "Link not found or does not belong to this account.",
+            "description": "Link not found",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/not_found",
-                  "title": "Not found",
-                  "status": 404,
-                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account."
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "domainId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ]
       }
     },
     "/v1/links/{domainId}/{key}/clicks": {
       "get": {
-        "operationId": "getLinkClicks",
-        "summary": "Get link clicks",
-        "description": "Returns the click count for a short link. Supports preset time periods (`all`, `24h`, `7d`, `30d`, `90d`) or a custom date range via `startDate` and `endDate`. The `period` and date range parameters are mutually exclusive.\n\n`period=all` uses a denormalized counter for O(1) performance. All other modes query the tracking events table.",
-        "tags": ["Analytics"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/domainId"
-          },
-          {
-            "$ref": "#/components/parameters/key"
-          },
-          {
-            "name": "period",
-            "in": "query",
-            "required": false,
-            "description": "Preset time period. Cannot be combined with `startDate`/`endDate`.",
-            "schema": {
-              "type": "string",
-              "enum": ["all", "24h", "7d", "30d", "90d"],
-              "default": "all"
-            }
-          },
-          {
-            "name": "startDate",
-            "in": "query",
-            "required": false,
-            "description": "Start of a custom date range (ISO 8601). Must be used with `endDate`. Cannot be combined with `period`.",
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "example": "2026-01-01T00:00:00.000Z"
-            }
-          },
-          {
-            "name": "endDate",
-            "in": "query",
-            "required": false,
-            "description": "End of a custom date range (ISO 8601). Must be used with `startDate`. Cannot be combined with `period`.",
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "example": "2026-03-01T00:00:00.000Z"
-            }
-          }
+        "operationId": "getV1LinksByDomainIdByKeyClicks",
+        "tags": [
+          "Analytics"
         ],
+        "summary": "Get click count for a link",
+        "description": "Returns click count with preset periods (`all`/`24h`/`7d`/`30d`/`90d`) or a custom ISO 8601 date range. `period=all` uses the O(1) denormalized counter.",
         "responses": {
           "200": {
-            "description": "Click count for the link.",
+            "description": "Click count",
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "required": ["clicks", "period"],
-                      "properties": {
-                        "clicks": {
-                          "type": "integer",
-                          "description": "Number of clicks.",
-                          "example": 42
-                        },
-                        "period": {
-                          "type": "string",
-                          "description": "The time period used.",
-                          "example": "7d"
-                        }
-                      }
+                  "type": "object",
+                  "properties": {
+                    "clicks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
                     },
-                    {
-                      "type": "object",
-                      "required": ["clicks", "startDate", "endDate"],
-                      "properties": {
-                        "clicks": {
-                          "type": "integer",
-                          "description": "Number of clicks.",
-                          "example": 15
-                        },
-                        "startDate": {
-                          "type": "string",
-                          "format": "date-time",
-                          "description": "Start of the date range.",
-                          "example": "2026-01-01T00:00:00.000Z"
-                        },
-                        "endDate": {
-                          "type": "string",
-                          "format": "date-time",
-                          "description": "End of the date range.",
-                          "example": "2026-03-01T00:00:00.000Z"
-                        }
-                      }
+                    "period": {
+                      "type": "string"
+                    },
+                    "startDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "endDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
                     }
+                  },
+                  "required": [
+                    "clicks"
                   ]
-                },
-                "examples": {
-                  "all-time": {
-                    "summary": "All-time clicks",
-                    "value": {
-                      "clicks": 42809,
-                      "period": "all"
-                    }
-                  },
-                  "7d": {
-                    "summary": "Last 7 days",
-                    "value": {
-                      "clicks": 312,
-                      "period": "7d"
-                    }
-                  },
-                  "custom-range": {
-                    "summary": "Custom date range",
-                    "value": {
-                      "clicks": 15,
-                      "startDate": "2026-01-01T00:00:00.000Z",
-                      "endDate": "2026-03-01T00:00:00.000Z"
-                    }
-                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request parameters.",
+            "description": "Invalid parameters",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/bad_request",
-                  "title": "Bad request",
-                  "status": 400,
-                  "detail": "Cannot combine 'period' with 'startDate'/'endDate'."
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
           },
           "404": {
-            "description": "Link not found or does not belong to this account.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/not_found",
-                  "title": "Not found",
-                  "status": 404,
-                  "detail": "No link found with key 'abc123' on domain '00000000-0000-0000-0000-000000000000' for this account.",
-                  "instance": "/v1/links/00000000-0000-0000-0000-000000000000/abc123/clicks"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/domains": {
-      "get": {
-        "operationId": "listDomains",
-        "summary": "List domains",
-        "description": "Returns all shortlink domains available to the authenticated user. The default `trakyo.link` domain is always listed first.",
-        "tags": ["Domains"],
-        "responses": {
-          "200": {
-            "description": "List of domains.",
+            "description": "Link not found",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": ["domains"],
                   "properties": {
-                    "domains": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "domainId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/domains": {
+      "get": {
+        "operationId": "getV1Domains",
+        "tags": [
+          "Domains"
+        ],
+        "summary": "List shortlink domains",
+        "description": "Returns all shortlink domains available to the authenticated user, including the default `trakyo.link` domain. Each domain includes its link count.",
+        "responses": {
+          "200": {
+            "description": "List of domains",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Domain"
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "hostname": {
+                            "type": "string"
+                          },
+                          "isDefault": {
+                            "type": "boolean"
+                          },
+                          "defaultRedirectUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "linkCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "hostname",
+                          "isDefault",
+                          "defaultRedirectUrl",
+                          "linkCount",
+                          "createdAt"
+                        ]
                       }
-                    }
-                  }
-                },
-                "example": {
-                  "domains": [
-                    {
-                      "id": "00000000-0000-0000-0000-000000000000",
-                      "hostname": "trakyo.link",
-                      "isDefault": true,
-                      "defaultRedirectUrl": null,
-                      "linkCount": 85,
-                      "createdAt": "2026-01-01T00:00:00Z"
                     },
-                    {
-                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                      "hostname": "go.mybrand.com",
-                      "isDefault": false,
-                      "defaultRedirectUrl": "https://mybrand.com",
-                      "linkCount": 12,
-                      "createdAt": "2026-02-15T10:00:00Z"
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "url": {
+                      "type": "string"
                     }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "url"
                   ]
                 }
               }
             }
           },
           "401": {
-            "description": "Missing or invalid API key.",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Invalid API key."
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                },
-                "example": {
-                  "type": "https://trakyo.io/docs/errors/rate_limited",
-                  "title": "Rate limited",
-                  "status": 429,
-                  "detail": "Rate limit exceeded. Max 120 requests per minute."
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "bad_request",
+                            "unauthorized",
+                            "forbidden",
+                            "not_found",
+                            "conflict",
+                            "unprocessable_entity",
+                            "rate_limit_exceeded",
+                            "internal_server_error"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "doc_url": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "param": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "doc_url",
+                        "request_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }

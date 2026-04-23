@@ -18,13 +18,18 @@ Your request could not be processed because it contains invalid parameters or a 
 
 ```json
 {
-  "type": "https://trakyo.io/docs/errors/bad_request",
-  "title": "Bad request",
-  "status": 400,
-  "detail": "Missing required field: url"
+  "error": {
+    "code": "bad_request",
+    "message": "Missing required field: url",
+    "doc_url": "https://trakyo.io/docs/errors/bad_request",
+    "request_id": "req_3f02586b7266c812ce7f7937bb9c9e8e",
+    "param": "url"
+  }
 }
 ```
 
+The `param` field names the offending field when one applies.
+
 ### How to fix
 
-Check the `detail` field for specifics on what was wrong. Review the [API Reference](/api-reference/introduction) for required parameters and accepted values.
+Check the `message` field for specifics on what was wrong. If `param` is present, it identifies the exact field that failed validation. Review the [API Reference](/api-reference/introduction) for required parameters and accepted values.

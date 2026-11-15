@@ -180,7 +180,7 @@ const config: ZudokuConfig = {
       muted: "hsl(0 0% 14.9%)",
       mutedForeground: "hsl(0 0% 63.9%)",
       accent: "hsl(0 0% 14.9%)",
-      accentForeground: "hsl(0 0% 9%)",
+      accentForeground: "hsl(0 0% 98%)",
       border: "hsl(0 0% 14.9%)",
       ring: "hsl(228 89% 66%)",
     },

@@ -1,0 +1,30 @@
+---
+title: invalid_attribution_mode
+description: "400 — attribution must be first_touch or last_touch."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+The `attribution` query parameter has an unrecognized value. The API accepts exactly two modes:
+
+- `first_touch` (the default)
+- `last_touch`
+
+`linear` — the dashboard's **Multi-touch (split credit)** model — is **app-exclusive for now** and not accepted by the API.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_attribution_mode",
+    "message": "Unknown attribution mode 'linear'. Use 'first_touch' or 'last_touch'. The Linear (multi-touch) model is app-exclusive for now and not available via the API.",
+    "doc_url": "https://trakyo.io/docs/errors/invalid_attribution_mode",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "attribution"
+  }
+}
+```
+
+## How to fix
+
+Send one of the two exact values (lowercase, underscore). If you want both perspectives, note the content/source leaderboards already return **both** revenues on every row — you may not need the parameter at all. See [First vs last touch](/docs/attribution).

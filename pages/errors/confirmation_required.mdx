@@ -1,0 +1,39 @@
+---
+title: confirmation_required
+description: "400 — destructive deletes must be confirmed with ?confirm=true."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+You called a destructive `DELETE` without explicitly confirming it. Deletes that cascade (leads, transactions, content items, sources) require `?confirm=true` so a stray request can never destroy data.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "confirmation_required",
+    "message": "Add ?confirm=true to delete, or ?dry_run=true to preview the impact.",
+    "doc_url": "https://trakyo.io/docs/errors/confirmation_required",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## The intended flow
+
+1. **Preview** what would be deleted (optional but recommended):
+
+   ```bash
+   curl -X DELETE "https://api.trakyo.io/v1/sources/src_…?dry_run=true" \
+     -H "Authorization: Bearer tky_live_..."
+   # → { "dry_run": true, "affected_content": 3, "affected_links": 12, ... }
+   ```
+
+2. **Confirm** the real delete:
+
+   ```bash
+   curl -X DELETE "https://api.trakyo.io/v1/sources/src_…?confirm=true" \
+     -H "Authorization: Bearer tky_live_..."
+   ```
+
+Notes: deletes are immediate and irreversible; `DELETE` does not accept an [`Idempotency-Key`](/docs/idempotency) (a retried delete may 404 — treat that as success).

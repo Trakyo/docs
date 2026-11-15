@@ -1,0 +1,50 @@
+---
+title: Idempotency
+description: Safe retries on create endpoints with the Idempotency-Key header.
+---
+
+Network calls fail in ambiguous ways — a timeout doesn't tell you whether the create landed. Idempotency keys make retrying safe: **the same key can only ever create one thing.**
+
+## Usage
+
+Send a unique `Idempotency-Key` header on any **POST create**:
+
+```bash
+curl -X POST "https://api.trakyo.io/v1/transactions" \
+  -H "Authorization: Bearer tky_live_..." \
+  -H "Idempotency-Key: order-8127-attempt" \
+  -H "Content-Type: application/json" \
+  -d '{"lead_id": "lead_3fa85f64-5717-4562-b3fc-2c963f66afa6", "amount": "199.00", "currency": "USD"}'
+```
+
+Supported on five create endpoints: `POST /v1/content`, `POST /v1/sources`, `POST /v1/leads`, `POST /v1/leads/{id}/notes`, and `POST /v1/transactions`. `PATCH`/`DELETE` do not take idempotency keys — `DELETE` is not idempotency-safe; a delete-then-retry can 404.
+
+`POST /v1/links` has its own dedup instead: when you **don't** send a custom `slug`, a create with the same destination URL + content item + domain returns the existing link with `200` (merging any OG-metadata fields you supplied) rather than creating a duplicate — so plain link-create retries are naturally safe. Sending a custom `slug` opts out of dedup (a slug means "make a distinct link"); a retried slug-create returns `409 conflict` because the slug is now taken.
+
+- Key format: up to 255 chars, letters/digits/`_`/`-`. Use a UUID or an id from *your* system (`order-8127`).
+- Keys are scoped to your API key and expire after ~24 hours.
+
+## Semantics
+
+| Scenario | Result |
+|---|---|
+| First request with a key | Executes normally; response is recorded |
+| Retry: same key, **same body** | The recorded response is replayed — status, body, and an extra `Idempotent-Replayed: true` header. Nothing is created twice. |
+| Same key, **different body** | [`422 unprocessable_entity`](/docs/errors/unprocessable_entity) — a key names one logical operation; changing the payload under it is a bug in the caller |
+| Same key while the first attempt is **still running** | [`409 conflict`](/docs/errors/conflict) — back off briefly and retry, you'll then get the replay |
+| First attempt failed (non-2xx) | The key is released — retrying re-executes for real |
+
+For **transactions** specifically (billable writes), the idempotency record is committed atomically with the transaction itself — even a crash mid-request cannot double-create a payment.
+
+## Client pattern
+
+```text
+key = deterministic id from your system (e.g. "order-8127")
+loop with backoff:
+  POST with Idempotency-Key: key
+  2xx  → done (check Idempotent-Replayed to know if it was a replay)
+  409  → wait 1–2s, retry same key
+  429  → wait Retry-After, retry same key
+  5xx  → wait with backoff, retry same key
+  422 with code unprocessable_entity → bug: same key used with different body
+```

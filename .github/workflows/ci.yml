@@ -1,0 +1,44 @@
+name: CI
+
+# Every pull request: run the content checks, build the whole site, and check the
+# Worker config. No secrets here (fork PRs included). The `build` job is required
+# by the ruleset on main, so nothing merges that would fail to publish.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+
+      # Checks first: a writer gets plain-words messages instead of a build error.
+      - name: Fetch the live API spec
+        run: node scripts/fetch-spec.mjs --strict
+
+      - name: Content checks (error pages, Help Center rules, file sizes)
+        run: node scripts/check.mjs
+
+      - name: Build the site
+        run: npm run build
+
+      - name: Check the Worker config
+        run: npx wrangler deploy --dry-run

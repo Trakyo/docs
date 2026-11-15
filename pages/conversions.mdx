@@ -1,0 +1,349 @@
+---
+title: Tracking conversions
+description: Report purchases, signups, and bookings from your backend — attributed to the click that earned them.
+---
+
+`POST /v1/conversions` records a conversion that happened **on your server** — a
+purchase, a signup, or a booking — and attributes it to the visitor Trakyo
+already tracked. It is the server-side counterpart to the browser pixel: use it
+when the outcome is known to your backend (a payment processor webhook, a CRM
+marking a deal won) rather than to a page in the visitor's browser.
+
+It is the only API path that accepts a **visitor or click identifier**, so it
+closes the gap the other write endpoints leave: `POST /v1/transactions` needs an existing
+`lead_id`, and `POST /v1/leads` has no way to pass a click. Requires the
+`conversions:write` [scope](/docs/scopes).
+
+:::tip{title="Read the identity section first"}
+
+Passing `identity.trakyo_id` is what makes a conversion attributable. An
+integration that sends only an email validates, returns `201`, and reports
+**100% of its revenue under "Other"**. See [Identity](#identity).
+
+:::
+
+## The shape
+
+```bash
+curl "https://api.trakyo.io/v1/conversions" \
+  -H "Authorization: Bearer tky_live_..." \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 8f2c1a90-..." \
+  -d '{
+    "identity": {
+      "trakyo_id": "9f2c8b1e-...",
+      "email": "buyer@example.com"
+    },
+    "event": {
+      "kind": "purchase",
+      "external_id": "ord_8412",
+      "name": "Annual plan",
+      "value": "997.00",
+      "currency": "USD",
+      "payment_processor": "nomupay",
+      "occurred_at": "2026-08-18T12:04:11Z"
+    }
+  }'
+```
+
+```json
+{
+  "object": "conversion",
+  "id": "cnv_c4b804f8-...",
+  "external_id": "ord_8412",
+  "lead_id": "lead_defc6c25-...",
+  "kind": "purchase",
+  "value": "997.00",
+  "currency": "USD",
+  "amount_usd": "997.00",
+  "amount_reversed": "0.00",
+  "fully_reversed": false,
+  "occurred_at": "2026-08-18T12:04:11Z",
+  "created_at": "2026-08-18T12:04:12Z",
+  "attribution": {
+    "status": "attributed",
+    "reason": null,
+    "content_item_id": "ci_a3f1c8d2-..."
+  }
+}
+```
+
+## Identity
+
+**Send `trakyo_id`, not just the email.** This is the single most important
+field on the endpoint and the easiest to get wrong.
+
+Provide **at least one** of these four match keys; Trakyo merges them
+into a single lead, matching in the order **email → phone → fingerprint →
+click**:
+
+| Field | Match key? | Carries attribution? |
+| -- | -- | -- |
+| `identity.trakyo_id` | yes | **YES** — the `trakyo_id` cookie / `window.trakyo_id` |
+| `identity.click_id` | yes | **YES** — the click id (`tclid`) minted at redirect |
+| `identity.email` | yes (highest precedence) | only if already a known lead |
+| `identity.phone` | yes — **E.164 only** (`+14155550123`) | only if already a known lead |
+| `identity.name` | no | no |
+| `identity.external_id` | **no** — your CRM id, stored for reference | no |
+
+Those last two columns are the whole story. **Matching and attribution are two
+different jobs**, and only `trakyo_id` / `click_id` do the second one.
+
+- A **match key** answers *"which person is this?"*. Email wins that contest.
+- An **attribution key** answers *"which video, ad, or link earned this?"*.
+  Only `trakyo_id` and `click_id` can, because only they were present while the
+  person was browsing.
+
+The two are **not the same kind of thing**, and it matters when you go looking
+for them: `trakyo_id` is the **visitor** id, a first-party cookie set on every
+page by `trakyo.js`. `click_id` (`tclid`) is the **click** id, minted only when
+someone goes through a Trakyo short link. Most sites have a `trakyo_id` for every
+visitor and a `click_id` for a small fraction of them, so `trakyo_id` is the one
+to reach for first.
+
+:::warning{title="Email-only conversions land under Other"}
+
+If the buyer's email first reaches your backend **at checkout**, it matches
+nothing in Trakyo — the visits that preceded it were anonymous. The conversion
+opens a **brand-new lead with no click history**, so there is no touch to
+inherit and its revenue is reported under **Other** in your dashboard, content
+leaderboard, and source breakdown.
+
+The request still returns `201`. Nothing in the response says the conversion was
+unattributed. If your Other bucket is swallowing everything, this is almost
+always why.
+
+:::
+
+### The response tells you which case you are in
+
+Every conversion comes back with an `attribution` block, so you never have to
+infer this from the dashboard days later:
+
+```json
+"attribution": {
+  "status": "unattributed",
+  "reason": "no_attribution_identifier",
+  "content_item_id": null
+}
+```
+
+`status` is read from the stored conversion, so it is exact. When it is
+`unattributed`, `reason` tells you **whose problem it is** — the three causes do
+not share a fix:
+
+| `reason` | What happened | What to do |
+| -- | -- | -- |
+| `no_attribution_identifier` | You sent neither `trakyo_id` nor `click_id`. | Capture one and send it. |
+| `visitor_not_recognised` | You sent one, but it matched a visitor with no browsing history — so it is stale, blank, or from a different site. | Check where you read it. |
+| `no_tracked_touch` | The visitor **is** known and has browsing, but never arrived through a tracked link. | Nothing — this is not an integration bug. Route more traffic through tracked links. |
+
+When `status` is `attributed`, `reason` is `null` and `content_item_id` is the
+`ci_…` of the first-touch content credited.
+
+Batch items carry the same block, so a 1000-item POST can be scanned for
+`"status": "unattributed"` on the very first call.
+
+:::note
+
+On an idempotent replay the block describes the **stored** conversion. `reason`
+is evaluated against the identity you sent on the replay — a retry re-sends the
+same body, so in practice the two agree.
+
+:::
+
+### Do not confuse the two `external_id` fields
+
+They are unrelated, and the names are close enough to cost you a whole
+integration:
+
+- `event.external_id` — **required**. Your order/invoice id. Dedupe + reversal
+  handle — covered in its own section below.
+- `identity.external_id` — **optional, inert**. Your CRM's customer id, stored
+  on the event for your reference. It is **not** a match key and **not** an
+  attribution key. Sending it does not identify the visitor.
+
+### Getting `trakyo_id` to your backend
+
+`trakyo.js` stores the visitor id for **90 days** in three places on your site:
+
+```js
+window.trakyo_id                       // set on every page once trakyo.js runs
+document.cookie                        // trakyo_id=...  (apex-scoped, so it
+                                       // survives www → apex → subdomain)
+localStorage.getItem("trakyo_id")       // fallback if the cookie is cleared
+```
+
+The hand-off is three steps:
+
+1. **Capture** it in the browser at signup or checkout — a hidden form field, or
+   read `window.trakyo_id` in your submit handler.
+2. **Persist** it on the user/order row, so a payment webhook firing minutes or
+   days later can still find it.
+3. **Send** it as `identity.trakyo_id` on every conversion for that user.
+
+If your traffic arrives through Trakyo short links you can use
+`identity.click_id` instead — read the `trakyo_click_id` cookie, or the
+`?tclid=` parameter on the landing URL. Note that `trakyo_click_id` is
+**host-scoped**, unlike `trakyo_id`, so read it on the same hostname that landed
+the click.
+
+Send an identifier **and** the email together whenever you have both: the email
+merges this conversion with the rest of the person's history, and the
+`trakyo_id` / `click_id` supplies the attribution.
+
+## The three kinds
+
+| `kind` | Carries a value? | Use it for |
+| -- | -- | -- |
+| `purchase` | **yes** — `value` (decimal string, > 0) or a `conversion_id` | A sale. |
+| `signup` | no | A free registration. |
+| `booking` | no | A booked call or meeting. |
+
+### Name your conversions
+
+`event.name` is an optional human label — `"Masterclass signup"`, `"Annual
+plan"` — and it is worth sending. For a `signup` it becomes the **form name** in
+your dashboard, so your Forms breakdown splits by flow instead of collapsing
+every API signup into one row. Omit it and signups are all labelled `API Signup`.
+
+```json
+"event": { "kind": "signup", "external_id": "reg_5521", "name": "Masterclass signup" }
+```
+
+It is stored on every kind, and truncated at 255 characters rather than
+rejected.
+
+`value` is a **decimal string** (`"997.00"`), never a JSON number — see
+[Money format](/docs/money). `currency` defaults to `USD` and must be one Trakyo
+supports; crypto is rejected with [`unsupported_currency`](/docs/errors/unsupported_currency)
+(convert to your settlement currency first). Instead of an inline `value` you can
+pass a `conversion_id` for a saved Custom Conversion and let Trakyo resolve the
+price.
+
+## external_id is required — it is your dedupe and reversal handle
+
+Every conversion needs `event.external_id` (your order or invoice id). It does
+two jobs:
+
+- **Dedupe.** A second conversion with the same `external_id` returns the first,
+  with HTTP `200` and `Idempotent-Replayed: true` instead of `201` — so two
+  processors reporting the same order, or a retry, never double-count. This holds
+  across all three kinds for one account. It covers conversions sent to this
+  endpoint only — see [Sales a direct integration already records](#sales-a-direct-integration-already-records).
+- **Reversal handle.** Refunds reference the original by its `external_id`.
+
+This is independent of the `Idempotency-Key` header, which protects against
+retries of the *same HTTP request*; `external_id` is the business key for the
+*conversion itself*. Send both.
+
+## Sales a direct integration already records
+
+`external_id` dedupes conversions sent **to this endpoint**. It does not reach
+the sales Trakyo records on its own through a direct integration — Commas,
+Stripe, Whop, Kajabi, Teachable. If one of those is connected, a sale it
+records and that you also send here is stored twice and counted twice.
+
+So: if your account is connected to Commas under **Integrations → Commas**,
+do not also send your Commas sales here. Send them here only if you have not
+connected Commas directly. The Commas setup window warns you when
+Commas-labelled sales arrived through the API or a custom webhook in the last
+30 days, with how many and the date of the latest.
+
+`payment_processor` is shown in the app as the payment type: a sale sent with
+`"payment_processor": "commas"` appears as **Commas (API)**, `"stripe"` as
+**Stripe (API)**. Without it, the sale appears as **API**.
+
+## occurred_at must be recent
+
+`occurred_at` (when the conversion really happened) must be within the **last 30
+days** and not in the future, else [`occurred_at_out_of_window`](/docs/errors/occurred_at_out_of_window).
+Omit it to default to now. Backfilling older history needs a dedicated import
+path — it is deliberately not this endpoint. `occurred_at` is the settlement
+time; `created_at` is when Trakyo recorded it, and the two are stored separately.
+
+## What it unlocks
+
+Once a conversion lands **with `trakyo_id` or `click_id`**, its revenue is attributed to
+the ad, video, or link that earned the click — visible in your dashboard,
+content and source leaderboards, and Meta CAPI (a `purchase` maps to Meta's
+`Purchase`, `signup` to `CompleteRegistration`, `booking` to `Schedule`). No
+extra wiring beyond passing `identity.trakyo_id`.
+
+Without one, the conversion is still recorded, deduped, reversible and counted
+in your totals — it simply has no content to credit, so it sits in **Other**.
+
+The `attribution` block on your very first call already tells you this. To check
+an integration that is already live, compare the **Other** row against your other
+channels:
+
+```bash
+curl "https://api.trakyo.io/v1/sources?period=7d" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+If the `other` row holds effectively all of your conversions and revenue while
+`youtube` / `custom` / `meta_ad` sit near zero, you are almost certainly not
+sending `identity.trakyo_id` — go back to
+[Identity](#identity). Some **Other** is
+normal and unavoidable: genuinely direct traffic, and visitors who never passed
+through a tracked link.
+
+## Batches
+
+Send up to **1000** conversions in one request to `POST /v1/conversions/batch`:
+
+```bash
+curl "https://api.trakyo.io/v1/conversions/batch" \
+  -H "Authorization: Bearer tky_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{ "conversions": [ { "identity": {...}, "event": {...} }, ... ] }'
+```
+
+Each item has the same shape as a single conversion. The response is `200` with
+a per-item `results` array — **partial success**, so one bad item never rejects
+the good ones:
+
+```json
+{
+  "object": "list",
+  "results": [
+    { "index": 0, "status": "created",  "id": "cnv_...", "external_id": "ord_1" },
+    { "index": 1, "status": "replayed", "id": "cnv_...", "external_id": "ord_2" },
+    { "index": 2, "status": "error", "error": { "code": "unsupported_currency", "message": "...", "param": "event.currency" } }
+  ]
+}
+```
+
+Per-item `external_id` dedupe still applies, so re-sending a batch is safe. An
+`Idempotency-Key` covers the whole batch as one unit; the body is capped at 1 MB.
+
+## Refunds and chargebacks
+
+Reverse a conversion with `POST /v1/conversions/{external_id}/reversals`, where
+`{external_id}` is the **original** order id:
+
+```bash
+curl "https://api.trakyo.io/v1/conversions/ord_8412/reversals" \
+  -H "Authorization: Bearer tky_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{ "value": "997.00", "currency": "USD", "external_id": "re_9931", "reason": "requested_by_customer" }'
+```
+
+A reversal is an **append-only counter-event** — a new negative-value row, never
+a mutation or delete, so your audit trail stays intact and revenue nets
+correctly. Key rules:
+
+- `value` is the amount **taken back** (not the new total). **Partial reversals**
+  are allowed and repeatable until the original is fully reversed.
+- The body's `external_id` is the PSP **refund** id — distinct from the path's
+  order id — and dedupes the reversal itself.
+- `currency` must match the original, else [`currency_mismatch`](/docs/errors/currency_mismatch) (409).
+- Over-reversing returns [`reversal_exceeds_original`](/docs/errors/reversal_exceeds_original) (400); an unknown order returns [`unknown_conversion`](/docs/errors/unknown_conversion) (404).
+
+The reversal **inherits the original's exchange rate**, so a full refund of a
+non-USD sale nets to exactly `$0.00` USD. The response carries `amount_reversed`
+and `fully_reversed` so you always know how much of the original remains.
+
+A refund never fires a phantom event into your Meta ad optimisation — reversals
+are deliberately kept out of the Conversions API's outbound signal.

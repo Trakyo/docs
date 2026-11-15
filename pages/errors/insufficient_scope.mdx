@@ -1,0 +1,29 @@
+---
+title: insufficient_scope
+description: "403 — the key lacks the scope this endpoint requires."
+---
+
+**HTTP 403 · type `permission_error`**
+
+The API key is valid, but it wasn't granted the [scope](/docs/scopes) this endpoint requires. The message names the missing scope.
+
+```json
+{
+  "error": {
+    "type": "permission_error",
+    "code": "insufficient_scope",
+    "message": "This API key is missing the required scope: leads:read",
+    "doc_url": "https://trakyo.io/docs/errors/insufficient_scope",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## Common causes
+
+- Key created with read scopes only, now used for a write (or vice versa)
+- The two scope quirks: **sources reads need `content:read`** (there is no `sources:read`), and **`GET /v1/domains` needs `links:read`**
+
+## How to fix
+
+Create a new key including the named scope (or edit the key's scopes in the dashboard, which may require re-issuing). Don't work around it by sharing a broader key across systems — issue per-integration keys with minimal scopes.

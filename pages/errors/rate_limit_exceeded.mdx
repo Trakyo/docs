@@ -1,0 +1,29 @@
+---
+title: rate_limit_exceeded
+description: "429 — too many requests in the current window."
+---
+
+**HTTP 429 · type `rate_limit_error`**
+
+The key exceeded its per-minute budget: **120 reads/min** or **60 writes/min** (see [Rate limits](/docs/rate-limits)).
+
+```json
+{
+  "error": {
+    "type": "rate_limit_error",
+    "code": "rate_limit_exceeded",
+    "message": "Rate limit exceeded. Retry after the window resets.",
+    "doc_url": "https://trakyo.io/docs/errors/rate_limit_exceeded",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+The response includes `Retry-After` (seconds) plus the standard `RateLimit-*` headers.
+
+## How to fix
+
+- Wait `Retry-After` seconds, then resume; add jitter if several workers share the key.
+- Batch reads with maximum `limit` values instead of many small pages.
+- Cache analytics responses on your side — the numbers only move meaningfully once a minute anyway ([freshness](/docs/freshness)).
+- Creates retried after a 429 are safe with the same [`Idempotency-Key`](/docs/idempotency).

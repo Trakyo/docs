@@ -1,0 +1,38 @@
+---
+title: Money format
+description: Amounts are decimal strings with an ISO-4217 currency — never JSON numbers.
+---
+
+Every monetary amount in the API — request or response — is a **decimal number encoded as a string**, always paired with an ISO-4217 currency code:
+
+```json
+{ "amount": "1234.50", "currency": "USD" }
+```
+
+## The rules
+
+- **Never a JSON number.** `1234.50` as a JSON number risks IEEE-754 float mangling in many parsers; `"1234.50"` round-trips exactly. Sending a number where an amount is expected fails validation.
+- **Plain decimal syntax:** optional sign, digits, optional fractional part (`"1234.50"`, `"99"`, `"0.5"`). No exponents (`"1e3"`), no thousands separators, no currency symbols.
+- **No forced decimal places.** `"99"` and `"99.00"` are both valid; responses preserve natural precision rather than padding.
+- **Currency is uppercase ISO-4217** (`USD`, `EUR`, `GBP`, …).
+- **Amounts on creates must be positive.** `"0"`, `"0.00"`, and negative values are rejected.
+
+## Parsing amounts safely
+
+Parse with a decimal type, not a float:
+
+```ts
+// JavaScript — money stays a string until you need math
+const cents = Math.round(Number(txn.amount) * 100); // OK for display; prefer a decimal lib for accounting
+```
+
+```python
+from decimal import Decimal
+amount = Decimal(txn["amount"])   # exact
+```
+
+## Where currencies appear
+
+- **Analytics endpoints** (`/v1/metrics`, `/v1/funnel`, `/v1/content`, `/v1/sources`) accept a `currency` query parameter (default `USD`) and echo it in the response — revenue figures are converted into that currency.
+- **Transactions** store the original payment: `amount` + `currency` as paid, plus a USD-converted `amount_usd` computed at ingestion (FX applied server-side).
+- A ready-money example: creating a EUR transaction with `{"amount": "1234.50", "currency": "EUR"}` yields `amount_usd` like `"1407.45"` — converted, rounded to the currency's minor units.

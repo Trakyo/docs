@@ -1,0 +1,33 @@
+---
+title: qr_code_exists
+description: "409 — the link has a QR code; renaming its slug or deleting it breaks every printed copy until you acknowledge that."
+---
+
+**HTTP 409 · type `invalid_request_error`**
+
+The link has a QR code and the request would break it. A QR code encodes the short URL itself, so two writes make every printed or shared copy stop working the moment they commit — there is no redirect from the old slug:
+
+1. **`PATCH /v1/links/{domain_id}/{key}` with a new `slug`** (changing `url` or the OG fields never triggers this — the printed code keeps working).
+2. **`DELETE /v1/links/{domain_id}/{key}`**.
+
+The envelope carries `scans`, the code's lifetime scan count, so you can show the user how much the printed copies are in use before they decide.
+
+```json
+{
+  "error": {
+    "scans": 12,
+    "type": "invalid_request_error",
+    "code": "qr_code_exists",
+    "message": "This link has a QR code (12 scans). Renaming its slug or deleting it breaks every printed copy; pass acknowledge_qr: true to proceed.",
+    "doc_url": "https://trakyo.io/docs/errors/qr_code_exists",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "acknowledge_qr"
+  }
+}
+```
+
+## How to fix
+
+- **Confirm with the user first**, then retry with the acknowledgement: `"acknowledge_qr": true` in the PATCH body, or `?acknowledge_qr=true` on the DELETE. The check and the write are one statement, so a code created concurrently is never broken silently.
+- To change where the link points without touching the printed code, PATCH `url` instead of `slug`.
+- To drop the code and keep the link, `DELETE /v1/links/{domain_id}/{key}/qr`; the link can then be renamed or deleted freely.

@@ -1,0 +1,67 @@
+---
+title: Pagination
+description: How list endpoints page — cursors, limits, and the three list styles.
+---
+
+All list endpoints return the same envelope:
+
+```json
+{
+  "object": "list",
+  "data": [ ... ],
+  "has_more": true,
+  "url": "/v1/leads"
+}
+```
+
+`has_more: true` means another page exists. How you fetch it depends on the endpoint family — the API has three list styles (a product of what each store supports), documented per endpoint in the [API Reference](/docs/api):
+
+## 1. Opaque cursor — leads & transactions
+
+`GET /v1/leads` and `GET /v1/transactions` add a `next_cursor` field to the envelope:
+
+```json
+{ "object": "list", "data": [...], "has_more": true, "next_cursor": "eyJ2IjoyLCJrIjoi...", "url": "/v1/leads" }
+```
+
+Pass it back as `starting_after` to get the next page:
+
+```bash
+curl "https://api.trakyo.io/v1/leads?limit=100&starting_after=eyJ2IjoyLCJrIjoi..." \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+Rules:
+
+- The token is **opaque** — never parse, build, or edit it. Its internal format changes without notice (that's the point: the backend can move between paging strategies with zero contract change). A tampered or stale-format token returns [`400 invalid_cursor`](/docs/errors/invalid_cursor).
+- Forward-only: there is no `ending_before`.
+- A cursor is bound to the query's `sort` — changing sort mid-pagination returns [`400 invalid_cursor`](/docs/errors/invalid_cursor). Keep filters identical across pages.
+- `limit`: 1–500, default 50.
+
+## 2. Item cursor (Stripe-style) — links
+
+`GET /v1/links` pages by *item identity*: pass the last item's `{domain_id}:{key}` as `starting_after`:
+
+```bash
+curl "https://api.trakyo.io/v1/links?limit=100&starting_after=00000000-0000-0000-0000-000000000000:abc123" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+Forward-only, `limit` 1–100 (default 50). `GET /v1/domains` uses the same envelope but is **not paginated** — accounts have few domains, so you always get all of them (`has_more` is always `false`).
+
+## 3. Offset — content & sources leaderboards
+
+`GET /v1/content` and `GET /v1/sources` are ranked leaderboards, so they page by position: `limit` (1–100, default 50) + `offset` (default 0):
+
+```bash
+curl "https://api.trakyo.io/v1/content?period=30d&limit=50&offset=50" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+Leaderboard rows can shift between requests as new events arrive — for a consistent snapshot, fetch pages quickly and treat the ranking as of the time you read it.
+
+## General advice
+
+- Iterate until `has_more` is `false`; don't guess total pages.
+- Keep `limit` at the maximum (100/500) when syncing — fewer round trips, same rate-limit cost per request.
+- Lists of leads/transactions are served from the analytics store and can lag writes by ~1 minute — see [Data freshness](/docs/freshness).

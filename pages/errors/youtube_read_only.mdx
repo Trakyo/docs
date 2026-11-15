@@ -1,0 +1,32 @@
+---
+title: youtube_read_only
+description: "422 — synced YouTube content can't be edited or deleted via the API."
+---
+
+**HTTP 422 · type `invalid_request_error`**
+
+You tried to `PATCH` or `DELETE` a **YouTube** content item. YouTube items are synced automatically from your channel — they aren't user-owned records, and any local edit would be overwritten by the next sync. So the API refuses, rather than pretending to succeed.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "youtube_read_only",
+    "message": "YouTube content items are synced and read-only via the API.",
+    "doc_url": "https://trakyo.io/docs/errors/youtube_read_only",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## What's writable and what isn't
+
+| Content type | Writable via API? |
+|---|---|
+| `custom` | ✅ full create / edit / delete |
+| `youtube` | ❌ read-only (this error) — edit the video on YouTube instead |
+| `meta_ad`, `referrer`, `other` | ❌ not addressable at all (no `ci_` id → writes 404) |
+
+## How to fix
+
+To change a YouTube video's title etc., change it on YouTube — the sync brings it over. Create `custom` content items for anything you want to manage through the API.

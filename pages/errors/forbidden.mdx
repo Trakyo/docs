@@ -1,0 +1,24 @@
+---
+title: forbidden
+description: "403 — the key is valid but cannot act on an account."
+---
+
+**HTTP 403 · type `permission_error`**
+
+The API key authenticated successfully, but no account could be resolved for it to act on — the key's account is in an unusable state.
+
+```json
+{
+  "error": {
+    "type": "permission_error",
+    "code": "forbidden",
+    "message": "This API key cannot access the requested account.",
+    "doc_url": "https://trakyo.io/docs/errors/forbidden",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## How to fix
+
+This is rare and usually not fixable client-side — it indicates the account behind the key was removed or suspended. Contact support with the `request_id`. For the everyday "valid key, missing permission" case, see [`insufficient_scope`](/docs/errors/insufficient_scope) instead.

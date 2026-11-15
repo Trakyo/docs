@@ -1,0 +1,29 @@
+---
+title: conflict
+description: "409 — the write collides with existing state or an in-flight request."
+---
+
+**HTTP 409 · type `invalid_request_error`**
+
+The write conflicts with current state. Two situations produce it:
+
+1. **Uniqueness collisions** — creating/renaming into a name or slug that's already taken (a link slug on that domain, a custom source name, …).
+2. **In-flight idempotency retry** — a request with the same `Idempotency-Key` is *still executing*; see [Idempotency](/docs/idempotency).
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "conflict",
+    "message": "This slug is already in use on this domain.",
+    "doc_url": "https://trakyo.io/docs/errors/conflict",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "slug"
+  }
+}
+```
+
+## How to fix
+
+- **Uniqueness case:** pick a different value, or fetch the existing object and use it. Not retryable unchanged.
+- **Idempotency case:** wait 1–2 seconds and retry with the **same** key — you'll get the first attempt's recorded response replayed.

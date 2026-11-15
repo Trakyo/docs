@@ -1,0 +1,28 @@
+---
+title: unprocessable_entity
+description: "422 — the request is well-formed but can't be processed as sent."
+---
+
+**HTTP 422 · type `invalid_request_error`**
+
+The request parses and validates structurally, but can't be processed. Two situations produce it:
+
+1. **Idempotency-Key reuse with a different body** — a key names one logical operation; sending the same key with a changed payload is a caller bug (see [Idempotency](/docs/idempotency)).
+2. **Batch-size cap exceeded** — an array field with more than **100 items** in a write body.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "unprocessable_entity",
+    "message": "Idempotency-Key was reused with a different request body.",
+    "doc_url": "https://trakyo.io/docs/errors/unprocessable_entity",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## How to fix
+
+- **Idempotency case:** generate a *new* key for the new payload; only replays of the identical request may share a key.
+- **Batch case:** split the array into chunks of ≤100 and send multiple requests (mind the [write rate limit](/docs/rate-limits)).

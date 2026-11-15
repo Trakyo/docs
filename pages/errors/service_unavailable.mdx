@@ -1,0 +1,24 @@
+---
+title: service_unavailable
+description: "503 — a protective backstop couldn't verify the request; safe to retry."
+---
+
+**HTTP 503 · type `api_error`**
+
+A piece of protective infrastructure was temporarily unavailable, and the API chose to refuse rather than proceed unprotected. Notably, the **write limiter fails closed**: if it can't verify your write budget, the write is denied instead of allowed unmetered.
+
+```json
+{
+  "error": {
+    "type": "api_error",
+    "code": "service_unavailable",
+    "message": "Temporarily unable to process this request. Please retry.",
+    "doc_url": "https://trakyo.io/docs/errors/service_unavailable",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## How to fix
+
+Nothing is wrong with your request. Retry with exponential backoff (start ~1s). Creates are safe to retry with the same [`Idempotency-Key`](/docs/idempotency). If 503s persist for minutes, contact support with a `request_id`.

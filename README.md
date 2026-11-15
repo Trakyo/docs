@@ -1,56 +1,145 @@
-# Mintlify Starter Kit
+# Trakyo Docs — trakyo.io/docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+This repository is the public docs site at **[trakyo.io/docs](https://trakyo.io/docs)**:
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+- **Help Center** — step-by-step guides for Trakyo customers, written by the support team.
+  Lives in [`pages/help/`](pages/help/).
+- **API docs** — the developer docs and the API reference. Everything else in [`pages/`](pages/).
+  The reference itself is generated from the live API, so nobody writes it by hand.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+Search covers everything. Every page is also published as plain text for AI assistants
+(`trakyo.io/docs/llms-full.txt`, and `.md` after any page's address).
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+---
 
-## AI-assisted writing
+## Writing a Help Center article (support team)
 
-Set up your AI coding tool to work with Mintlify:
+You need a GitHub account with access to this repository. Nothing to install: everything
+happens in your browser.
 
-```bash
-npx skills add https://mintlify.com/docs
-```
+### 1. Create the file
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+1. Open [`pages/help/`](pages/help/) on GitHub.
+2. Click **Add file → Create new file**.
+3. Type the name as `topic/article-name.md`, for example `integrations/connect-stripe.md`.
+   Typing the `/` makes the topic folder. Use lowercase and dashes, no spaces.
+   - The **topic** becomes a group in the sidebar and a card on the home page
+     (`getting-started` shows as "Getting started"). Reuse an existing topic when it fits.
+   - The **article name** becomes the page's address:
+     `trakyo.io/docs/help/integrations/connect-stripe`.
+4. Copy everything from [`templates/article.md`](templates/article.md) into the file and
+   replace the example text with yours.
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
+### 2. Fill in the top block
 
 ```
-mint dev
+---
+title: Connect Stripe
+description: Link Stripe so Trakyo can attribute every payment.
+order: 2
+draft: true
+---
 ```
 
-View your local preview at `http://localhost:3000`.
+- **title** — what the article is about, as a customer would say it.
+- **description** — one sentence. It shows in search results.
+- **order** — its place in the topic's list (1 = first).
+- **draft: true** — keeps the article off the live site. Delete the line when it is ready.
 
-## Publishing changes
+### 3. Add screenshots
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Do this after step 6 has created your pull request, so the pictures go into the same branch.
 
-## Need help?
+1. Save the screenshot as a `.png` or `.jpg`, named like `connect-stripe-1.png`.
+2. On the repository's main page, use the branch dropdown (top left, says `main`) to switch
+   to your pull request's branch (shown at the top of your pull request, e.g. `patch-1`).
+3. Open your topic folder (`pages/help/integrations/`), click **Add file → Upload files**,
+   drop the pictures in, and choose **Commit directly to the `patch-1` branch**.
+4. In the article, write:
 
-### Troubleshooting
+   ```
+   ![The Integrations page with the Stripe Connect button](./connect-stripe-1.png)
+   ```
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+   The text in `[ ]` describes the picture (for screen readers and search).
 
-### Resources
+**Screenshots are public.** Use the demo account, or blur every real customer name,
+email, link and revenue figure before uploading.
 
-- [Mintlify documentation](https://mintlify.com/docs)
+### 4. Add a video
+
+Upload the video to **YouTube (unlisted)** or **Loom**, copy its **embed code**
+(YouTube: Share → Embed; Loom: Share → Embed) and paste it on its own line:
+
+```
+<iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="Connect Stripe walkthrough" allowfullscreen></iframe>
+```
+
+Never upload a video file to this repository.
+
+### 5. Formatting
+
+| You want | You write |
+|---|---|
+| A section heading | `## Step 1: Open Integrations` |
+| Bold (buttons, menu names) | `**Connect**` |
+| Numbered steps | `1. Click …` on each line |
+| A link to another article | `[Connect Stripe](/docs/help/integrations/connect-stripe)` |
+| A link into the app | `[Integrations](https://app.trakyo.io/integrations)` |
+| A tip box | `:::tip` on one line, your text, then `:::` on its own line |
+| Other boxes | `:::note`, `:::warning`, `:::danger` (same shape); `:::note[Before you start]` adds a title |
+
+Don't use `<!-- … -->` comments or `<img>` tags: both break the page. The checks below catch them.
+
+### 6. Send it for review
+
+1. Scroll down, click **Commit changes…**, choose **Create a new branch for this commit
+   and start a pull request**, then **Propose changes** and **Create pull request**.
+2. Wait a minute for the checks. A green tick means the site builds with your article.
+   A red cross: click **Details**; the message says what to fix, in plain words.
+3. To change something, open your pull request → **Files changed** → the `…` menu on the
+   file → **Edit file**, and commit to the same branch.
+4. Tell Harry it's ready. He reviews and merges it; the site updates by itself about two
+   minutes later.
+
+**Rules:** write only about features every customer has (no betas unless Harry says so),
+one task per article, and check every step in the app before publishing.
+
+### When the Help Center appears
+
+The Help Center tab and the landing page at `trakyo.io/docs` switch on by themselves when
+the first article **without** `draft: true` is merged. Until then the site shows the API
+docs only.
+
+---
+
+## For Harry: running the site
+
+- **Look and feel**: [`zudoku.config.tsx`](zudoku.config.tsx) (colours, logo, navigation),
+  [`hub/home.mdx`](hub/home.mdx) (the landing page), [`public/`](public/) (logos, favicon).
+  Every change goes through a pull request you review ([CODEOWNERS](.github/CODEOWNERS)).
+- **Preview locally**: `npm ci && npm run dev`, then open the address it prints. Drafts show
+  in preview, never on the live site.
+- **Publishing**: merging to `main` deploys (`.github/workflows/deploy.yml`). To redeploy by
+  hand: Actions → Deploy → Run workflow.
+- **Undo a bad publish**: open the merged pull request → **Revert** → merge the revert.
+  Faster, in an emergency: Cloudflare → Workers → `trakyo-docs-site` → Deployments → roll
+  back.
+- **API reference freshness**: every hour, the deploy workflow compares the live
+  `api.trakyo.io/openapi.json` with the one the site was built from
+  (`trakyo.io/docs/openapi.sha256`) and redeploys if it changed.
+- **When something fails**, the deploy workflow opens an issue in this repository.
+- **The Cloudflare side**: Worker `trakyo-docs-site`, route `trakyo.io/docs*` (attached in
+  Cloudflare, not in `wrangler.jsonc`, see the comment there). The deploy token lives in
+  Settings → Environments → `production` and can only edit this one Worker.
+
+## For engineers: API docs
+
+- API pages are everything in `pages/` except `pages/help/`; the sidebar is in
+  `zudoku.config.tsx`. Internal links use `/docs/...`.
+- **Open the docs pull request when the API change ships to production, not before.** This
+  repository is public, so an early pull request announces an unreleased feature.
+- Every error code the API returns needs `pages/errors/<code>.mdx` (it is the error's
+  `doc_url`). The checks fail a pull request when a code in the live API has no page, and
+  the deploy opens an issue when an API release adds one.
+- Rate limits, scopes and error codes are also stated in the API's own code: keep them in step.

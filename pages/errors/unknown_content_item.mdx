@@ -1,0 +1,31 @@
+---
+title: unknown_content_item
+description: "404 — the referenced content_item_id doesn't exist in your account."
+---
+
+**HTTP 404 · type `invalid_request_error`**
+
+A write referenced a `ci_…` content-item id that doesn't exist in your account. Raised by `POST /v1/links` (the required `content_item_id`) and by transaction attribution overrides (`PATCH /v1/transactions/{id}`).
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "unknown_content_item",
+    "message": "No content item found for content_item_id.",
+    "doc_url": "https://trakyo.io/docs/errors/unknown_content_item",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "content_item_id"
+  }
+}
+```
+
+## Common causes
+
+- The content item was deleted (deleting a custom content item is allowed while links reference it — the links become unattributed)
+- The id belongs to another account
+- Using an id for a channel row that has `"id": null` in the leaderboard (Meta/referrer/other rows aren't addressable — see [Object IDs](/docs/ids))
+
+## How to fix
+
+Take `content_item_id` values from `GET /v1/content` responses (only `youtube` and `custom` rows carry ids). To attribute to something new, create it first with `POST /v1/content`.

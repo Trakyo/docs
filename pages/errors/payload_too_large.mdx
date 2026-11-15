@@ -1,0 +1,29 @@
+---
+title: payload_too_large
+description: "413 — the request body exceeds 1 MB."
+---
+
+**HTTP 413 · type `invalid_request_error`**
+
+The write request's body is larger than **1 MB**. This cap protects the write path; no legitimate single object comes close to it.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "payload_too_large",
+    "message": "Request body exceeds the 1 MB limit.",
+    "doc_url": "https://trakyo.io/docs/errors/payload_too_large",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## Common causes
+
+- Accidentally embedding large blobs (base64 images, full HTML) in text fields
+- Batching too much into one request (also bounded by the 100-item array cap → [`unprocessable_entity`](/docs/errors/unprocessable_entity))
+
+## How to fix
+
+Send only the fields the endpoint defines; store large assets elsewhere and reference them by URL. Split bulk work into multiple smaller requests.

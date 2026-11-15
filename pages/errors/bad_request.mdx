@@ -1,0 +1,34 @@
+---
+title: bad_request
+description: "400 — the request failed validation."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+The request is malformed or fails validation — a missing required field, a wrong type, an invalid enum value, a malformed [prefixed id](/docs/ids), or a semantically invalid combination.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "bad_request",
+    "message": "Validation failed.",
+    "doc_url": "https://trakyo.io/docs/errors/bad_request",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "url",
+    "details": [{ "field": "url", "issue": "Invalid url" }]
+  }
+}
+```
+
+## Common causes
+
+- Required field missing or `null` (e.g. `content_item_id` on `POST /v1/links`)
+- Wrong-prefix or malformed object id (`lead_…` where `ci_…` is expected)
+- Money sent as a JSON number instead of a [decimal string](/docs/money)
+- Invalid enum value (`period`, `sort`, `type`, …)
+- Destructive delete without `?confirm=true` (that specific case returns [`confirmation_required`](/docs/errors/confirmation_required))
+
+## How to fix
+
+Read `param` and `details[]` — they name the exact offending fields. Fix the request; **do not retry unchanged**.

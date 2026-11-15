@@ -1,0 +1,74 @@
+---
+title: Errors
+description: The error envelope, the type/code split, and the full code catalog.
+---
+
+Every error — from a malformed request to an internal failure — uses one envelope:
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_date_range",
+    "message": "start must be on or before end.",
+    "doc_url": "https://trakyo.io/docs/errors/invalid_date_range",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "start",
+    "details": [{ "field": "start", "issue": "start must be on or before end" }]
+  }
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `type` | Broad class (5 values, stable set) — coarse branching |
+| `code` | Specific reason (open set, each with its own page) — precise branching |
+| `message` | Human-readable; **not stable, don't branch on it** |
+| `doc_url` | Link to the code's reference page |
+| `request_id` | This request's id (also in the `X-Request-Id` header) — include in support requests |
+| `param` | The offending parameter, when attributable (optional) |
+| `details` | Per-field validation issues (optional, on validation failures) |
+
+## Why `type` + `code`?
+
+`type` answers "what category of problem" (did *I* send something wrong, is it auth, is it rate limiting, is it Trakyo's fault). `code` answers "which exact problem" and grows additively as the API grows — new codes never change the envelope, so `switch (error.code)` with a `default` branch on `error.type` is the robust client pattern.
+
+## The 5 types
+
+| `type` | Meaning |
+|---|---|
+| `invalid_request_error` | Your request is wrong (validation, unknown resource, conflict, guarded delete…) |
+| `authentication_error` | The API key is missing or invalid |
+| `permission_error` | The key is valid but not allowed to do this |
+| `rate_limit_error` | Too many requests |
+| `api_error` | Trakyo-side failure — safe to retry with backoff |
+
+## All error codes
+
+| Code | Status | Type |
+|---|---|---|
+| [`bad_request`](/docs/errors/bad_request) | 400 | invalid_request_error |
+| [`confirmation_required`](/docs/errors/confirmation_required) | 400 | invalid_request_error |
+| [`invalid_cursor`](/docs/errors/invalid_cursor) | 400 | invalid_request_error |
+| [`invalid_date_range`](/docs/errors/invalid_date_range) | 400 | invalid_request_error |
+| [`invalid_attribution_mode`](/docs/errors/invalid_attribution_mode) | 400 | invalid_request_error |
+| [`unauthorized`](/docs/errors/unauthorized) | 401 | authentication_error |
+| [`forbidden`](/docs/errors/forbidden) | 403 | permission_error |
+| [`insufficient_scope`](/docs/errors/insufficient_scope) | 403 | permission_error |
+| [`not_found`](/docs/errors/not_found) | 404 | invalid_request_error |
+| [`unknown_lead`](/docs/errors/unknown_lead) | 404 | invalid_request_error |
+| [`unknown_content_item`](/docs/errors/unknown_content_item) | 404 | invalid_request_error |
+| [`conflict`](/docs/errors/conflict) | 409 | invalid_request_error |
+| [`qr_code_exists`](/docs/errors/qr_code_exists) | 409 | invalid_request_error |
+| [`payload_too_large`](/docs/errors/payload_too_large) | 413 | invalid_request_error |
+| [`unprocessable_entity`](/docs/errors/unprocessable_entity) | 422 | invalid_request_error |
+| [`youtube_read_only`](/docs/errors/youtube_read_only) | 422 | invalid_request_error |
+| [`rate_limit_exceeded`](/docs/errors/rate_limit_exceeded) | 429 | rate_limit_error |
+| [`internal_server_error`](/docs/errors/internal_server_error) | 500 | api_error |
+| [`service_unavailable`](/docs/errors/service_unavailable) | 503 | api_error |
+
+## Retry guidance
+
+- `429` → wait `Retry-After`, retry.
+- `5xx` → retry with exponential backoff; use [idempotency keys](/docs/idempotency) on creates so retries can't double-write.
+- `4xx` (other) → don't retry unchanged; fix the request.

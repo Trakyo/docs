@@ -1,0 +1,60 @@
+---
+title: First vs last touch
+description: How Trakyo attributes revenue and conversions to content — and why the two modes disagree.
+---
+
+Attribution answers one question: **when money arrives, which piece of content gets the credit?**
+
+A lead usually interacts with more than one piece of content before buying. They discover you through a YouTube video in March, click through a few emails, then book a call from an Instagram reel in May and buy. Which content "made" that sale — the video or the reel? There's no single right answer, so Trakyo gives you both perspectives:
+
+- **First touch** — credit goes to the content that **first brought the lead in** (the March video). This view rewards *discovery*: what fills the top of your funnel.
+- **Last touch** — credit goes to the content the lead **last interacted with before converting** (the May reel). This view rewards *closing*: what pushes people over the line.
+- **Multi-touch (split credit)** — in the dashboard only: every piece of content in the journey gets an equal share (the video and the reel would each get half). This view rewards *everything that helped*.
+
+## How it works in the API
+
+Analytics endpoints accept an `attribution` query parameter:
+
+```bash
+# first_touch is the default
+curl "https://api.trakyo.io/v1/metrics?period=30d&attribution=last_touch" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+Any other value returns [`400 invalid_attribution_mode`](/docs/errors/invalid_attribution_mode).
+
+:::caution{title="Multi-touch is app-exclusive for now"}
+
+The Trakyo dashboard also offers **Multi-touch (split credit)**, which splits credit equally across every touch in a lead's journey (stored as `linear`). Multi-touch is **not available via the API yet** — it's app-exclusive for now.
+
+Also note the API **never reads your account's dashboard attribution preference** — the mode is set per request via the `attribution` parameter. If your dashboard is set to multi-touch (or last touch) and you call the API without the parameter, you get **first-touch** numbers, which will not match what you see in-app.
+
+:::
+
+The **content and source leaderboards return both revenues on every row** — no need for two calls:
+
+```json
+{
+  "name": "How we 10x'd our funnel",
+  "type": "youtube",
+  "revenue": { "first_touch": "21973.00", "last_touch": "6473.00" },
+  ...
+}
+```
+
+## Why the numbers disagree — and what that tells you
+
+That example above is real: one video drove **$21,973 first-touch but only $6,473 last-touch**. Same video, same transactions — different question being asked.
+
+- **High first-touch, low last-touch** → a *discovery asset*. It brings in people who buy later through other touchpoints. Cutting it would starve the funnel even though it "closes" little.
+- **Low first-touch, high last-touch** → a *closer*. Retargeting ads and "final CTA" content look like this. It converts demand that other content created.
+- **Total revenue is the same in both modes** — attribution never changes *how much* you earned, only *how it's distributed* across content.
+
+## Manual overrides
+
+`POST /v1/transactions` attributes automatically from the lead's journey. To pin a transaction to specific content, `PATCH /v1/transactions/{id}` with a single `content_item_id` (`ci_…`) — it is written to **both** first- and last-touch, and the transaction is marked `attribution_is_manual: true`. (The `first_touch_content_item_id` / `last_touch_content_item_id` fields on transaction responses are read-only; attribution can be changed but not cleared via the API.)
+
+## Related
+
+- The [funnel endpoint](/docs/api) reports its stages under one attribution mode at a time (the `attribution` parameter).
+- Timezone matters for day boundaries: pass `timezone` (IANA name) or get UTC.

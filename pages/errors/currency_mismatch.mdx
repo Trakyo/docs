@@ -1,0 +1,28 @@
+---
+title: currency_mismatch
+description: "409 — the reversal currency differs from the original conversion's."
+---
+
+**HTTP 409 · type `invalid_request_error`**
+
+A reversal must be in the **same currency** as the conversion it reverses, so the
+refund nets cleanly against the original at the original's exchange rate.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "currency_mismatch",
+    "message": "The reversal currency must match the original conversion.",
+    "doc_url": "https://trakyo.io/docs/errors/currency_mismatch",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "currency"
+  }
+}
+```
+
+## How to fix
+
+Send the reversal in the original conversion's currency. If your processor
+refunded in a different currency, convert back to the original currency on your
+side and send that amount.

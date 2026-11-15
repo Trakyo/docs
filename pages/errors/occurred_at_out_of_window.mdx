@@ -1,0 +1,25 @@
+---
+title: occurred_at_out_of_window
+description: "400 — occurred_at is more than 30 days old or in the future."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+A conversion's `occurred_at` is outside the accepted window: more than **30 days** before now, or more than a day in the **future**. Trakyo rejects these loudly rather than silently re-dating the event to now — a silent shift would make historical revenue land on ingest day and never reconcile month-over-month.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "occurred_at_out_of_window",
+    "message": "occurred_at must be within the last 30 days and not in the future.",
+    "doc_url": "https://trakyo.io/docs/errors/occurred_at_out_of_window",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "occurred_at"
+  }
+}
+```
+
+## How to fix
+
+Send `occurred_at` within the last 30 days (RFC-3339, not in the future), or omit it to default to now. Backfilling conversions older than 30 days needs a dedicated import path — [contact support](https://trakyo.io) rather than back-dating through this endpoint.

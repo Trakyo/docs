@@ -1,0 +1,29 @@
+---
+title: reversal_exceeds_original
+description: "400 — the reversal would refund more than the conversion's value."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+A reversal's `value`, added to everything already reversed against this
+conversion, would exceed the original conversion's value. You cannot refund more
+than was charged.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "reversal_exceeds_original",
+    "message": "This reversal would exceed the original conversion's value.",
+    "doc_url": "https://trakyo.io/docs/errors/reversal_exceeds_original",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "value"
+  }
+}
+```
+
+## How to fix
+
+Partial reversals are allowed and repeatable — check how much is already reversed
+(`amount_reversed` on the conversion) and send at most the remainder. A full
+refund is `original value − amount_reversed`.

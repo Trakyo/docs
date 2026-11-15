@@ -1,0 +1,110 @@
+---
+title: Install the tracking tag
+description: One script tag, in one shape, on every page. What it is, why the shape matters, and how to prove it works.
+---
+
+Trakyo attributes form submissions, bookings and payments to the YouTube video,
+ad or link that earned them. It works by loading one script on every page of
+your site, which sets a first-party visitor id (`trakyo_id`) and passes it into
+every form, booking widget and checkout the visitor touches.
+
+**The whole install is one script tag, in one shape, on every page.** Most broken
+installs are the right tag in the wrong shape.
+
+:::tip{title="Using a coding agent?"}
+
+Claude Code, Cursor, Codex, Lovable and v0 can do this install for you, correctly,
+with the Trakyo skills. See [Install with an agent](/docs/install/agents).
+
+:::
+
+## 1. The tag
+
+Find your **tracking host** in the dashboard under *Custom Domains*; it looks like
+`go.yourdomain.com`. If you have not set one up yet, `trakyo.link` works as a fallback.
+
+```html
+<!-- Trakyo -->
+<script src="https://HOST/api/js/latest.js"></script>
+```
+
+Put it in `<head>`, above any booking or form embed and above your app bundle,
+exactly once per page, on every page of every funnel domain.
+
+## 2. Why the shape matters
+
+Every "improvement" to that tag is a bug. Each row is a way a correct-looking
+install lost attribution on a real site.
+
+| Rule | Why |
+|---|---|
+| **No `defer`** | A deferred script runs after HTML parsing. Every booking and form vendor (Calendly, Typeform, iClosed, Tally, GHL, HubSpot) ships an `async` embed that builds its iframe first; Trakyo then has to reload that iframe with the visitor id, which resets the widget and loses any booking finished before the reload. |
+| **No `async`** | Still a race; loses whenever Trakyo's fetch is slower than the vendor CDN. A plain blocking tag is the only remote shape that reliably wins. Measured cost: about 3 ms at a typical 40 ms fetch. |
+| **In `<head>`**, above any booking or form embed and above the app bundle | The script must run before anything that builds an iframe, reads the URL, or rewrites it. |
+| **Exactly once per page** | Duplicates double-count visits and race each other's cookie writes. Check layouts, templates, GTM and `index.html` for a second copy. |
+| **Never self-host** | The script lives at `/api/js/latest.js` so fixes ship without anyone re-pasting. A local copy freezes the site on whatever version was downloaded. |
+| **Load from your own host** | A tag that loads from another account's host sends events to the wrong account. |
+
+Do not wrap it in a tag manager, a consent gate, or a lazy loader unless the site
+already gates *every* analytics script that way. If it must be gated, load it
+synchronously the moment consent is granted and before any embed renders.
+
+## 3. Keep the visitor id alive
+
+The script reads `?trakyo_id=` (and `?tclid=`) off the landing URL and stores it
+in a 90-day apex-scoped cookie plus `localStorage`. Everything after that depends
+on the id not being thrown away:
+
+- **Every redirect keeps the query string.** Router redirects, trailing-slash and
+  `www` canonicalisation, locale redirects: all of them forward `location.search`.
+- **Never "clean" the URL.** No `history.replaceState` that strips query
+  parameters, no canonical-URL helper that removes `trakyo_*` keys. Canonical
+  `<link>` tags handle SEO.
+- **Cross-domain hops** (site to a separate checkout or app domain): append
+  `trakyo_id` to the outgoing link, read from `window.trakyo_id` or the
+  `trakyo_id` cookie.
+- **Forms**: give every lead-capturing form a hidden input named `trakyo_id`; the
+  script fills it. Post it with the lead.
+- **Purchases recorded on a server** must be sent with `identity.trakyo_id`; see
+  [Tracking conversions](/docs/conversions).
+
+## 4. Content-Security-Policy
+
+If the site sets a CSP, allow the tracking host:
+
+```
+script-src https://HOST; connect-src https://HOST; worker-src blob:
+```
+
+## 5. Verify
+
+`POST /v1/setup/verify` fetches a page and applies the rules above. It needs an API
+key with the `links:read` [scope](/docs/scopes).
+
+```bash
+curl -s https://api.trakyo.io/v1/setup/verify \
+  -H "Authorization: Bearer tky_live_..." -H "Content-Type: application/json" \
+  -d '{"url":"https://www.yourdomain.com/"}'
+```
+
+- `status`: `ok` is done. `degraded`, `broken` or `not_installed` come with
+  `findings[].fix`, the literal markup already filled in with your host; apply
+  each one and re-run.
+- `unknown` means **could not determine**, never "broken". Client-rendered apps
+  (Vite/React builds from Lovable, v0, Bolt) inject the tag at runtime; judge
+  those by `recent_activity` and the dashboard.
+- `recent_activity` is "this domain sent us an event in the last 24 h": an
+  account-plus-domain signal, not proof that this exact page works.
+
+To test URL handling without recording a visit, open
+`https://www.yourdomain.com/?trakyo_id=probe-<random>` in a fresh browser
+context. A `trakyo_id` on the landing URL is treated as "arrived from a tracking
+link": the tag stores it and tags links and embeds with it, but posts no visit.
+Confirm the query string survives every redirect, `window.trakyo_id` equals the
+probe, and the probe appears on every booking link, embed `src` and checkout URL.
+
+The same checks run from the command line with
+[`check-install.mjs`](https://github.com/Trakyo/skills/blob/main/skills/trakyo-install/scripts/check-install.mjs)
+(Node 18+, no dependencies): it prints every redirect hop and whether the query
+string survived it, applies the static rules, and with `--api-key` calls the
+verify endpoint. Exit 0 is a pass, 1 a critical finding, 2 a fetch or usage error.

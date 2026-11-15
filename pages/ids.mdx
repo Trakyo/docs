@@ -1,0 +1,39 @@
+---
+title: Object IDs
+description: Prefixed public ids (lead_, txn_, ci_, src_, note_) and the two exceptions.
+---
+
+Most objects in the API are identified by a **prefixed id** — a short type tag, an underscore, and a UUID:
+
+```
+lead_3fa85f64-5717-4562-b3fc-2c963f66afa6
+txn_9b2e4a10-88cd-4b31-9d4e-1f6a2c8b0d47
+```
+
+The prefix makes ids self-describing: you can tell what an id refers to on sight, in logs, and in support requests — and the API can reject an id passed in the wrong field before touching the database.
+
+## The five prefixes
+
+| Prefix | Object | Appears in |
+|---|---|---|
+| `lead_` | Lead | `/v1/leads*`, transaction `lead_id` |
+| `txn_` | Transaction | `/v1/transactions*` |
+| `ci_` | Content item | `/v1/content*`, link `content_item_id`, attribution overrides |
+| `src_` | Custom source | `/v1/sources*` |
+| `note_` | Lead note | `/v1/leads/{id}/notes*` |
+
+## Rules
+
+- **Round-trip ids exactly as returned.** Don't strip the prefix, don't build ids by hand from raw UUIDs.
+- Sending a **wrong-prefix or malformed id** → [`400 bad_request`](/docs/errors/bad_request) naming the parameter.
+- A **well-formed id that doesn't exist in your account** → `404` ([`not_found`](/docs/errors/not_found), or the field-specific [`unknown_lead`](/docs/errors/unknown_lead) / [`unknown_content_item`](/docs/errors/unknown_content_item) on writes that reference them).
+- Ids are stable for the life of the object and unique within your account.
+
+## The two exceptions
+
+- **Links have no single id.** A link is identified by the pair `{domain_id}/{key}` (its domain UUID + slug), which is also its address: `GET /v1/links/{domain_id}/{key}`.
+- **Domains are raw UUIDs** (no `dom_` prefix): `00000000-0000-0000-0000-000000000000` is the shared `trakyo.link` domain. Use the values from `GET /v1/domains` as-is.
+
+## Special case: channels have no id
+
+In `/v1/sources` responses, computed channels (YouTube, Meta ads, referrers, "other") return `"id": null` — they're groupings, not stored objects, so they can't be fetched by id or written to. Only **custom sources** carry a `src_` id.

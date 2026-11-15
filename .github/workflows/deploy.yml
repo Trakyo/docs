@@ -1,0 +1,179 @@
+name: Deploy
+
+# Publishes trakyo.io/docs (Worker `trakyo-docs-site`) when:
+#   - main changes (a merged pull request);
+#   - someone runs it by hand (Actions → Deploy → Run workflow);
+#   - another system sends `repository_dispatch` type `api-deployed`;
+#   - hourly, but only if the live API spec differs from the one the site was
+#     built from (trakyo.io/docs/openapi.sha256), so the API reference follows
+#     every API release within about an hour without anyone doing anything.
+#
+# Three jobs, so the deploy token never meets this repo's build code:
+#   build  — no secrets; installs, checks, builds, uploads dist/.
+#   deploy — Environment `production` (main only) holds CLOUDFLARE_API_TOKEN,
+#            a token that can edit this one Worker and nothing else. It installs a
+#            pinned wrangler outside the repo and uploads the built files.
+#   report — if anything failed, or the checks found a problem, opens (or
+#            comments on) a GitHub issue so a person hears about it.
+#
+# GitHub turns scheduled workflows off after 60 days without activity in a
+# public repo; it emails first. Re-enable under Actions if that happens.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      override_dashboard_config:
+        description: "Deploy even though the Worker was changed in the Cloudflare dashboard (the last deploy was refused). Read the refused run's diff first."
+        type: boolean
+        default: false
+  repository_dispatch:
+    types: [api-deployed]
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+# One deploy at a time; a newer pending run replaces an older pending one.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  WRANGLER_VERSION: "4.118.0"
+
+jobs:
+  stale:
+    name: Is the API reference stale?
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/spec-hash.mjs
+          sparse-checkout-cone-mode: false
+      - id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" != schedule ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          curl -fsS https://api.trakyo.io/openapi.json -o live.json
+          live=$(node scripts/spec-hash.mjs live.json)
+          site=$(curl -fsS https://trakyo.io/docs/openapi.sha256 || echo missing)
+          echo "live spec $live, site built from $site"
+          if [ "$live" = "$site" ]; then echo "run=false" >> "$GITHUB_OUTPUT"; else echo "run=true" >> "$GITHUB_OUTPUT"; fi
+
+  build:
+    needs: stale
+    if: needs.stale.outputs.run == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      checks: ${{ steps.checks.outcome }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch the live API spec
+        run: node scripts/fetch-spec.mjs --strict
+
+      # Never blocks a deploy: a new API error code without its page should not
+      # also hold back the rest of the reference. The report job raises it.
+      - name: Content checks
+        id: checks
+        continue-on-error: true
+        run: node scripts/check.mjs
+
+      - name: Build the site
+        run: npm run build
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # A run started before a newer commit landed must not publish the older
+      # site last. The newer commit's own run deploys it.
+      - name: Still the newest commit on main?
+        id: fresh
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          head=$(git ls-remote origin refs/heads/main | cut -f1)
+          if [ "$head" = "$SHA" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::main moved to $head; that commit's run deploys instead."; fi
+
+      - if: steps.fresh.outputs.ok == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: site
+          path: dist/
+
+      # wrangler comes from npm at a pinned version, outside the repo's own
+      # package files, so nothing a pull request adds runs next to the token.
+      - if: steps.fresh.outputs.ok == 'true'
+        name: Install wrangler ${{ env.WRANGLER_VERSION }}
+        run: |
+          mkdir "$RUNNER_TEMP/wrangler" && cd "$RUNNER_TEMP/wrangler"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund "wrangler@$WRANGLER_VERSION"
+
+      - if: steps.fresh.outputs.ok == 'true'
+        name: Deploy to Cloudflare
+        working-directory: ${{ runner.temp }}/wrangler
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: cda21990b8ba434d33f6abeecad26ae1
+          OVERRIDE_DASHBOARD_CONFIG: ${{ inputs.override_dashboard_config }}
+        run: bash "$GITHUB_WORKSPACE/scripts/wrangler-deploy-guarded.sh" --config "$GITHUB_WORKSPACE/wrangler.jsonc"
+
+  report:
+    needs: [stale, build, deploy]
+    if: >
+      always() &&
+      (needs.stale.result == 'failure' || needs.build.result == 'failure' ||
+       needs.deploy.result == 'failure' || needs.build.outputs.checks == 'failure')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the "docs deploy" issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          STATUS: "stale: ${{ needs.stale.result }}, build: ${{ needs.build.result }}, checks: ${{ needs.build.outputs.checks }}, deploy: ${{ needs.deploy.result }}"
+        run: |
+          title="trakyo.io/docs: a deploy or content check failed"
+          body="Run: $RUN"$'\n'"Result: $STATUS"$'\n\n'"If only the checks failed, the site was still published: open the run, read the annotations (usually an API error code without a page in pages/errors/). Close this issue once fixed."
+          n=$(gh issue list -R "$REPO" --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$n" ]; then gh issue comment "$n" -R "$REPO" --body "$body"
+          else gh issue create -R "$REPO" --title "$title" --body "$body"; fi
+          exit 1

@@ -1,0 +1,92 @@
+---
+title: Quickstart
+description: Make your first Trakyo API call in two minutes.
+---
+
+## 1. Get an API key
+
+Create an API key in the Trakyo dashboard (**API & MCP** in the sidebar, under *More*). Keys look like:
+
+```
+tky_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+(32 hex characters after the prefix — the examples in these docs use `tky_live_...` as a placeholder; substitute your own key.)
+
+Give the key only the [scopes](/docs/scopes) it needs — for this quickstart, `metrics:read` is enough.
+
+Treat the key like a password: it is shown once at creation, and it identifies your whole account.
+
+## 2. Call the API
+
+Every request sends the key as a Bearer token:
+
+```bash
+curl "https://api.trakyo.io/v1/metrics?period=7d" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+A successful response returns your account totals for the last 7 days:
+
+```json
+{
+  "object": "metrics",
+  "range": { "start": "2026-06-30", "end": "2026-07-07", "timezone": "UTC" },
+  "attribution": "first_touch",
+  "currency": "USD",
+  "totals": {
+    "clicks": 1284,
+    "visits": 3410,
+    "form_submissions": 210,
+    "bookings": 34,
+    "transactions": 12,
+    "revenue": "8450.00",
+    "aov": "704.17"
+  }
+}
+```
+
+(`aov` is average order value — `null` when there are no transactions. Add `?compare=previous` to also get a `comparison` block with the prior period's totals and deltas.)
+
+Two conventions you'll see everywhere:
+
+- Money is a **decimal string** (`"8450.00"`), never a JSON number — see [Money format](/docs/money).
+- Analytics default to **first-touch attribution** — see [First vs last touch](/docs/attribution).
+
+## 3. Explore from there
+
+- List your leads: `GET /v1/leads?warmth=hot` (requires `leads:read`)
+- See a content leaderboard: `GET /v1/content?period=30d` (requires `content:read`)
+- Create a short link: `POST /v1/links` (requires `links:write`)
+
+The full list of endpoints, parameters, and response shapes lives in the [API Reference](/docs/api) — which is generated directly from the API's own validation schemas, so it always matches production behavior. (Building with an AI assistant or a code generator? Feed it the raw OpenAPI 3.1 spec at `https://api.trakyo.io/openapi.json` — it contains every parameter with descriptions.)
+
+## Try it in your browser — no code needed
+
+Every endpoint in the [API Reference](/docs/api) has a **Test** button that opens an interactive playground and sends a **real request to the live API**:
+
+1. Open the [API Reference](/docs/api) and pick an endpoint (e.g. **List links**).
+2. Click **Test** (top right of the endpoint).
+3. In the **Headers** section, add one row: Name `Authorization`, Value `Bearer tky_live_your_key_here`.
+4. Fill any **Query Parameters** you want (e.g. `limit` = `10`).
+5. Hit **Send** (or ⌘ + Enter) — the response panel shows the live status, headers, and JSON body.
+
+Without step 3 you'll get a real [`401 unauthorized`](/docs/errors/unauthorized) response — useful for seeing the [error envelope](/docs/errors), but no data. Requests run against your real account, so stick to `GET` endpoints while exploring; writes (`POST`/`PATCH`/`DELETE`) do exactly what they say.
+
+## If something goes wrong
+
+Every error has the same shape, with a stable machine-readable `code` and a link to its own documentation page:
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "unauthorized",
+    "message": "Invalid API key.",
+    "doc_url": "https://trakyo.io/docs/errors/unauthorized",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+See [Errors](/docs/errors) for the full catalog.

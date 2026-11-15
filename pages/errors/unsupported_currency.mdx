@@ -1,0 +1,25 @@
+---
+title: unsupported_currency
+description: "400 — the currency isn't one Trakyo can convert to USD."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+A conversion's `currency` is not in Trakyo's supported ISO-4217 set, so there is no exchange rate to convert it to USD. Cryptocurrencies (BTC, USDT, …) are rejected here — they have no ISO-4217 code and no row in the rate table.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "unsupported_currency",
+    "message": "Currency \"BTC\" is not supported.",
+    "doc_url": "https://trakyo.io/docs/errors/unsupported_currency",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "currency"
+  }
+}
+```
+
+## How to fix
+
+Send the amount in a supported fiat currency (`USD`, `EUR`, `GBP`, …). For crypto settlements, convert to your settlement currency on your side first and send that value and currency — your settlement rate is more accurate than anything we could reconstruct.

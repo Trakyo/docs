@@ -1,0 +1,57 @@
+---
+title: Agency client access
+description: Read every client account you manage with one key.
+---
+
+If your Trakyo account is an agency — it manages client accounts you can switch into in the app — one API key can read all of those clients. Nothing changes for the client: their data stays in their account; your key is simply allowed to read it, checked on every request against your current client list.
+
+## How it works
+
+1. Have a key with the **`agency:read`** scope. Every active key on an agency account carries it automatically: it is added the moment your account gets its first client and removed if you lose your last one, and it is on by default when you create a key or connect Claude/ChatGPT. Check what a key has with `GET /v1/keys/self` (read on every call; a change made a moment ago can take up to a second to show).
+2. List your clients:
+
+   ```bash
+   curl "https://api.trakyo.io/v1/accounts" \
+     -H "Authorization: Bearer tky_live_..."
+   ```
+
+3. Read any endpoint **for a client** by naming it in the `X-Trakyo-Account` header:
+
+   ```bash
+   curl "https://api.trakyo.io/v1/metrics?period=30d" \
+     -H "Authorization: Bearer tky_live_..." \
+     -H "X-Trakyo-Account: 44444444-4444-4444-4444-444444444444"
+   ```
+
+   The response echoes `X-Trakyo-Account` so you can confirm which account answered. Without the header, the key reads your own account exactly as before.
+
+## Rules
+
+- **Verified on every request.** Each call re-checks that the account is a client of yours *right now*. Remove a client from your agency and the next request is refused; add one and the next request works. Nothing is cached on the key.
+- **Reads only.** The header is accepted on `GET` requests only. Any `POST`, `PATCH` or `DELETE` carrying it is refused with `403` before anything is written — your key can never change a client's data.
+- **Onboarding parity with the app.** A client that has not finished onboarding is listed by `GET /v1/accounts` with `onboarding_complete: false`, but reads against it are refused until they finish — the same rule the app applies to switching into a client.
+- **The scope grants nothing by itself.** `agency:read` only makes the header *eligible*; the client relationship is the boundary. A key on a client account, or on an account with no clients, cannot use it.
+- **Not on partner or account endpoints.** `/v1/accounts` and `/v1/partner/*` refuse the header.
+
+## Responses
+
+| Situation | Response |
+|---|---|
+| Key lacks `agency:read` | [`403 insufficient_scope`](/docs/errors/insufficient_scope) |
+| Account is not currently your client, does not exist, or the key is no longer live | [`403 forbidden`](/docs/errors/forbidden) — one message for all of these, so the API cannot be used to probe which accounts exist |
+| Client has not finished onboarding | [`403 forbidden`](/docs/errors/forbidden) with a message saying so |
+| Header on a non-`GET` request | [`403 forbidden`](/docs/errors/forbidden) |
+| Header is not a single UUID | [`400 bad_request`](/docs/errors/bad_request) with `param: "X-Trakyo-Account"` |
+| The client check itself could not run | [`503 service_unavailable`](/docs/errors/service_unavailable) — fail closed, retry |
+
+## Rate limits
+
+Client reads are limited **per key and per client**: each client you read through the key gets its own [read budget](/docs/rate-limits), so reading all of your clients does not exhaust a single allowance.
+
+## Good to know
+
+- **Cursors are per account.** A `next_cursor` from one client's list is meaningless for another; page each client separately.
+- **A rotated key keeps the scope.** Rotation copies scopes, so reach is still whatever your client list is at call time.
+- **Existing Claude/ChatGPT connections need no reconnect.** The connector re-reads its key's scopes from `GET /v1/keys/self` each time it refreshes its token (about hourly while in use), so a scope granted after you connected shows up in your next new chat.
+- **Audit log.** Every client read is recorded against the client's account with your account as the actor, so "everything that happened to account X" includes what its agency read.
+- **MCP.** The Claude/ChatGPT connector exposes the same thing as a `list_client_accounts` tool plus an optional `account_id` on every read tool; every answer names the account it came from.

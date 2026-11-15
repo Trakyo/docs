@@ -1,0 +1,41 @@
+---
+title: Authentication
+description: How Trakyo API keys work.
+---
+
+The Trakyo API authenticates every request with an API key sent as a Bearer token:
+
+```bash
+curl "https://api.trakyo.io/v1/links" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
+## Key format
+
+```
+tky_live_<32 hex characters>   # production keys
+tky_test_<32 hex characters>   # test keys
+```
+
+Keys are created in the Trakyo dashboard (**API & MCP** in the sidebar, under *More*). The secret is shown **once** at creation — store it in a secrets manager. Keys are stored hashed (SHA-256); Trakyo cannot recover a lost key, only issue a new one.
+
+## Rules
+
+- **Header only.** The key goes in the `Authorization` header — never in a URL or query string (URLs end up in logs).
+- **Scoped.** Each key carries a set of [scopes](/docs/scopes) that limit what it can do. A valid key without the required scope gets [`403 insufficient_scope`](/docs/errors/insufficient_scope).
+- **Account-wide.** A key acts on the whole account's data, including data created by other team members. Agencies can additionally read their client accounts with an [`agency:read`](/docs/agency) key and the `X-Trakyo-Account` header.
+- **HTTPS only.** `api.trakyo.io` does not serve plaintext HTTP.
+
+## Failure modes
+
+| Situation | Response |
+|---|---|
+| Missing/malformed `Authorization` header | [`401 unauthorized`](/docs/errors/unauthorized) |
+| Key doesn't exist, was revoked, or expired | [`401 unauthorized`](/docs/errors/unauthorized) |
+| Key valid, endpoint's scope missing | [`403 insufficient_scope`](/docs/errors/insufficient_scope) |
+
+The `WWW-Authenticate` semantics are conventional: retrying with the same bad key will not succeed — fix the key or its scopes first.
+
+## Request IDs
+
+Every response (success or error) carries an `X-Request-Id` header (and error bodies repeat it as `request_id`). Log it — it's the fastest way for support to find your exact request.

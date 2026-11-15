@@ -1,0 +1,31 @@
+---
+title: not_found
+description: "404 — no such resource or endpoint."
+---
+
+**HTTP 404 · type `invalid_request_error`**
+
+The requested resource doesn't exist in your account, or the URL doesn't match any endpoint.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "not_found",
+    "message": "Lead not found.",
+    "doc_url": "https://trakyo.io/docs/errors/not_found",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## Common causes
+
+- The object was deleted (point-reads are strongly consistent — a just-deleted object 404s immediately)
+- An id from a *different* account — for tenant isolation, someone else's ids are indistinguishable from nonexistent ones
+- A typo'd URL path (wrong endpoint entirely)
+- Fetching a computed channel (YouTube/Meta/referrer/other) by id on `/v1/sources/{id}` or `/v1/content/{id}` — channels [have no ids](/docs/ids)
+
+## How to fix
+
+Confirm the id came from a list/read of the **same account's** data, unmodified (see [Object IDs](/docs/ids)). A malformed or wrong-prefix id fails earlier with [`400 bad_request`](/docs/errors/bad_request); a well-formed but unknown id lands here.

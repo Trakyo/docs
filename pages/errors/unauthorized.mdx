@@ -1,0 +1,31 @@
+---
+title: unauthorized
+description: "401 — missing or invalid API key."
+---
+
+**HTTP 401 · type `authentication_error`**
+
+The request has no usable API key: the `Authorization` header is missing or malformed, or the key doesn't exist, was revoked, or has expired.
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "unauthorized",
+    "message": "Invalid API key.",
+    "doc_url": "https://trakyo.io/docs/errors/unauthorized",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## Common causes
+
+- Header missing entirely, or not in the form `Authorization: Bearer tky_live_…`
+- Key pasted with whitespace/truncation (keys are `tky_live_`/`tky_test_` + 32 hex chars)
+- Key was rotated or revoked in the dashboard
+- Key expired (if it was created with an expiry)
+
+## How to fix
+
+Verify the header format and the key value in your secrets store. If the key was rotated, deploy the new value. Retrying with the same credentials will keep failing — see [Authentication](/docs/authentication).

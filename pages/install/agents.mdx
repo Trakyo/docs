@@ -1,0 +1,99 @@
+---
+title: Install with an agent
+description: Three Agent Skills teach Claude Code, Cursor, Codex, Lovable, v0 and any other coding agent to install Trakyo correctly, keep it working, and send attributed conversions.
+---
+
+Trakyo ships three [Agent Skills](https://agentskills.io): folders of instructions
+a coding agent reads when the task calls for them. They hold what an agent does
+not know on its own: the exact tag shape and why, the URL rules that keep the
+visitor id alive, which vendor embeds auto-tag, and the one field that decides
+whether a conversion is attributed.
+
+| Skill | The agent uses it when |
+|---|---|
+| `trakyo-install` | Installing the tag on a site, or auditing an install that "isn't working" |
+| `trakyo-tracking-guard` | Changing a site that is already tracked: redirects, routers, forms, checkout links, consent banners, CSP |
+| `trakyo-conversions` | Sending purchases, signups or bookings from a backend or thank-you page |
+
+Each skill's description says which sibling to use instead, so an agent holding
+all three picks the right one.
+
+## Install the skills
+
+Any of these; they install the same files.
+
+```bash
+# From the domain. Each skill is a release tarball whose SHA-256 digest the
+# CLI verifies against https://trakyo.io/.well-known/agent-skills/index.json
+npx skills add https://trakyo.io
+
+# From the GitHub repo
+npx skills add Trakyo/skills
+npx skills add Trakyo/skills --skill trakyo-install -a claude-code
+
+# Claude Code plugin
+claude plugin marketplace add Trakyo/skills
+claude plugin install trakyo@trakyo
+```
+
+Manual, for any agent that reads `SKILL.md` files: copy `skills/<name>/` from
+[github.com/Trakyo/skills](https://github.com/Trakyo/skills) into
+`~/.claude/skills/` (global) or `.claude/skills/` (one project).
+
+The skills are also readable without installing anything. The Trakyo MCP server
+exposes the install guide as the resource `trakyo://install-guide`, and the
+source of every skill is public.
+
+## What to expect
+
+Ask the agent in plain words: "install Trakyo tracking, our host is
+go.yourdomain.com", "make sure tracking still works after this change", or
+"send paid orders from the Stripe webhook to Trakyo". The skill makes it:
+
+- put one blocking tag in `<head>`, once, from your host, above every embed;
+- forward the query string on every redirect and delete URL-cleaning code;
+- add a hidden `trakyo_id` input to each lead form and carry the id to any
+  separate checkout domain;
+- send `identity.trakyo_id` with every server-side conversion and log the
+  `attribution` block of every response;
+- run the bundled `check-install.mjs` against your live URLs, or tell you which
+  command to run once the site is deployed;
+- add a Trakyo section to your project's `AGENTS.md` so the next edit does not
+  undo the work.
+
+Every skill carries evals (realistic tasks on fixture projects, graded by
+script). With the skill, Claude Sonnet 4.5 passed 46 of 46 assertions; without
+it, 29 of 46. The per-model results live in each skill's `evals/README.md`.
+
+## Security and network behaviour
+
+Read this before installing from any source, including this one.
+
+- **No skill fetches instructions at runtime.** Everything the agent reads is in
+  the repository.
+- **One script, and exactly what it does.** `check-install.mjs` performs HTTP
+  GETs against the URLs you pass (and the redirects they lead to), and, only when
+  an API key is given, a `POST https://api.trakyo.io/v1/setup/verify` per URL. It
+  writes no files, spawns no processes, and reads no environment variable except
+  `TRAKYO_API_KEY`. The key goes to `api.trakyo.io` as a bearer token and nowhere
+  else; it is never printed.
+- **Identification, not identity.** The script sends
+  `User-Agent: trakyo-skill/check-install@<version>`, and the documented `curl`
+  examples send `X-Trakyo-Skill: <skill>@<version>`, so a site owner can
+  recognise the traffic and Trakyo can count skill-driven requests. The header
+  carries nothing about you; your API key is the only credential.
+- **Scopes.** An API key with `links:read` is enough for the verify endpoint and
+  `conversions:write` for conversions. Do not hand the agent a wider key.
+- **What the skills change** is limited to what the task names: the tag, redirects
+  and URL handling, forms and checkout links, conversion calls, and an
+  `AGENTS.md` section. They never touch credentials, CI secrets or deployment
+  configuration.
+
+Report a security concern to security@trakyo.io.
+
+## Versions
+
+The three skills share one version, tagged on the public repo (`v1.2.0` and so
+on) with a tarball and SHA-256 digest per skill. `metadata.version` in each
+`SKILL.md` names it, and the changelog is
+[CHANGELOG.md](https://github.com/Trakyo/skills/blob/main/CHANGELOG.md).

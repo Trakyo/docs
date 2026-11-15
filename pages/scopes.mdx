@@ -1,0 +1,37 @@
+---
+title: Scopes
+description: Per-key permissions — what each scope unlocks.
+---
+
+Every API key carries a set of scopes chosen at creation. Each endpoint requires exactly one scope; a valid key without it gets [`403 insufficient_scope`](/docs/errors/insufficient_scope) (the error message names the missing scope).
+
+Grant the minimum set your integration needs — read scopes for dashboards, write scopes only where you actually create or modify data.
+
+## The scopes
+
+| Scope | Unlocks |
+|---|---|
+| `links:read` | `GET /v1/links`, `GET /v1/links/{domain_id}/{key}`, `GET …/clicks`, **`GET /v1/domains`, and `POST /v1/setup/verify`** |
+| `links:write` | `POST /v1/links`, `PATCH`/`DELETE /v1/links/{domain_id}/{key}` |
+| `metrics:read` | `GET /v1/metrics`, `GET /v1/metrics/timeseries`, `GET /v1/funnel` |
+| `content:read` | `GET /v1/content`, `GET /v1/content/{id}`, **and the sources reads** (`GET /v1/sources`, `GET /v1/sources/{id}`) |
+| `content:write` | `POST /v1/content`, `PATCH`/`DELETE /v1/content/{id}` |
+| `sources:write` | `POST /v1/sources`, `PATCH`/`DELETE /v1/sources/{id}` |
+| `leads:read` | `GET /v1/leads`, `GET /v1/leads/{id}`, `GET /v1/leads/{id}/events`, `GET /v1/leads/{id}/notes` |
+| `leads:write` | `POST /v1/leads`, `DELETE /v1/leads/{id}`, note create/edit/delete |
+| `transactions:read` | `GET /v1/transactions`, `GET /v1/transactions/{id}` |
+| `transactions:write` | `POST /v1/transactions`, `PATCH`/`DELETE /v1/transactions/{id}` |
+| `conversions:read` / `conversions:write` | Server-side [conversions](/docs/conversions) |
+| `agency:read` | `GET /v1/accounts`, and the `X-Trakyo-Account` header on any `GET` — read your [agency's client accounts](/docs/agency). Mintable only by an account that has clients. |
+
+## Two quirks worth knowing
+
+- **There is no `sources:read`.** Source *reads* are covered by `content:read` — sources are the content leaderboard grouped one level up, so read access travels together. Only source *writes* have their own scope.
+- **`agency:read` grants no data by itself.** It makes the `X-Trakyo-Account` header eligible; whether a given account is readable is re-checked against your client list on every request. See [Agency client access](/docs/agency).
+- **There is no `domains` scope.** The read-only `GET /v1/domains` sits under `links:read`, since domain ids exist to be used when creating links. `POST /v1/setup/verify` sits there too — it checks that your tracking script is loaded from one of those same domains, so it reads exactly what `GET /v1/domains` returns. It is a `POST` only because it takes a URL to check; it writes nothing.
+
+## Practical guidance
+
+- **Analytics dashboard integration:** `metrics:read` + `content:read` is usually all you need.
+- **Lead-sync integration:** `leads:read` (+ `leads:write` if you push leads in).
+- **Never share one all-scopes key across systems.** Issue one key per integration so you can revoke narrowly and read the audit log meaningfully.

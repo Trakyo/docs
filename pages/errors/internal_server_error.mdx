@@ -1,0 +1,26 @@
+---
+title: internal_server_error
+description: "500 — an unexpected failure on Trakyo's side."
+---
+
+**HTTP 500 · type `api_error`**
+
+Something failed unexpectedly inside the API. This is Trakyo's fault, not yours — the request may or may not have taken effect.
+
+```json
+{
+  "error": {
+    "type": "api_error",
+    "code": "internal_server_error",
+    "message": "An unexpected error occurred.",
+    "doc_url": "https://trakyo.io/docs/errors/internal_server_error",
+    "request_id": "req_1a2b3c4d5e6f"
+  }
+}
+```
+
+## How to fix
+
+- Retry with exponential backoff.
+- For creates, retry with the same [`Idempotency-Key`](/docs/idempotency) — if the first attempt actually landed, you'll get its response replayed instead of a duplicate.
+- If it persists, report the `request_id` to support — it pinpoints the exact failing request in Trakyo's logs.

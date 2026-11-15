@@ -1,0 +1,34 @@
+---
+title: invalid_date_range
+description: "400 — the start/end window is out of bounds."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+The requested analytics window is invalid. The rules:
+
+- `period` and `start`/`end` are **mutually exclusive** — send one or the other
+- `start` and `end` must be sent **together**
+- `start` must be on or before `end`
+- `start` cannot be in the future (a future `end` doesn't error — it's silently clamped to today)
+- the window cannot exceed **365 days**
+- dates are `YYYY-MM-DD` or RFC-3339 (`2026-06-01T00:00:00Z`), and must be real calendar dates
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_date_range",
+    "message": "Date range cannot exceed 365 days.",
+    "doc_url": "https://trakyo.io/docs/errors/invalid_date_range",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "start"
+  }
+}
+```
+
+## How to fix
+
+- For rolling windows, prefer the `period` shorthand (`24h`, `7d`, `30d`, `90d`) over explicit dates.
+- For longer histories, split into ≤365-day chunks and aggregate client-side.
+- Remember day boundaries follow the `timezone` parameter (default UTC) — an "off by one day" range is usually a timezone mismatch, not a range bug.

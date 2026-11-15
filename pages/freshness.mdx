@@ -1,0 +1,47 @@
+---
+title: Data freshness & caching
+description: Which reads are real-time, which are cached, and what X-Cache tells you.
+---
+
+Different endpoints make different freshness trade-offs, chosen deliberately: identity is always fresh, heavy aggregates are cached briefly. Here's the contract.
+
+## Strongly consistent (read-after-write safe)
+
+These always reflect the latest write, immediately:
+
+- **Point-reads by id**: `GET /v1/leads/{id}`, `GET /v1/transactions/{id}`, and existence/name on `GET /v1/content/{id}` / `GET /v1/sources/{id}`. Delete something, then GET it → immediate `404`. Rename it → immediate new name.
+- **All writes** (`POST`/`PATCH`/`DELETE`) and their responses.
+
+## Near-real-time (~1 minute lag)
+
+- **`GET /v1/leads` and `GET /v1/transactions` lists** are served from the analytics store, which trails writes by up to ~1 minute. A lead you just created may take a few seconds to appear in the list — **don't use lists for read-after-write checks**; use the point-read (`GET /v1/leads/{id}`), which is always fresh.
+
+## Cached aggregates
+
+Heavy analytics are cached per unique query (account + endpoint + all parameters):
+
+| Endpoints | Cache TTL |
+|---|---|
+| `GET /v1/metrics`, `/v1/metrics/timeseries`, `/v1/funnel` | 120 s |
+| `GET /v1/content`, `/v1/sources` (leaderboards) and the metric blocks of `GET /v1/content/{id}`, `/v1/sources/{id}` | 60 s |
+| `GET /v1/leads/{id}/events` (the journey aggregate) | 60 s |
+| `GET /v1/links/{domain_id}/{key}/clicks` | 60 s |
+
+The `X-Cache` response header tells you what happened:
+
+| `X-Cache` | Meaning |
+|---|---|
+| `MISS` | Computed fresh on this request |
+| `HIT` | Served from cache (age < TTL) |
+| `STALE` | Served from a just-expired cache entry (up to one extra TTL old) while a fresh one is recomputed in the background |
+
+Practical implications:
+
+- Repeat requests within the TTL return identical numbers (and are much faster — sub-200ms vs potentially seconds for a big cold aggregate).
+- Because a stale entry can be served for up to one extra TTL while revalidating, metric numbers can trail reality by up to **2× the TTL in the worst case** (~4 minutes for `/v1/metrics`, ~2 minutes for the rest). For dashboards this is invisible; for reconciliation, prefer `/v1/transactions` point-reads.
+- Caching is per-parameter-combination: changing `period`, `attribution`, `currency`, etc. is a separate cache entry.
+- The cache fails open — if the cache layer errors, requests fall through to a direct (slower) read rather than failing.
+
+## Why it works this way
+
+Identity questions ("does this lead still exist?", "what is it called?") are cheap and answered fresh on every request. Aggregate questions ("how much revenue did this video drive?") scan large volumes of events; the 60-second cache keeps them fast and protects the datastore, while incoming events continuously move the numbers anyway — analytics are eventually consistent by nature.

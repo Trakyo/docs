@@ -1,0 +1,26 @@
+{
+  "name": "trakyo-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fetch-spec": "node scripts/fetch-spec.mjs",
+    "predev": "npm run fetch-spec && node scripts/gen-help-nav.mjs --drafts",
+    "dev": "zudoku dev",
+    "prebuild": "node scripts/fetch-spec.mjs --strict && node scripts/gen-help-nav.mjs",
+    "build": "zudoku build",
+    "postbuild": "node scripts/spec-hash.mjs apis/openapi.json > dist/docs/openapi.sha256",
+    "check": "node scripts/check.mjs",
+    "preview": "wrangler dev"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zudoku": "0.82.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.118.0"
+  }
+}

@@ -1,0 +1,31 @@
+---
+title: unknown_lead
+description: "404 — the referenced lead_id doesn't exist in your account."
+---
+
+**HTTP 404 · type `invalid_request_error`**
+
+A write referenced a `lead_id` that doesn't exist in your account. The classic case: `POST /v1/transactions` — transactions must attach to an **existing** lead; the API never auto-creates one.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "unknown_lead",
+    "message": "No lead found for lead_id.",
+    "doc_url": "https://trakyo.io/docs/errors/unknown_lead",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "lead_id"
+  }
+}
+```
+
+## Common causes
+
+- The lead was deleted between your read and this write
+- The id belongs to a different account (cross-tenant ids read as nonexistent — nothing is ever written)
+- The id was hand-built instead of taken from an API response
+
+## How to fix
+
+Create or find the lead first — `POST /v1/leads` performs identity-merge ingestion (matching by email/phone) and returns the lead's id — then reference that `lead_id` in the transaction. Unlike the generic [`not_found`](/docs/errors/not_found), this code tells you *which* field to fix: `param` is `lead_id`.

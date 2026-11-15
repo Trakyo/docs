@@ -1,0 +1,31 @@
+---
+title: invalid_cursor
+description: "400 — the pagination cursor is malformed, tampered, or from a different query."
+---
+
+**HTTP 400 · type `invalid_request_error`**
+
+The `starting_after` token on a leads/transactions list couldn't be used. Cursors are **opaque**: the only valid token is the `next_cursor` the API just gave you, passed back unchanged with the same query.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "invalid_cursor",
+    "message": "The cursor is invalid or does not match this query.",
+    "doc_url": "https://trakyo.io/docs/errors/invalid_cursor",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "starting_after"
+  }
+}
+```
+
+## Common causes
+
+- The token was edited, truncated, or built by hand
+- The token came from a query with a **different `sort`** (cursors are bound to their ordering)
+- A very old token whose internal format has since been rotated
+
+## How to fix
+
+Restart pagination from page one (no `starting_after`) and follow `next_cursor` forward, keeping `sort` and filters identical across pages. See [Pagination](/docs/pagination).

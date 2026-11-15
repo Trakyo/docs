@@ -1,0 +1,31 @@
+---
+title: unknown_conversion
+description: "404 — no conversion (or saved conversion) matches the id you referenced."
+---
+
+**HTTP 404 · type `invalid_request_error`**
+
+A request referenced a conversion that doesn't exist in your account — either a `conversion_id` (saved Custom Conversion) that isn't yours, or, for a reversal, an `external_id` with no matching original conversion.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "unknown_conversion",
+    "message": "No conversion found for that id in this account.",
+    "doc_url": "https://trakyo.io/docs/errors/unknown_conversion",
+    "request_id": "req_1a2b3c4d5e6f",
+    "param": "conversion_id"
+  }
+}
+```
+
+## Common causes
+
+- The `conversion_id` belongs to a different account (cross-tenant ids read as nonexistent)
+- A reversal arrived before the conversion it reverses (out-of-order webhooks) — retry once the original has been ingested
+- The id was hand-built rather than taken from the dashboard or an API response
+
+## How to fix
+
+Reference a `conversion_id` from your saved Custom Conversions, or send the value inline. For a reversal, make sure the original conversion's `external_id` was ingested first.

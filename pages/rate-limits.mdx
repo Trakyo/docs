@@ -1,0 +1,47 @@
+---
+title: Rate limits
+description: Request limits per API key, the headers that report them, and how to back off.
+---
+
+Limits are enforced **per API key**, in fixed 60-second windows, in two layers:
+
+| Tier | Limit | Applies to |
+|---|---|---|
+| General | **120 requests / min** | **Every** `/v1` request — reads *and* writes |
+| Writes | **60 requests / min** | Additionally, all `POST`, `PATCH`, `DELETE` requests |
+
+A write consumes **both** budgets: one unit of the general 120/min limit and one unit of the 60/min write limit. So plan capacity as *total requests ≤ 120/min, of which writes ≤ 60/min* — e.g. 100 reads + 50 writes in the same minute exceeds the general limit even though each tier alone looks fine.
+
+Exceeding either limit returns [`429 rate_limit_exceeded`](/docs/errors/rate_limit_exceeded); write-limit 429s include a `Retry-After` header (seconds).
+
+## Headers
+
+Every response carries two equivalent header families (legacy `X-` and the IETF draft standard):
+
+```
+X-RateLimit-Limit: 120        RateLimit-Limit: 120
+X-RateLimit-Remaining: 119    RateLimit-Remaining: 119
+X-RateLimit-Reset: 1751899200 RateLimit-Reset: 42
+```
+
+Note the one difference: `X-RateLimit-Reset` is an **absolute** Unix timestamp; `RateLimit-Reset` is **delta seconds** until the window resets.
+
+Two caveats:
+
+- **The headers always describe the general 120/min tier** — the 60/min write budget isn't reported in headers; its only signal is the write 429 with `Retry-After`.
+- **`Remaining` is best-effort, not an exact countdown.** Counters are kept per Cloudflare data centre and are eventually consistent, so treat `Remaining` as coarse guidance and the `429` + `Retry-After` as the source of truth.
+
+## Two protective caps on writes
+
+Independent of rate limiting, write requests are also rejected when:
+
+- the body exceeds **1 MB** → [`413 payload_too_large`](/docs/errors/payload_too_large)
+- an array field exceeds **100 items** → [`422 unprocessable_entity`](/docs/errors/unprocessable_entity)
+
+## How to behave on 429
+
+1. Stop sending, wait `Retry-After` seconds, then resume.
+2. Add jitter if multiple workers share a key (better: one key per system).
+3. For creates, retry with the same [`Idempotency-Key`](/docs/idempotency) — a retry after 429 can never double-create.
+
+One design note: the write limiter **fails closed** — if the limiter infrastructure itself is unavailable, writes are denied ([`503 service_unavailable`](/docs/errors/service_unavailable)) rather than allowed unmetered. Reads fail open. Design your write path to tolerate a rare 503 with a retry.

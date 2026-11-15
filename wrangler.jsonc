@@ -1,0 +1,31 @@
+/**
+ * trakyo-docs-site — serves trakyo.io/docs: the static Zudoku build (dist/docs/,
+ * matching basePath "/docs") plus worker.js for requests that match no file.
+ *
+ * NO `routes` HERE, ON PURPOSE. The route `trakyo.io/docs*` is attached to this
+ * Worker once, outside wrangler (Cloudflare dashboard → Workers Routes, or the
+ * API). wrangler only touches routes it is told about: with none listed it never
+ * calls the routes API, so the route stays as it is. Listing it here would make
+ * every deploy read and rewrite the zone's routes, which the deploy token (scoped
+ * to this one Worker, Editor) is deliberately not allowed to do.
+ *
+ * Deployed by .github/workflows/deploy.yml. Never `wrangler deploy` by hand.
+ *
+ * @see https://developers.cloudflare.com/workers/static-assets/ (assets + worker script)
+ * @see https://developers.cloudflare.com/workers/static-assets/routing/ (html_handling / not_found_handling)
+ * @see https://developers.cloudflare.com/workers/authorization/workers/ (per-Worker tokens and routes)
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "trakyo-docs-site",
+  "main": "worker.js",
+  "compatibility_date": "2026-03-24",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

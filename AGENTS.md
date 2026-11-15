@@ -1,33 +1,40 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# Working in this repository (for AI assistants)
 
-# Documentation project instructions
+This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.md first.
 
-## About this project
+## Helping someone write a Help Center article
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Run `mint dev` to preview locally
-- Run `mint broken-links` to check links
+- Articles live in `pages/help/<topic>/<article>.md`: plain Markdown (`.md`, never `.mdx`),
+  one topic folder deep, lowercase names with dashes. Start from `templates/article.md`.
+- Front matter: `title`, `description` (one sentence), `order` (number), and `draft: true`
+  while it is not ready. Drafts never reach the live site.
+- Write for customers who are not technical: short sentences, numbered steps, bold for
+  buttons and menu names (`**Integrations**`), one task per article, and say what the
+  reader should see when it worked.
+- Describe only what the product really does. If you are not sure how a screen or setting
+  behaves, ask the writer to check in the app rather than guessing. Never describe beta or
+  unreleased features: this repository and site are public.
+- Pictures: `![What it shows](./file-name.png)`, the file in the same folder as the article.
+  Never `<img>` tags. Never HTML comments (`<!-- -->`): they fail the build.
+- Videos: paste the YouTube or Loom embed `<iframe>`; never commit video files.
+- Callouts: `:::tip`, `:::note`, `:::warning`, `:::danger`, closed by `:::` on its own line.
+- Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`).
+- No customer data anywhere: names, emails, revenue, links.
+- To check your work: `npm ci && npm run fetch-spec && npm run check`, then `npm run build`.
+  `npm run dev` previews the site with drafts included.
 
-## Terminology
+## API docs (engineers)
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- Every page in `pages/` except `pages/help/`. Their sidebar is listed by hand in
+  `zudoku.config.tsx` (`apiNavigation`); the Help Center sidebar is generated from the folders
+  by `scripts/gen-help-nav.mjs`.
+- The API reference under `/docs/api` is generated from the live `api.trakyo.io/openapi.json`
+  at build time. Do not hand-write it.
+- Every error code in the live spec needs `pages/errors/<code>.mdx`; `scripts/check.mjs`
+  enforces it.
+- Open a pull request here only once the API change it documents is live in production.
 
-## Style preferences
+## Never
 
-{/* Add any project-specific style rules below */}
-
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
-
-## Content boundaries
-
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Change `.github/`, `wrangler.jsonc`, `worker.js` or `scripts/` as part of an article.
+- Add a `routes` entry to `wrangler.jsonc` (see the comment there), or deploy by hand.

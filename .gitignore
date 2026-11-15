@@ -5,3 +5,4 @@ apis/openapi.json
 .wrangler/
 # Written by scripts/gen-help-nav.mjs before every dev and build.
 help-nav.generated.json
+hub/topics.generated.mjs

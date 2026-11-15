@@ -6,6 +6,8 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
 
 - Articles live in `pages/help/<topic>/<article>.md`: plain Markdown (`.md`, never `.mdx`),
   one topic folder deep, lowercase names with dashes. Start from `templates/article.md`.
+- A new topic folder gets a `topic.json` (copy `templates/topic.json`): title, one-line
+  description, a lucide.dev icon name, order.
 - Front matter: `title`, `description` (one sentence), `order` (number), and `draft: true`
   while it is not ready. Drafts never reach the live site.
 - Write for customers who are not technical: short sentences, numbered steps, bold for

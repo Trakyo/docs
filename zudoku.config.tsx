@@ -1,4 +1,5 @@
 import type { ZudokuConfig } from "zudoku";
+import { ExternalLink, LifeBuoy } from "zudoku/icons";
 // Written by scripts/gen-help-nav.mjs before every dev and build (gitignored).
 import helpNav from "./help-nav.generated.json";
 
@@ -10,8 +11,13 @@ import helpNav from "./help-nav.generated.json";
  * article (a `draft: true` article is left out of production builds), helpNav
  * is empty and the site is exactly the API docs, with the API overview at
  * /docs. Once one article is published, /docs becomes the landing page
- * (hub/home.mdx), the API overview moves to /docs/api-overview, and the header
- * shows two tabs, Help Center and API. No other URL changes either way.
+ * (hub/home.mdx), the API overview moves to /docs/api-overview, the tab row
+ * shows Help Center · API Docs · API Reference with "Contact support" and
+ * "Open Trakyo" on its right, and every page gets an "Edit this page" link.
+ * No other URL changes either way.
+ *
+ * Hover colour: accentForeground is the docs blue in both themes, so hovered
+ * links and menu items turn blue (Zudoku styles them text-accent-foreground).
  *
  * @see https://zudoku.dev/docs/configuration/overview (config reference)
  * @see https://zudoku.dev/docs/configuration/navigation (tabs, custom paths)
@@ -24,7 +30,7 @@ const helpCenterLive = helpNav.length > 0;
 type Navigation = NonNullable<ZudokuConfig["navigation"]>;
 
 // The API docs' navigation, unchanged from before the Help Center existed.
-const apiNavigation = (overviewPath: string, stackReference: boolean): Navigation => [
+const apiNavigation = (overviewPath: string, withReference: boolean): Navigation => [
   {
     type: "category",
     label: "Getting started",
@@ -55,15 +61,8 @@ const apiNavigation = (overviewPath: string, stackReference: boolean): Navigatio
     icon: "book-marked",
     items: ["conversions"],
   },
-  {
-    type: "link",
-    to: "/api",
-    label: "API Reference",
-    icon: "code",
-    // Inside the API tab, the reference gets a "Back to API" link instead of
-    // taking over the whole sidebar.
-    ...(stackReference ? { stack: true } : {}),
-  },
+  // Once the Help Center is live the reference is its own tab (see navigation).
+  ...(withReference ? [{ type: "link", to: "/api", label: "API Reference", icon: "code" } as const] : []),
   {
     type: "category",
     label: "Errors",
@@ -164,7 +163,7 @@ const config: ZudokuConfig = {
       muted: "hsl(0 0% 96.1%)",
       mutedForeground: "hsl(0 0% 45.1%)",
       accent: "hsl(0 0% 96.1%)",
-      accentForeground: "hsl(0 0% 9%)",
+      accentForeground: "hsl(228 89% 63%)",
       border: "hsl(0 0% 89.8%)",
       ring: "hsl(228 89% 63%)",
     },
@@ -180,7 +179,7 @@ const config: ZudokuConfig = {
       muted: "hsl(0 0% 14.9%)",
       mutedForeground: "hsl(0 0% 63.9%)",
       accent: "hsl(0 0% 14.9%)",
-      accentForeground: "hsl(0 0% 9%)",
+      accentForeground: "hsl(228 89% 66%)",
       border: "hsl(0 0% 14.9%)",
       ring: "hsl(228 89% 66%)",
     },
@@ -190,9 +189,26 @@ const config: ZudokuConfig = {
     ? [
         { type: "doc", file: "home", path: "/", label: "Home", display: "hide" },
         { type: "category", label: "Help Center", icon: "life-buoy", items: helpNav as Navigation },
-        { type: "category", label: "API", icon: "code", items: apiNavigation("/api-overview", true) },
+        { type: "category", label: "API Docs", icon: "book-open", items: apiNavigation("/api-overview", false) },
+        { type: "link", to: "/api", label: "API Reference", icon: "code" },
       ]
-    : apiNavigation("/", false),
+    : apiNavigation("/", true),
+
+  // Right-hand side of the tab row: where to go when the docs don't answer it.
+  slots: helpCenterLive
+    ? {
+        "top-navigation-side": (
+          <div className="flex items-center gap-6 text-sm">
+            <a href="mailto:support@trakyo.io" className="flex items-center gap-1.5 text-muted-foreground hover:text-accent-foreground">
+              <LifeBuoy size={14} /> Contact support
+            </a>
+            <a href="https://app.trakyo.io" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-muted-foreground hover:text-accent-foreground">
+              Open Trakyo <ExternalLink size={14} />
+            </a>
+          </div>
+        ),
+      }
+    : undefined,
 
   apis: {
     type: "file",
@@ -208,6 +224,10 @@ const config: ZudokuConfig = {
     // The landing page lives outside pages/ so it is only built once the Help
     // Center is live (its route is "/home", shown at "/" by the nav item above).
     files: helpCenterLive ? ["/pages/**/*.{md,mdx}", "/hub/*.mdx"] : ["/pages/**/*.{md,mdx}"],
+    // "Edit this page" on every page opens it in GitHub's editor, for the support team.
+    ...(helpCenterLive
+      ? { defaultOptions: { suggestEdit: { url: "https://github.com/Trakyo/docs/edit/main/{filePath}", text: "Edit this page" } } }
+      : {}),
     llms: {
       llmsTxt: true,
       llmsTxtFull: true,

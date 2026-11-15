@@ -60,8 +60,20 @@ for (const page of pages) {
   if (!codes.has(page)) report("warning", `pages/errors/${page}.mdx`, `The live API has no error code "${page}". Fine if the API change that adds it is about to ship; otherwise delete the page.`);
 }
 
-// 2. Help Center articles.
+// 2. Help Center articles (and each topic's optional topic.json).
 for (const file of exists("pages/help") ? walk("pages/help") : []) {
+  if (file.endsWith("topic.json")) {
+    let topic;
+    try {
+      topic = JSON.parse(readFileSync(join(ROOT, file), "utf8"));
+    } catch {
+      report("error", file, 'topic.json is not valid JSON. Copy the shape from templates/topic.json (quotes around every name and text, commas between lines).');
+      continue;
+    }
+    if (typeof topic.title !== "string") report("error", file, 'topic.json needs a "title".');
+    if (topic.icon !== undefined && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(topic.icon)) report("error", file, 'The "icon" must be a name from lucide.dev/icons, lowercase with dashes, e.g. "life-buoy".');
+    continue;
+  }
   const depth = relative("pages/help", file).split("/").length;
   if (file.endsWith(".mdx")) report("error", file, "Help Center articles are plain .md files. Rename it to .md.");
   if (!file.endsWith(".md")) continue;

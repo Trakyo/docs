@@ -1,31 +1,34 @@
 ---
-title: Help Center and API docs
 description: Step-by-step guides for using Trakyo, and the developer API.
 toc: false
 disable_pager: true
+copyPage: false
+showLastModified: false
 ---
 
 import { LandingPage } from "zudoku/components";
-import helpNav from "../help-nav.generated.json";
+import { BookOpen, Code } from "zudoku/icons";
+import { topics } from "./topics.generated.mjs";
 
-{/* One card per Help Center topic folder, linking to its first article. Built from the same list as the sidebar. */}
-export const topics = helpNav.map((topic) => ({
-  title: topic.label,
-  description: `${topic.items.length} article${topic.items.length === 1 ? "" : "s"}`,
-  href: `/${topic.items[0]}`,
+{/* No `title` above on purpose: the page shows LandingPage's heading instead, and the browser tab reads "Trakyo Docs". Topic cards come from pages/help/<topic>/topic.json, the same list as the sidebar. */}
+export const topicCards = topics.map((t) => ({
+  icon: t.Icon ? <t.Icon /> : undefined,
+  title: t.title,
+  description: t.description || `${t.count} article${t.count === 1 ? "" : "s"}`,
+  href: t.href,
 }));
 
 <LandingPage
   variant="grid"
   title="How can we help?"
-  description="Guides for setting up Trakyo and reading your numbers, and the developer API. Use the search at the top to find anything."
+  description="Guides for setting up Trakyo and reading your numbers, and the developer API. Search covers everything."
   features={[
-    ...topics,
-    { title: "API docs", description: "Build on your Trakyo data with the REST API, webhooks and AI agents.", href: "/api-overview" },
-    { title: "API reference", description: "Every endpoint, generated from the live API.", href: "/api" },
+    ...topicCards,
+    { icon: <BookOpen />, title: "API docs", description: "Build on your Trakyo data with the REST API, webhooks and AI agents.", href: "/api-overview" },
+    { icon: <Code />, title: "API reference", description: "Every endpoint, generated from the live API.", href: "/api" },
   ]}
 >
 
-**Using an AI assistant?** Give it [trakyo.io/docs/llms-full.txt](https://trakyo.io/docs/llms-full.txt): every page of these docs as one plain-text file. Each page also has a "Copy page" button and a `.md` version (add `.md` to its address).
+**Using an AI assistant?** Give it [trakyo.io/docs/llms-full.txt](https://trakyo.io/docs/llms-full.txt): every page of these docs as one plain-text file. Each page also has a "Copy page" menu with "Use in Claude" and "Use in ChatGPT".
 
 </LandingPage>

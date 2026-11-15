@@ -23,8 +23,12 @@ happens in your browser.
 2. Click **Add file → Create new file**.
 3. Type the name as `topic/article-name.md`, for example `integrations/connect-stripe.md`.
    Typing the `/` makes the topic folder. Use lowercase and dashes, no spaces.
-   - The **topic** becomes a group in the sidebar and a card on the home page
+   - The **topic** becomes a group in the sidebar and a card on the landing page
      (`getting-started` shows as "Getting started"). Reuse an existing topic when it fits.
+   - **New topic?** Also add a file named `topic.json` in its folder, copied from
+     [`templates/topic.json`](templates/topic.json): its title, a one-line description for
+     its card, an icon name from [lucide.dev/icons](https://lucide.dev/icons) (e.g. `plug`),
+     and its place in the list. Without it the folder name is used and the card has no icon.
    - The **article name** becomes the page's address:
      `trakyo.io/docs/help/integrations/connect-stripe`.
 4. Copy everything from [`templates/article.md`](templates/article.md) into the file and
@@ -99,6 +103,8 @@ Don't use `<!-- … -->` comments or `<img>` tags: both break the page. The chec
    A red cross: click **Details**; the message says what to fix, in plain words.
 3. To change something, open your pull request → **Files changed** → the `…` menu on the
    file → **Edit file**, and commit to the same branch.
+   To fix a page that is already live, click **Edit this page** at the bottom of it on
+   trakyo.io/docs: GitHub opens the file in its editor, then continue from step 1.
 4. Tell Harry it's ready. He reviews and merges it; the site updates by itself about two
    minutes later.
 
@@ -107,16 +113,19 @@ one task per article, and check every step in the app before publishing.
 
 ### When the Help Center appears
 
-The Help Center tab and the landing page at `trakyo.io/docs` switch on by themselves when
-the first article **without** `draft: true` is merged. Until then the site shows the API
-docs only.
+The Help Center switches on by itself when the first article **without** `draft: true` is
+merged: `trakyo.io/docs` becomes the landing page (a card per topic), the tabs become
+**Help Center · API Docs · API Reference** with **Contact support** and **Open Trakyo** on
+the right, and every page gets an **Edit this page** link. Until then the site shows the API
+docs only, exactly as before.
 
 ---
 
 ## For Harry: running the site
 
-- **Look and feel**: [`zudoku.config.tsx`](zudoku.config.tsx) (colours, logo, navigation),
-  [`hub/home.mdx`](hub/home.mdx) (the landing page), [`public/`](public/) (logos, favicon).
+- **Look and feel**: [`zudoku.config.tsx`](zudoku.config.tsx) (colours, logo, tabs, the
+  support links in `slots`), [`hub/home.mdx`](hub/home.mdx) (the landing page; its topic
+  cards come from each folder's `topic.json`), [`public/`](public/) (logos, favicon).
   Every change goes through a pull request you review ([CODEOWNERS](.github/CODEOWNERS)).
 - **Preview locally**: `npm ci && npm run dev`, then open the address it prints. Drafts show
   in preview, never on the live site.

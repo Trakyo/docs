@@ -101,6 +101,9 @@ Don't use `<!-- … -->` comments or `<img>` tags: both break the page. The chec
    and start a pull request**, then **Propose changes** and **Create pull request**.
 2. Wait a minute for the checks. A green tick means the site builds with your article.
    A red cross: click **Details**; the message says what to fix, in plain words.
+   A few minutes after a green tick, a comment with a **Preview** link appears on your pull
+   request: the whole site as it will look with your changes, drafts included, and a link
+   straight to each article you changed. It updates after every change you commit.
 3. To change something, open your pull request → **Files changed** → the `…` menu on the
    file → **Edit file**, and commit to the same branch.
    To fix a page that is already live, click **Edit this page** at the bottom of it on
@@ -131,6 +134,12 @@ docs only, exactly as before.
   in preview, never on the live site.
 - **Publishing**: merging to `main` deploys (`.github/workflows/deploy.yml`). To redeploy by
   hand: Actions → Deploy → Run workflow.
+- **Previews**: every pull request from a branch of this repository gets its own copy of the
+  site with drafts shown, linked in a comment (`.github/workflows/preview.yml`). It is a
+  Cloudflare Preview of `trakyo-docs-site` named `pr-<number>`, on Trakyo's workers.dev
+  address, public but not indexed, and deleted when the pull request closes. The live site is
+  never touched. Forks and Dependabot get none. If the comment says the preview failed, the
+  run it links to says why.
 - **Undo a bad publish**: open the merged pull request → **Revert** → merge the revert.
   Faster, in an emergency: Cloudflare → Workers → `trakyo-docs-site` → Deployments → roll
   back.

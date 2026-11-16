@@ -23,7 +23,8 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
 - Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`).
 - No customer data anywhere: names, emails, revenue, links.
 - To check your work: `npm ci && npm run fetch-spec && npm run check`, then `npm run build`.
-  `npm run dev` previews the site with drafts included.
+  `npm run dev` previews the site with drafts included. Every pull request also gets a
+  Preview link in a comment, drafts included (`.github/workflows/preview.yml`).
 
 ## API docs (engineers)
 

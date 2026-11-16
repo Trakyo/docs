@@ -1,17 +1,20 @@
 name: CI
 
-# Every pull request: run the content checks, build the whole site, and check the
-# Worker config. No secrets here (fork PRs included). The `build` job is required
-# by the ruleset on main, so nothing merges that would fail to publish.
+# Every pull request, and every commit on a writer's branch (writers/<name>): run
+# the content checks, build the whole site, and check the Worker config. No
+# secrets here (fork PRs included). The `build` job is required by the ruleset on
+# main, so nothing merges that would fail to publish.
 
 on:
   pull_request:
+  push:
+    branches: ["writers/**"]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -43,12 +46,12 @@ jobs:
       - name: Check the Worker config
         run: npx wrangler deploy --dry-run
 
-  # The pull request's site with drafts shown, for its preview link. Only built
-  # here: preview.yml (main's copy) publishes it after this workflow succeeds,
-  # so the deploy token never runs next to code a pull request can change.
+  # The site with drafts shown, for the preview link. Only built here:
+  # preview.yml (main's copy) publishes it after this workflow succeeds, so the
+  # deploy token never runs next to code a branch can change.
   # No preview for forks or Dependabot (see preview.yml).
   preview:
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
+    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:

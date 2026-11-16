@@ -1,26 +1,31 @@
 name: Preview
 
-# Gives every pull request its own copy of the site, drafts included, so a
-# writer sees the article exactly as it will look before it goes live. The link
-# is posted (and kept up to date) as a comment on the pull request.
+# Gives every pull request, and every writer's branch (writers/<name>), its own
+# copy of the site, drafts included, so a writer sees the article exactly as it
+# will look before it goes live.
+#   - A pull request's link is posted (and kept up to date) as a comment on it.
+#   - A writer's branch has one address that never changes,
+#     writer-<name>-trakyo-docs-site.trakyo.workers.dev/docs/, and its newest
+#     commit carries a "Preview" check linking to it.
 #
-# Two halves, so the deploy token never meets code a pull request can change:
-#   CI (ci.yml, job `preview`) builds the pull request's site, with no secrets.
+# Two halves, so the deploy token never meets code a branch can change:
+#   CI (ci.yml, job `preview`) builds the site, with no secrets.
 #   This workflow always runs main's copy of itself (workflow_run and
 #   pull_request_target both do). It takes only the built files from CI, which
 #   are served as static files, and publishes them with main's worker.js and
-#   wrangler.jsonc as a Cloudflare Preview of trakyo-docs-site named
-#   pr-<number>. The live site is not touched. Never check out the pull
-#   request's code in this file.
-# A closed pull request's Preview is deleted.
+#   wrangler.jsonc as a Cloudflare Preview of trakyo-docs-site. The live site is
+#   not touched. Never check out a branch's code in this file.
+# A closed pull request's Preview is deleted. When a pull request from a writer's
+# branch is merged, that branch is brought up to date with main.
 #
-# Only pull requests from branches of this repository get one, not forks or
-# Dependabot: a preview is served from Trakyo's workers.dev address.
+# Only branches of this repository get one, not forks or Dependabot: a preview
+# is served from Trakyo's workers.dev address.
 #
 # @see https://developers.cloudflare.com/workers/previews/ (Previews, open beta; needs wrangler 4.135.0+)
 # @see https://developers.cloudflare.com/workers/previews/examples/#github-actions
 # @see https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/control-deployments#using-environments-without-deployments
 # @see https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+# @see https://docs.github.com/en/rest/branches/branches#merge-a-branch
 
 on:
   workflow_run:
@@ -39,14 +44,15 @@ jobs:
   publish:
     if: >-
       github.event_name == 'workflow_run' &&
-      github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
-      github.event.workflow_run.actor.login != 'dependabot[bot]'
+      github.event.workflow_run.actor.login != 'dependabot[bot]' &&
+      (github.event.workflow_run.event == 'pull_request' ||
+       (github.event.workflow_run.event == 'push' && startsWith(github.event.workflow_run.head_branch, 'writers/')))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     concurrency:
-      group: preview-${{ github.event.workflow_run.pull_requests[0].number }}
+      group: preview-${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch || github.event.workflow_run.pull_requests[0].number }}
       cancel-in-progress: true
     # The deploy token lives here (main only). No GitHub deployment record: this
     # is not a production deploy.
@@ -57,15 +63,30 @@ jobs:
       actions: read # the built site from the CI run
       contents: read
       pull-requests: write # the preview comment
+      statuses: write # the "Preview" check on a writer's branch
     steps:
-      - name: Which pull request, and is this still its newest commit?
+      - name: Which preview, and is this still the newest commit?
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
+          EVENT: ${{ github.event.workflow_run.event }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
           NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
           SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
+          if [ "$EVENT" = push ]; then
+            # writers/anna → writer-anna. One name per branch, so its address never changes.
+            name="writer-$(printf '%s' "${BRANCH#writers/}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')"
+            if [ "$name" = writer- ]; then echo "::notice::$BRANCH gives no preview name."; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+            head=$(gh api "repos/$REPO/git/ref/heads/$BRANCH" --jq .object.sha 2>/dev/null || true)
+            if [ "$head" != "$SHA" ]; then
+              echo "::notice::$BRANCH is at ${head:-nothing}, this run built $SHA: the newer run publishes instead."
+              echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            { echo "go=true"; echo "name=$name"; echo "label=$BRANCH"; echo "number="; } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           case "$NUMBER" in ''|*[!0-9]*) echo "::notice::This CI run has no pull request."; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0;; esac
           info=$(gh api "repos/$REPO/pulls/$NUMBER" --jq '"\(.state) \(.head.sha)"')
           state=${info% *} head=${info#* }
@@ -73,7 +94,7 @@ jobs:
             echo "::notice::#$NUMBER is $state at $head, this run built $SHA: the newer run publishes instead."
             echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          { echo "go=true"; echo "number=$NUMBER"; } >> "$GITHUB_OUTPUT"
+          { echo "go=true"; echo "name=pr-$NUMBER"; echo "label=#$NUMBER"; echo "number=$NUMBER"; } >> "$GITHUB_OUTPUT"
 
       - if: steps.pr.outputs.go == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -88,7 +109,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
-      # The files came from a pull request: allow plain files only.
+      # The files came from a branch anyone with write access can change: allow plain files only.
       - if: steps.pr.outputs.go == 'true'
         name: Check the built files
         run: |
@@ -108,17 +129,19 @@ jobs:
         working-directory: ${{ runner.temp }}/wrangler
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          NUMBER: ${{ steps.pr.outputs.number }}
+          NAME: ${{ steps.pr.outputs.name }}
+          LABEL: ${{ steps.pr.outputs.label }}
           SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -o pipefail
-          out=$(./node_modules/.bin/wrangler preview --config "$GITHUB_WORKSPACE/wrangler.jsonc" --name "pr-$NUMBER" --message "#$NUMBER at ${SHA:0:7}" --json)
+          out=$(./node_modules/.bin/wrangler preview --config "$GITHUB_WORKSPACE/wrangler.jsonc" --name "$NAME" --message "$LABEL at ${SHA:0:7}" --json)
           printf '%s\n' "$out"
           # --json still prints the asset upload progress first; the JSON starts at a line that is just "{".
           url=$(sed -n '/^{$/,$p' <<<"$out" | jq -er '.preview.urls[0]')
           echo "url=${url%/}" >> "$GITHUB_OUTPUT"
+          echo "Preview: ${url%/}/docs/" >> "$GITHUB_STEP_SUMMARY"
 
-      - if: steps.pr.outputs.go == 'true'
+      - if: steps.pr.outputs.go == 'true' && steps.pr.outputs.number != ''
         name: Post the link on the pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -134,14 +157,32 @@ jobs:
           if [ -n "$links" ]; then body+=$'\n\n'"Articles in this pull request:"$'\n'"$links"; fi
           gh pr comment "$NUMBER" -R "$REPO" --edit-last --create-if-none --body "$body"
 
+      - if: steps.pr.outputs.go == 'true' && steps.pr.outputs.number == ''
+        name: Put the link on the branch's newest commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          URL: ${{ steps.publish.outputs.url }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" -f state=success -f context=Preview -f target_url="$URL/docs/" \
+            -f description="The site with this branch's changes, drafts included" >/dev/null
+
       - if: failure() && steps.pr.outputs.go == 'true'
         name: Say the preview failed
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           NUMBER: ${{ steps.pr.outputs.number }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: gh pr comment "$NUMBER" -R "$REPO" --edit-last --create-if-none --body "**Preview:** could not be published this time ([details]($RUN)). The checks above still decide whether this can merge; Harry has the details."
+        run: |
+          if [ -n "$NUMBER" ]; then
+            gh pr comment "$NUMBER" -R "$REPO" --edit-last --create-if-none --body "**Preview:** could not be published this time ([details]($RUN)). The checks above still decide whether this can merge; Harry has the details."
+          else
+            gh api "repos/$REPO/statuses/$SHA" -f state=failure -f context=Preview -f target_url="$RUN" \
+              -f description="The preview could not be published; Harry has the details" >/dev/null
+          fi
 
   delete:
     if: >-
@@ -177,3 +218,40 @@ jobs:
           # shortcut: a pull request whose preview never published (its checks failed) has none to delete; Cloudflare also drops the oldest past 100.
           ./node_modules/.bin/wrangler preview delete --config "$GITHUB_WORKSPACE/wrangler.jsonc" --name "pr-$NUMBER" --skip-confirmation \
             || echo "::warning::Could not delete Preview pr-$NUMBER; it may never have existed."
+
+  # main squash-merges, so a merged writer's commits never reach main as they
+  # are: left alone, the next pull request from that branch would show the
+  # merged work again. Merging main into the branch cancels it out and keeps
+  # anything the writer added since. Never a reset: that would drop new work.
+  # shortcut: a writer branch deleted for good keeps its preview (writer-<name>); delete it with wrangler if that matters.
+  writer-branch:
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.merged &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'writers/')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write # update the writer's branch
+      pull-requests: write # say so when it could not
+    steps:
+      - name: Bring the writer's branch up to date with main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if ! gh api "repos/$REPO/git/ref/heads/$BRANCH" >/dev/null 2>&1; then
+            # Deleted on merge ("Delete branch"): the writer gets a fresh one, so they keep their branch.
+            main=$(gh api "repos/$REPO/git/ref/heads/main" --jq .object.sha)
+            gh api "repos/$REPO/git/refs" -f ref="refs/heads/$BRANCH" -f sha="$main" >/dev/null
+            echo "Recreated $BRANCH from main."; exit 0
+          fi
+          if gh api "repos/$REPO/merges" -f base="$BRANCH" -f head=main -f commit_message="Bring $BRANCH up to date with main after #$NUMBER" >/dev/null; then
+            echo "$BRANCH is up to date with main."
+          else
+            echo "::warning::Could not bring $BRANCH up to date with main."
+            gh pr comment "$NUMBER" -R "$REPO" --body "Could not bring \`$BRANCH\` up to date with main: it changes lines that main changed too. The next pull request from it will show a conflict; its **Resolve conflicts** button fixes it in the browser."
+          fi

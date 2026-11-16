@@ -23,8 +23,14 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
 - Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`).
 - No customer data anywhere: names, emails, revenue, links.
 - To check your work: `npm ci && npm run fetch-spec && npm run check`, then `npm run build`.
-  `npm run dev` previews the site with drafts included. Every pull request also gets a
-  Preview link in a comment, drafts included (`.github/workflows/preview.yml`).
+  `npm run dev` previews the site with drafts included.
+- **Where to save:** each writer works on their own branch, `writers/<name>`. Commit and push
+  to the branch the session started on (`git push origin HEAD:writers/<name>`), never to a new
+  branch, and never force-push. If the push is refused because the branch moved, run
+  `git pull --no-rebase` and push again. **Never open a pull request**: Harry opens them.
+  The writer's preview, drafts included, is
+  `https://writer-<name>-trakyo-docs-site.trakyo.workers.dev/docs/`, updated a few minutes
+  after each push.
 
 ## API docs (engineers)
 

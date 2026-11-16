@@ -17,9 +17,19 @@ Search covers everything. Every page is also published as plain text for AI assi
 You need a GitHub account with access to this repository. Nothing to install: everything
 happens in your browser.
 
+### 0. Your own branch
+
+You work on your own copy of the site, called a **branch**, named `writers/` and your first
+name: `writers/anna`. Nothing you do there reaches trakyo.io/docs until Harry publishes it.
+
+- **Once:** on the repository's main page, click the branch dropdown (top left, says
+  `main`), type `writers/anna`, and click **Create branch writers/anna from main**.
+- **Every time you start:** switch that dropdown to your branch first. Everything below
+  happens on it.
+
 ### 1. Create the file
 
-1. Open [`pages/help/`](pages/help/) on GitHub.
+1. With your branch selected, open [`pages/help/`](pages/help/).
 2. Click **Add file → Create new file**.
 3. Type the name as `topic/article-name.md`, for example `integrations/connect-stripe.md`.
    Typing the `/` makes the topic folder. Use lowercase and dashes, no spaces.
@@ -52,14 +62,10 @@ draft: true
 
 ### 3. Add screenshots
 
-Do this after step 6 has created your pull request, so the pictures go into the same branch.
-
 1. Save the screenshot as a `.png` or `.jpg`, named like `connect-stripe-1.png`.
-2. On the repository's main page, use the branch dropdown (top left, says `main`) to switch
-   to your pull request's branch (shown at the top of your pull request, e.g. `patch-1`).
-3. Open your topic folder (`pages/help/integrations/`), click **Add file → Upload files**,
-   drop the pictures in, and choose **Commit directly to the `patch-1` branch**.
-4. In the article, write:
+2. With your branch selected, open your topic folder (`pages/help/integrations/`), click
+   **Add file → Upload files**, drop the pictures in, and click **Commit changes**.
+3. In the article, write:
 
    ```
    ![The Integrations page with the Stripe Connect button](./connect-stripe-1.png)
@@ -95,24 +101,41 @@ Never upload a video file to this repository.
 
 Don't use `<!-- … -->` comments or `<img>` tags: both break the page. The checks below catch them.
 
-### 6. Send it for review
+### 6. Save, check, and send it to Harry
 
-1. Scroll down, click **Commit changes…**, choose **Create a new branch for this commit
-   and start a pull request**, then **Propose changes** and **Create pull request**.
-2. Wait a minute for the checks. A green tick means the site builds with your article.
-   A red cross: click **Details**; the message says what to fix, in plain words.
-   A few minutes after a green tick, a comment with a **Preview** link appears on your pull
-   request: the whole site as it will look with your changes, drafts included, and a link
-   straight to each article you changed. It updates after every change you commit.
-3. To change something, open your pull request → **Files changed** → the `…` menu on the
-   file → **Edit file**, and commit to the same branch.
-   To fix a page that is already live, click **Edit this page** at the bottom of it on
-   trakyo.io/docs: GitHub opens the file in its editor, then continue from step 1.
-4. Tell Harry it's ready. He reviews and merges it; the site updates by itself about two
-   minutes later.
+1. Click **Commit changes…**, keep **Commit directly to the `writers/anna` branch**, and
+   click **Commit changes**. Do this as often as you like. Never open a pull request:
+   Harry does that.
+2. Wait a minute. Next to your newest change (top of the file list) a dot turns into a green
+   tick (the site builds with your article) or a red cross (click it, then **Details**: the
+   message says what to fix, in plain words).
+3. **Your preview** is your branch's copy of the whole site, drafts included:
+   `https://writer-anna-trakyo-docs-site.trakyo.workers.dev/docs/` (your name in place of
+   `anna`). Bookmark it. It updates a few minutes after every change; the green tick's
+   **Preview** line links to it too.
+4. To change a file, open it on your branch and click the pencil. To fix a page that is
+   already live, click **Edit this page** at the bottom of it on trakyo.io/docs, switch the
+   branch dropdown to yours, then click the pencil.
+5. When you're done, tell Harry. He publishes everything on your branch; anything still
+   marked `draft: true` stays hidden. The site updates by itself about two minutes later,
+   and you keep working on the same branch.
 
 **Rules:** write only about features every customer has (no betas unless Harry says so),
 one task per article, and check every step in the app before publishing.
+
+### Writing with Claude
+
+[Claude Code](https://claude.ai/code) can write and edit articles for you, on your branch.
+
+1. Open claude.ai/code, choose the **Trakyo/docs** repository, and set the branch next to it
+   to yours (`writers/anna`).
+2. Say what you want, in your own words: "Write an article on connecting Stripe. Here are my
+   notes: …". Paste screenshots so it can see the screens. It already knows this guide's rules.
+3. It saves its work to your branch. Check it on your preview and ask for changes in the same
+   chat. Don't click **Create PR**.
+4. Pictures: Claude writes the picture line, but upload the image files yourself (step 3).
+5. This repository is public: never paste customer names, emails, links or revenue into the
+   chat. Claude only knows what you tell it, so still check every step in the app.
 
 ### When the Help Center appears
 
@@ -134,12 +157,19 @@ docs only, exactly as before.
   in preview, never on the live site.
 - **Publishing**: merging to `main` deploys (`.github/workflows/deploy.yml`). To redeploy by
   hand: Actions → Deploy → Run workflow.
-- **Previews**: every pull request from a branch of this repository gets its own copy of the
-  site with drafts shown, linked in a comment (`.github/workflows/preview.yml`). It is a
-  Cloudflare Preview of `trakyo-docs-site` named `pr-<number>`, on Trakyo's workers.dev
-  address, public but not indexed, and deleted when the pull request closes. The live site is
-  never touched. Forks and Dependabot get none. If the comment says the preview failed, the
-  run it links to says why.
+- **Writers' work**: each writer commits to their own branch `writers/<name>`. To publish it:
+  **Pull requests → New pull request**, compare `writers/<name>` into `main`, **Create pull
+  request**, review on its Preview link, then **Squash and merge**. Afterwards the branch is
+  brought up to date with main by itself (`preview.yml`, job `writer-branch`), so the next
+  pull request from it shows only new work. Don't press **Delete branch** on those, and keep
+  Settings → General → **Automatically delete head branches** off.
+- **Previews**: every pull request and every writer's branch gets its own copy of the site
+  with drafts shown (`.github/workflows/preview.yml`): `pr-<number>`, linked in a comment and
+  deleted when the pull request closes, and `writer-<name>`, at an address that never changes
+  and linked from a **Preview** check on the branch's newest commit. They are Cloudflare
+  Previews of `trakyo-docs-site` on Trakyo's workers.dev address, public but not indexed. The
+  live site is never touched. Forks and Dependabot get none. If a preview failed, the run its
+  comment or check links to says why.
 - **Undo a bad publish**: open the merged pull request → **Revert** → merge the revert.
   Faster, in an emergency: Cloudflare → Workers → `trakyo-docs-site` → Deployments → roll
   back.

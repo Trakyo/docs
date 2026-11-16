@@ -224,9 +224,10 @@ const config: ZudokuConfig = {
     // The landing page lives outside pages/ so it is only built once the Help
     // Center is live (its route is "/home", shown at "/" by the nav item above).
     files: helpCenterLive ? ["/pages/**/*.{md,mdx}", "/hub/*.mdx"] : ["/pages/**/*.{md,mdx}"],
-    // "Edit this page" on every page opens it in GitHub's editor, for the support team.
+    // "Edit this page" opens the file on GitHub, where a writer switches to their
+    // own branch before editing (main's editor could only start a new branch).
     ...(helpCenterLive
-      ? { defaultOptions: { suggestEdit: { url: "https://github.com/Trakyo/docs/edit/main/{filePath}", text: "Edit this page" } } }
+      ? { defaultOptions: { suggestEdit: { url: "https://github.com/Trakyo/docs/blob/main/{filePath}", text: "Edit this page" } } }
       : {}),
     llms: {
       llmsTxt: true,

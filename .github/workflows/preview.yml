@@ -114,7 +114,8 @@ jobs:
           set -o pipefail
           out=$(./node_modules/.bin/wrangler preview --config "$GITHUB_WORKSPACE/wrangler.jsonc" --name "pr-$NUMBER" --message "#$NUMBER at ${SHA:0:7}" --json)
           printf '%s\n' "$out"
-          url=$(jq -er '.preview.urls[0]' <<<"$out")
+          # --json still prints the asset upload progress first; the JSON starts at a line that is just "{".
+          url=$(sed -n '/^{$/,$p' <<<"$out" | jq -er '.preview.urls[0]')
           echo "url=${url%/}" >> "$GITHUB_OUTPUT"
 
       - if: steps.pr.outputs.go == 'true'

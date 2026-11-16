@@ -11,6 +11,13 @@
  *
  * Deployed by .github/workflows/deploy.yml. Never `wrangler deploy` by hand.
  *
+ * Pull request previews: .github/workflows/preview.yml publishes each pull
+ * request as a Cloudflare Preview of this Worker, at pr-<number>-trakyo-docs-site
+ * on Trakyo's workers.dev address (workers.dev adds noindex). `preview_urls`
+ * turns those addresses on and must stay true: every deploy applies it, and
+ * false would switch previews off. `previews` is required by `wrangler preview`
+ * and empty because the site has no bindings beyond its files.
+ *
  * @see https://developers.cloudflare.com/workers/static-assets/ (assets + worker script)
  * @see https://developers.cloudflare.com/workers/static-assets/routing/ (html_handling / not_found_handling)
  * @see https://developers.cloudflare.com/workers/authorization/workers/ (per-Worker tokens and routes)
@@ -21,11 +28,12 @@
   "main": "worker.js",
   "compatibility_date": "2026-03-24",
   "workers_dev": false,
-  "preview_urls": false,
+  "preview_urls": true,
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
-  }
+  },
+  "previews": {}
 }

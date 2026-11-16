@@ -24,12 +24,13 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
 - No customer data anywhere: names, emails, revenue, links.
 - To check your work: `npm ci && npm run fetch-spec && npm run check`, then `npm run build`.
   `npm run dev` previews the site with drafts included.
-- **Where to save:** each writer works on their own branch, `writers/<name>`. Commit and push
-  to the branch the session started on (`git push origin HEAD:writers/<name>`), never to a new
-  branch, and never force-push. If the push is refused because the branch moved, run
-  `git pull --no-rebase` and push again. **Never open a pull request**: Harry opens them.
-  The writer's preview, drafts included, is
-  `https://writer-<name>-trakyo-docs-site.trakyo.workers.dev/docs/`, updated a few minutes
+- **Where to save:** the support team shares one branch, `writers/support`. Commit and push
+  every change there (`git push origin HEAD:writers/support`), never to another branch, and
+  never force-push: someone else's work may be on it. Before you start and before every push,
+  run `git pull --no-rebase origin writers/support`; if that reports a conflict, stop and tell
+  the writer which file, rather than choosing a side. **Never open a pull request**: Harry
+  opens them. The shared preview, drafts included, is
+  `https://writer-support-trakyo-docs-site.trakyo.workers.dev/docs/`, updated a few minutes
   after each push.
 
 ## API docs (engineers)

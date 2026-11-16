@@ -17,19 +17,19 @@ Search covers everything. Every page is also published as plain text for AI assi
 You need a GitHub account with access to this repository. Nothing to install: everything
 happens in your browser.
 
-### 0. Your own branch
+### 0. The shared branch
 
-You work on your own copy of the site, called a **branch**, named `writers/` and your first
-name: `writers/anna`. Nothing you do there reaches trakyo.io/docs until Harry publishes it.
+The support team works together on one copy of the site, called a **branch**:
+**`writers/support`**. Nothing you do there reaches trakyo.io/docs until Harry publishes it.
 
-- **Once:** on the repository's main page, click the branch dropdown (top left, says
-  `main`), type `writers/anna`, and click **Create branch writers/anna from main**.
-- **Every time you start:** switch that dropdown to your branch first. Everything below
-  happens on it.
+- **Every time you start:** on the repository's main page, switch the branch dropdown (top
+  left, says `main`) to `writers/support`. Everything below happens on it.
+- **You share it, so coordinate:** agree who is working on which article, and don't edit the
+  same file at the same time.
 
 ### 1. Create the file
 
-1. With your branch selected, open [`pages/help/`](pages/help/).
+1. With `writers/support` selected, open [`pages/help/`](pages/help/).
 2. Click **Add file → Create new file**.
 3. Type the name as `topic/article-name.md`, for example `integrations/connect-stripe.md`.
    Typing the `/` makes the topic folder. Use lowercase and dashes, no spaces.
@@ -63,7 +63,7 @@ draft: true
 ### 3. Add screenshots
 
 1. Save the screenshot as a `.png` or `.jpg`, named like `connect-stripe-1.png`.
-2. With your branch selected, open your topic folder (`pages/help/integrations/`), click
+2. With `writers/support` selected, open your topic folder (`pages/help/integrations/`), click
    **Add file → Upload files**, drop the pictures in, and click **Commit changes**.
 3. In the article, write:
 
@@ -103,20 +103,20 @@ Don't use `<!-- … -->` comments or `<img>` tags: both break the page. The chec
 
 ### 6. Save, check, and send it to Harry
 
-1. Click **Commit changes…**, keep **Commit directly to the `writers/anna` branch**, and
+1. Click **Commit changes…**, keep **Commit directly to the `writers/support` branch**, and
    click **Commit changes**. Do this as often as you like. Never open a pull request:
    Harry does that.
 2. Wait a minute. Next to your newest change (top of the file list) a dot turns into a green
    tick (the site builds with your article) or a red cross (click it, then **Details**: the
    message says what to fix, in plain words).
-3. **Your preview** is your branch's copy of the whole site, drafts included:
-   `https://writer-anna-trakyo-docs-site.trakyo.workers.dev/docs/` (your name in place of
-   `anna`). Bookmark it. It updates a few minutes after every change; the green tick's
-   **Preview** line links to it too.
-4. To change a file, open it on your branch and click the pencil. To fix a page that is
+3. **The preview** is the shared branch's copy of the whole site, drafts included, the same
+   for everyone: **https://writer-support-trakyo-docs-site.trakyo.workers.dev/docs/**.
+   Bookmark it. It updates a few minutes after every change, whoever made it; the green
+   tick's **Preview** line links to it too.
+4. To change a file, open it on `writers/support` and click the pencil. To fix a page that is
    already live, click **Edit this page** at the bottom of it on trakyo.io/docs, switch the
-   branch dropdown to yours, then click the pencil.
-5. When you're done, tell Harry. He publishes everything on your branch; anything still
+   branch dropdown to `writers/support`, then click the pencil.
+5. When a batch is ready, tell Harry. He publishes everything on the branch; anything still
    marked `draft: true` stays hidden. The site updates by itself about two minutes later,
    and you keep working on the same branch.
 
@@ -125,14 +125,14 @@ one task per article, and check every step in the app before publishing.
 
 ### Writing with Claude
 
-[Claude Code](https://claude.ai/code) can write and edit articles for you, on your branch.
+[Claude Code](https://claude.ai/code) can write and edit articles for you, on the shared branch.
 
 1. Open claude.ai/code, choose the **Trakyo/docs** repository, and set the branch next to it
-   to yours (`writers/anna`).
+   to `writers/support`.
 2. Say what you want, in your own words: "Write an article on connecting Stripe. Here are my
    notes: …". Paste screenshots so it can see the screens. It already knows this guide's rules.
-3. It saves its work to your branch. Check it on your preview and ask for changes in the same
-   chat. Don't click **Create PR**.
+3. It saves its work to `writers/support`. Check it on the preview and ask for changes in the
+   same chat. Don't click **Create PR**.
 4. Pictures: Claude writes the picture line, but upload the image files yourself (step 3).
 5. This repository is public: never paste customer names, emails, links or revenue into the
    chat. Claude only knows what you tell it, so still check every step in the app.
@@ -157,8 +157,9 @@ docs only, exactly as before.
   in preview, never on the live site.
 - **Publishing**: merging to `main` deploys (`.github/workflows/deploy.yml`). To redeploy by
   hand: Actions → Deploy → Run workflow.
-- **Writers' work**: each writer commits to their own branch `writers/<name>`. To publish it:
-  **Pull requests → New pull request**, compare `writers/<name>` into `main`, **Create pull
+- **Writers' work**: the support team commits to one shared branch, `writers/support`
+  (any `writers/<name>` branch works the same way). To publish it:
+  **Pull requests → New pull request**, compare `writers/support` into `main`, **Create pull
   request**, review on its Preview link, then **Squash and merge**. Afterwards the branch is
   brought up to date with main by itself (`preview.yml`, job `writer-branch`), so the next
   pull request from it shows only new work. Don't press **Delete branch** on those, and keep

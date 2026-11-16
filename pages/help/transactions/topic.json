@@ -1,6 +1,6 @@
 {
   "title": "Transactions",
   "description": "Where revenue comes from, and how to fix a payment credited to the wrong content.",
-  "icon": "receipt",
-  "order": 5
+  "icon": "credit-card",
+  "order": 6
 }

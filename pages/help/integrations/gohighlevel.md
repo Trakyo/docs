@@ -5,33 +5,36 @@ order: 1
 draft: true
 ---
 
-GoHighLevel is where your forms, surveys, quizzes and calendars live. **Trakyo** turns
-every one of those submissions into a lead you can trace back to the video, ad or link that
-earned it — automatically, from the moment this integration is live. No more guessing which
-content filled your calendar.
+The **Trakyo** integration with GoHighLevel tracks the leads who fill in your form
+applications, surveys and quizzes, and who book calls on your GHL calendars.
 
-This article covers those four things only: forms, surveys, quizzes and schedulers. It does
-not cover configuring your GoHighLevel funnels.
+![GoHighLevel and Trakyo](./ghl-trakyo.png)
 
-_[Video: GoHighLevel integration walkthrough]_
+:::tip
+This article covers the GHL integration itself:
+
+- tracking forms,
+- surveys,
+- quizzes and
+- schedulers.
+
+It does not cover configuring your GoHighLevel funnels, or adding the tracking script to
+pages built on GHL — that is in the Custom Domains article.
+:::
 
 ## Connect GHL with Trakyo
 
-Start here. Connecting the account is what lets **Trakyo** receive everything the workflows
-below send — without it, those workflows fire into nothing. It takes a few seconds.
+Open the **[Integrations](https://app.trakyo.io/integrations)** page in **Trakyo** and find
+the GoHighLevel card to start.
 
-1. Open **[Integrations](https://app.trakyo.io/integrations)** and find GoHighLevel.
-2. Click **Connect**.
-3. In **Connect to GHL**, click **Connect to GoHighLevel** and approve the connection.
+1. Click **Connect**.
+2. Log in to your GoHighLevel account.
+3. Select the GHL account or sub-account you want to connect.
+4. Click **Connect to GoHighLevel** to finish.
 
 _[Screenshot: the GoHighLevel Forms Integration window, step 1]_
 
-:::note
-You can come back to the rest afterwards. The window walks the same six steps as this
-article, so you can work through it with this page open beside it.
-:::
-
-## Configure forms and set up workflow automation
+## Forms - configuration and workflow automation setup
 
 Every form that should feed **Trakyo** needs one hidden field carrying the visitor id, and
 one workflow that sends the submission over.
@@ -91,7 +94,7 @@ existing trigger, and add **Survey Submitted** or **Quiz Submitted**. Every trig
 independently and they all share the same webhook, so there is nothing else to change.
 :::
 
-## Configure Survey and set up workflow automation
+## Survey - configuration and workflow automation setup
 
 1. Go to **Automation** → **Workflows** and click **Create Workflow**.
 2. Click **Add Trigger** and select **Survey Submitted**.
@@ -109,7 +112,7 @@ Custom Data Field (value) = `FormCreate`
 5. Under **Filters**, choose which surveys to track, or leave it empty for all of them.
 6. Toggle to public and click **Save**.
 
-## Configure Quiz and set up workflow automation
+## Quiz - configuration and workflow automation setup
 
 1. Go to **Automation** → **Workflows** and click **Create Workflow**.
 2. Click **Add Trigger**, select **Quiz Submitted**, and pick the quiz under **Filters**.
@@ -126,7 +129,7 @@ Custom Data Field (value) = `FormCreate`
 
 5. Toggle to public and click **Save**.
 
-## Configure Calendar and set up workflow automation
+## Calendar - configuration and workflow automation setup
 
 :::danger
 Set your forms up first. Calendars have to be linked to a form that carries the `trakyo_id`

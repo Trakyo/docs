@@ -13,6 +13,12 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
 - Write for customers who are not technical: short sentences, numbered steps, bold for
   buttons and menu names (`**Integrations**`), one task per article, and say what the
   reader should see when it worked.
+- **No fluff in the intro.** One or two plain sentences saying what the article covers and
+  what the feature does — "The Trakyo integration with GoHighLevel tracks the leads who
+  fill in your forms, surveys and quizzes, and who book calls on your GHL calendars."
+  No selling, no "no more guessing", no promises about what the reader will feel. Write
+  more only when there is genuinely more to say about the article itself. The same goes
+  for the rest of the article: state what a thing does, and stop.
 - Describe only what the product really does. If you are not sure how a screen or setting
   behaves, ask the writer to check in the app rather than guessing. Never describe beta or
   unreleased features: this repository and site are public.

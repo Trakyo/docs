@@ -209,7 +209,7 @@ Once you know which form it is, add the `trakyo_id` field to it as described in
    more than one calendar per filter, so to track several, add one trigger per calendar and
    choose a different calendar in each.
 
-_[Screenshot: the calendar filter on the trigger]_
+![Filtering the trigger to one calendar](./ghl-calendar-trigger-filter.webp)
 
 4. Click **+** below the trigger and select **Webhook**.
 5. Configure it as follows:
@@ -219,7 +219,7 @@ _[Screenshot: the calendar filter on the trigger]_
    4. Custom Data Field (key) = `type`
    5. Custom Data Field (value) = `AppointmentCreate`
 
-_[Screenshot: the calendar webhook settings]_
+![The webhook action that sends the booking to Trakyo](./ghl-calendar-webhook.webp)
 
 6. Toggle the workflow from **Draft** to public, and click **Save**.
 
@@ -233,11 +233,23 @@ choose the **Appointment status** trigger and set the filter **Appointment statu
 
 ---
 
-## Check it worked
+## Test the integration
 
-Submit one of your own forms, then open **[Leads](https://app.trakyo.io/leads)**. The
-submission should appear as a new lead within a minute, and opening it should show the
-click that brought that person in.
+Here is how to double-check that everything is connected properly.
+
+1. Click any tracking link that leads to your form application, survey, quiz or scheduler.
+   If you do not have one yet, create a tracking link so you can run a test.
+2. Once the page opens, check that `trakyo_id` appears in the URL as a parameter.
+3. Fill the form, survey or quiz in, and watch that `trakyo_id` is carried forward to the
+   next page — the scheduler, if booking a call is the last step. If it is not carried
+   forward, your page builder has to be configured to pass the `trakyo_id` URL parameter on.
+4. Finish the test: fill everything in and book a call.
+5. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and look for your test lead.
+   With a long list, search for the email address you entered on the form.
+6. Open the lead and check that it shows everything you filled in, along with its
+   attribution.
+
+If all of that shows up, your integration is configured properly.
 
 :::info
 Even with this integration live, create a Custom Tracking content item for any form you

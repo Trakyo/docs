@@ -1,6 +1,6 @@
 ---
 title: GoHighLevel
-description: Track GoHighLevel forms, surveys, quizzes and schedulers as attributed leads in Trakyo.
+description: Track GoHighLevel forms, surveys, quizzes and calendars as attributed leads in Trakyo.
 order: 1
 draft: true
 ---
@@ -16,7 +16,7 @@ This article covers the GHL integration itself:
 - tracking forms,
 - surveys,
 - quizzes and
-- schedulers.
+- calendars.
 
 It does not cover configuring your GoHighLevel funnels, or adding the tracking script to
 pages built on GHL — that is in the Custom Domains article.
@@ -172,23 +172,23 @@ Value `trakyo_id`.
 
 ---
 
-## Scheduler
+## Calendar
 
 :::warning
-To track bookings, the `trakyo_id` hidden field has to be on the form your scheduler uses.
+To track bookings, the `trakyo_id` hidden field has to be on the form your calendar uses.
 Custom fields can only be added to custom forms, so a calendar's default form cannot be
-tracked. If your scheduler uses the default form, recreate it as a custom form with the
+tracked. If your calendar uses the default form, recreate it as a custom form with the
 same fields plus the `trakyo_id` field. Without that, calls are not attributed properly.
 :::
 
-### Scheduler configuration
+### Calendar configuration
 
-Start by finding out which form your scheduler uses. Go to **Calendars** in the left
+Start by finding out which form your calendar uses. Go to **Calendars** in the left
 sidebar and choose **Calendar settings** at the top.
 
 ![Calendar settings in GoHighLevel](./ghl-calendar-settings.png)
 
-Find your scheduler and click the pencil icon to edit it, then open **Advanced settings** →
+Find your calendar and click the pencil icon to edit it, then open **Advanced settings** →
 **Form & confirmation**.
 
 ![Form and confirmation under Advanced settings](./ghl-calendar-form-confirmation.png)
@@ -205,7 +205,7 @@ Once you know which form it is, add the `trakyo_id` field to it as described in
 
 1. Go to **Workflows** and click **Create Workflow**.
 2. Click **Add Trigger** and select **Customer Booked Appointment**.
-3. Add the filter **In Calendar** and choose your scheduler. GoHighLevel does not allow
+3. Add the filter **In calendar** and choose your calendar. GoHighLevel does not allow
    more than one calendar per filter, so to track several, add one trigger per calendar and
    choose a different calendar in each.
 
@@ -237,11 +237,11 @@ choose the **Appointment status** trigger and set the filter **Appointment statu
 
 Here is how to double-check that everything is connected properly.
 
-1. Click any tracking link that leads to your form application, survey, quiz or scheduler.
+1. Click any tracking link that leads to your form application, survey, quiz or calendar.
    If you do not have one yet, create a tracking link so you can run a test.
 2. Once the page opens, check that `trakyo_id` appears in the URL as a parameter.
 3. Fill the form, survey or quiz in, and watch that `trakyo_id` is carried forward to the
-   next page — the scheduler, if booking a call is the last step. If it is not carried
+   next page — the calendar, if booking a call is the last step. If it is not carried
    forward, your page builder has to be configured to pass the `trakyo_id` URL parameter on.
 4. Finish the test: fill everything in and book a call.
 5. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and look for your test lead.

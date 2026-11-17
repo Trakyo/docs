@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- The Trakyo mark from logo.svg, on a solid plate that inverts with the
+       OS theme: white plate / black mark in light, black plate / white mark
+       in dark, so the docs tab never matches the app's icon. -->
+  <style>
+    :root { --plate: #ffffff; --mark: #000000; }
+    @media (prefers-color-scheme: dark) {
+      :root { --plate: #000000; --mark: #ffffff; }
+    }
+  </style>
+  <rect width="64" height="64" fill="var(--plate)"/>
+  <g transform="translate(8 12.37) scale(0.28404)" stroke="var(--mark)" stroke-width="7.68132">
+    <circle cx="84.4941" cy="69.1319" r="65.2913" fill="none"/>
+    <line x1="168.989" y1="69.1327" x2="0" y2="69.1326"/>
+    <line x1="84.4947" y1="99.8574" x2="84.4947" y2="38.4068"/>
+  </g>
+</svg>

@@ -136,14 +136,14 @@ const config: ZudokuConfig = {
         defaultTitle: "Trakyo Docs",
         description:
           "Trakyo help center and API docs: set up tracking, connect your tools, read your numbers, and build on the Trakyo API.",
-        favicon: "/favicon.ico",
+        favicon: "/favicon.svg",
       }
     : {
         title: "Trakyo API",
         defaultTitle: "Trakyo API",
         description:
           "Trakyo API documentation — programmatic access to links, metrics, funnel, content, sources, leads, and transactions.",
-        favicon: "/favicon.ico",
+        favicon: "/favicon.svg",
       },
 
   theme: {

@@ -147,6 +147,13 @@ const config: ZudokuConfig = {
       },
 
   theme: {
+    // Pictures in an article sit centred in the column, whatever their width.
+    // Markdown has no way to say that, and a raw <img> tag breaks under /docs,
+    // so it is one rule here rather than markup in every article.
+    customCss: `
+      .prose img { display: block; margin-inline: auto; }
+    `,
+
     // The dashboard's shadcn palette with the docs-blue accent. Two deliberate
     // deviations: primary/ring are the docs blue (the app is neutral), and
     // dark `card` is lifted to 5.5% (vs the app's 3.9%) so cards read as

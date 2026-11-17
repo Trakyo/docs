@@ -22,6 +22,8 @@ It does not cover configuring your GoHighLevel funnels, or adding the tracking s
 pages built on GHL — that is in the Custom Domains article.
 :::
 
+---
+
 ## Connect GHL with Trakyo
 
 Open the **[Integrations](https://app.trakyo.io/integrations)** page in **Trakyo** and find
@@ -34,19 +36,25 @@ the GoHighLevel card to start.
 
 _[Screenshot: the GoHighLevel Forms Integration window, step 1]_
 
+---
+
 ## Forms - configuration and workflow automation setup
 
-Every form that should feed **Trakyo** needs one hidden field carrying the visitor id, and
-one workflow that sends the submission over.
+Every form that should feed **Trakyo** needs one hidden field carrying the visitor id — the
+fingerprint — and one workflow that sends the submission over with the `trakyo_id`.
 
-### Option A: you do not have a form yet
+### Form configuration
 
-1. In GoHighLevel, click **Sites** in the left sidebar.
-2. Click **Forms** in the top navigation, then **+ Add Form**.
-3. Choose **Start from Scratch**.
-4. Add your standard fields: First Name, Last Name, Email, Phone.
-5. Click **Add**, choose **Custom Fields**, and pick **Single Line** as the field type.
-6. Fill the field settings in exactly — they are case-sensitive:
+In GoHighLevel, click **Sites** in the left sidebar and click **Forms** in the top
+navigation to start:
+
+#### Option A: you do not have a form yet
+
+1. Click **+ Add Form**.
+2. Choose **Start from Scratch**.
+3. Add your standard fields: First Name, Last Name, Email, Phone.
+4. Click **Add**, choose **Custom Fields**, and pick **Single Line** as the field type.
+5. Fill the field settings in exactly — they are case-sensitive:
 
 :::note
 Name = `trakyo_id`
@@ -57,33 +65,35 @@ Prefill = `trakyo_id`
 Unique Key = `contact.trakyo_id`
 :::
 
-7. Click the `trakyo_id` field, tick **Hidden**, and set the Hidden Value to `trakyo_id`.
+6. Click the `trakyo_id` field, tick **Hidden**, and set the Hidden Value to `trakyo_id`.
 
-_[Screenshot: the trakyo_id custom field settings]_
+#### Option B: you already have a form
 
-### Option B: you already have a form
+1. Select the form you want to configure.
+2. Click **Add**, choose **Custom Fields**, and pick **Single Line** as the field type.
+3. Fill in the same settings as above, exactly.
+4. Click the `trakyo_id` field, tick **Hidden**, and set the Hidden Value to `trakyo_id`.
 
-1. Click **Add**, choose **Custom Fields**, and pick **Single Line**.
-2. Fill in the same settings as above, exactly.
-3. Tick **Hidden** on the field and set the Hidden Value to `trakyo_id`.
+![The trakyo_id field in the GoHighLevel form editor](./ghl-form-trakyo-id.webp)
 
-### Form workflow
-
-1. Go to **Automation** → **Workflows**.
-2. Click **Create Workflow**, then **Add Trigger**, and select **Form Submitted**.
-3. Click **+** below the trigger and select **Webhook**.
-4. Configure it:
-
-:::note
-Action Name = `Form Submitted to Trakyo`
-Webhook URL = `https://app.trakyo.io/api/platforms/ghlevel/webhook`
-Method = `POST`
-Custom Data Field (key) = `type`
-Custom Data Field (value) = `FormCreate`
+:::tip
+Schedulers are tracked through a form too. A calendar has to have a custom form assigned to
+it, built exactly as above, so the `trakyo_id` field travels with the booking.
 :::
 
-5. Back in the trigger, under **Filters**, click **Add Filters** and choose the forms to
-   track. Leave it empty and every form is tracked.
+### Form workflow automation setup
+
+1. Go to **Automation** → **Workflows** to start.
+2. Click **Create Workflow**, then **Add Trigger** → **Form Submitted**.
+3. Under **Filters**, click **Add Filters** and choose the forms to track. Leave it empty
+   and every form is tracked.
+4. Click **+** below the trigger and select **Webhook**.
+5. Configure it as follows:
+   1. Action Name = `Form Submitted to Trakyo`
+   2. Webhook URL = `https://app.trakyo.io/api/platforms/ghlevel/webhook`
+   3. Method = `POST`
+   4. Custom Data Field (key) = `type`
+   5. Custom Data Field (value) = `FormCreate`
 6. Toggle the workflow from **Draft** to public, and click **Save**.
 
 _[Screenshot: the webhook action settings]_
@@ -93,6 +103,8 @@ One workflow can carry all four. Open a workflow, click **Add New Trigger** next
 existing trigger, and add **Survey Submitted** or **Quiz Submitted**. Every trigger fires
 independently and they all share the same webhook, so there is nothing else to change.
 :::
+
+---
 
 ## Survey - configuration and workflow automation setup
 
@@ -112,6 +124,8 @@ Custom Data Field (value) = `FormCreate`
 5. Under **Filters**, choose which surveys to track, or leave it empty for all of them.
 6. Toggle to public and click **Save**.
 
+---
+
 ## Quiz - configuration and workflow automation setup
 
 1. Go to **Automation** → **Workflows** and click **Create Workflow**.
@@ -128,6 +142,8 @@ Custom Data Field (value) = `FormCreate`
 :::
 
 5. Toggle to public and click **Save**.
+
+---
 
 ## Calendar - configuration and workflow automation setup
 
@@ -161,6 +177,8 @@ Custom Data Field (value) = `AppointmentCreate`
     `trakyo_id` field.
 
 _[Screenshot: the calendar webhook settings]_
+
+---
 
 ## Check it worked
 

@@ -23,7 +23,14 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
   behaves, ask the writer to check in the app rather than guessing. Never describe beta or
   unreleased features: this repository and site are public.
 - Pictures: `![What it shows](./file-name.png)`, the file in the same folder as the article.
-  Never `<img>` tags. Never HTML comments (`<!-- -->`): they fail the build.
+  Never `<img>` tags. Never HTML comments (`<!-- -->`): they fail the build. Every picture
+  is centred in the column by the site itself (`theme.customCss` in `zudoku.config.tsx`),
+  so never add alignment markup.
+- A picture pairing two logos (an integration banner) shows both at the **same artwork
+  height**, measured from the artwork itself, not from the file's own padding. Centre them
+  on a plain background with a `+` between.
+- Separate the sections of an article with `---` on its own line between them, including
+  before the first one.
 - Videos: paste the YouTube or Loom embed `<iframe>`; never commit video files.
 - Callouts: `:::tip`, `:::note`, `:::warning`, `:::danger`, closed by `:::` on its own line.
 - Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`).

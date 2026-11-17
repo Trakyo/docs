@@ -12,31 +12,6 @@ filled your calendar.
 
 _[Video: GoHighLevel integration walkthrough]_
 
-:::warning
-Tracking only works if your GoHighLevel account uses **a custom domain**, not a GoHighLevel
-subdomain. Without it, submissions arrive with no attribution and your revenue lands under
-**Other**.
-:::
-
-:::note
-New to custom domains? Set yours up first, then come back here. You will also need the
-Trakyo tracking script on your funnel pages — see [Install the tracking tag](/docs/install).
-:::
-
-## Set up your custom domain
-
-Before anything else, make sure this is done:
-
-1. Add your domain to GoHighLevel.
-2. Configure the DNS records in Cloudflare.
-3. Set up the apex to www redirect.
-4. Add the Trakyo tracking script to your funnel.
-
-When it is done, open **[Integrations](https://app.trakyo.io/integrations)**, find
-GoHighLevel, and tick the confirmation checkbox to continue.
-
-_[Screenshot: the GoHighLevel card on the Integrations page with the checkbox]_
-
 ## Set up your form
 
 Every form that should feed **Trakyo** needs one hidden field carrying the visitor id.

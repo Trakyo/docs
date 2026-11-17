@@ -160,43 +160,76 @@ Value `trakyo_id`.
 
 4. Click **+** below the trigger and select **Webhook**.
 5. Configure it as follows:
-   1. Action Name = `Survey Submitted to Trakyo`
+   1. Action Name = `Quiz Submitted to Trakyo`
    2. Webhook URL = `https://app.trakyo.io/api/platforms/ghlevel/webhook`
    3. Method = `POST`
    4. Custom Data Field (key) = `type`
    5. Custom Data Field (value) = `FormCreate`
+
+![The webhook action that sends the quiz submission to Trakyo](./ghl-quiz-webhook.webp)
+
 6. Toggle the workflow from **Draft** to public, and click **Save**.
 
 ---
 
 ## Scheduler
 
-:::danger
-Set your forms up first. A calendar has to be linked to a form that carries the `trakyo_id`
-field, or bookings arrive with no attribution.
+:::warning
+To track bookings, the `trakyo_id` hidden field has to be on the form your scheduler uses.
+Custom fields can only be added to custom forms, so a calendar's default form cannot be
+tracked. If your scheduler uses the default form, recreate it as a custom form with the
+same fields plus the `trakyo_id` field. Without that, calls are not attributed properly.
 :::
+
+### Scheduler configuration
+
+Start by finding out which form your scheduler uses. Go to **Calendars** in the left
+sidebar and choose **Calendar settings** at the top.
+
+![Calendar settings in GoHighLevel](./ghl-calendar-settings.png)
+
+Find your scheduler and click the pencil icon to edit it, then open **Advanced settings** →
+**Form & confirmation**.
+
+![Form and confirmation under Advanced settings](./ghl-calendar-form-confirmation.png)
+
+Look at **Select form**. If the default form is assigned, either choose another custom
+form, or go back to **Sites** → **Forms** and create one.
+
+![The Select form dropdown showing the default form](./ghl-calendar-select-form.png)
+
+Once you know which form it is, add the `trakyo_id` field to it as described in
+[Form configuration](#form-configuration), then come back here for the workflow.
+
+### Calendar workflow automation setup
 
 1. Go to **Workflows** and click **Create Workflow**.
 2. Click **Add Trigger** and select **Customer Booked Appointment**.
-3. Click **+** below the trigger and select **Webhook**.
-4. Configure it as follows:
+3. Add the filter **In Calendar** and choose your scheduler. GoHighLevel does not allow
+   more than one calendar per filter, so to track several, add one trigger per calendar and
+   choose a different calendar in each.
+
+_[Screenshot: the calendar filter on the trigger]_
+
+4. Click **+** below the trigger and select **Webhook**.
+5. Configure it as follows:
    1. Action Name = `Appointment Booked to Trakyo`
    2. Webhook URL = `https://app.trakyo.io/api/platforms/ghlevel/webhook`
    3. Method = `POST`
    4. Custom Data Field (key) = `type`
    5. Custom Data Field (value) = `AppointmentCreate`
-5. Under **Filters**, click **Add Filters** and choose the calendar to track. Leave it empty
-   and every calendar is tracked.
-6. Tracking more than one calendar? Add another **Customer Booked Appointment** trigger per
-   calendar, each with its own filter.
-7. Toggle the workflow from **Draft** to public, and click **Save**.
-8. In **Settings** → **Business Profile**, fill in your business details. They appear on
-   calendar bookings.
-9. In **Settings** → **Calendars**, open the calendar and click **Edit Calendar**.
-10. In the **Forms** section, select the form you built above — the one with the
-    `trakyo_id` field.
 
 _[Screenshot: the calendar webhook settings]_
+
+6. Toggle the workflow from **Draft** to public, and click **Save**.
+
+:::tip
+To track a lead when your sales team confirms the call rather than when it is booked,
+choose the **Appointment status** trigger and set the filter **Appointment status is** to
+`confirmed`.
+
+![The Appointment status trigger filtered to confirmed](./ghl-appointment-status-trigger.png)
+:::
 
 ---
 

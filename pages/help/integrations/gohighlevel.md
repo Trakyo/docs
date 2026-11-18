@@ -115,7 +115,7 @@ workflow. Only the trigger changes.
 ### Survey configuration
 
 Add the `trakyo_id` custom field to the survey exactly as in
-[Form configuration](#form-configuration) — the same six settings, hidden, with the Hidden
+**[Form configuration](#form-configuration)** — the same six settings, hidden, with the Hidden
 Value `trakyo_id`.
 
 ### Survey workflow automation setup
@@ -149,7 +149,7 @@ the trigger changes.
 ### Quiz configuration
 
 Add the `trakyo_id` custom field to the quiz exactly as in
-[Form configuration](#form-configuration) — the same six settings, hidden, with the Hidden
+**[Form configuration](#form-configuration)** — the same six settings, hidden, with the Hidden
 Value `trakyo_id`.
 
 ### Quiz workflow automation setup
@@ -201,7 +201,7 @@ form, or go back to **Sites** → **Forms** and create one.
 ![The Select form dropdown showing the default form](./ghl-calendar-select-form.png)
 
 Once you know which form it is, add the `trakyo_id` field to it as described in
-[Form configuration](#form-configuration), then come back here for the workflow.
+**[Form configuration](#form-configuration)**, then come back here for the workflow.
 
 ### Calendar workflow automation setup
 
@@ -262,5 +262,5 @@ placement, rather than just the submission.
 :::
 
 :::info
-Learn more about the [Leads page](/docs/help/leads/overview) here.
+Learn more about the **[Leads page](/docs/help/leads/overview)** here.
 :::

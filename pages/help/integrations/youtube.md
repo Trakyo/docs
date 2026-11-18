@@ -38,15 +38,18 @@ There are two ways to connect:
 
 ### Before you start
 
-- **Your channels use brand account permissions.** The YouTube API only works with brand
-  accounts. If yours are not set up that way yet, see
-  [Add brand account permissions](#add-brand-account-permissions) below.
 - **The Google account you connect is a Manager or Owner of the channel**, granted through
   brand account permissions — not through YouTube Studio's regular access settings.
 - **Pick the correct brand account during login.** A brand account and its YouTube channel
   are the same thing. If your Google account manages several, choose the right one.
 - **Grant every permission** on Google's screen: View account, Manage videos, View
   analytics.
+
+:::note
+Your channels use brand account permissions. The YouTube API only works with brand
+accounts. If yours are not set up that way yet, see
+**[Add brand account permissions](#add-brand-account-permissions)** below.
+:::
 
 ### Step-by-step guide
 
@@ -69,9 +72,10 @@ The channel now shows as connected on the YouTube card. To add another, click th
 connect another channel and run through the same steps with that channel's owner account —
 there is no limit, and several channels can sit on one Trakyo account.
 
-:::note
-The remote connection link needs the **Gmail address tied to the channel**, not Trakyo login
-details. This catches people out.
+:::tip
+You can send the remote connection link to the channel owner however you like — any email
+address or channel you prefer. When the owner opens it, they are prompted to log in with
+the Gmail account that owns the channel.
 :::
 
 ---
@@ -101,9 +105,10 @@ YouTube card.
 
 ## Add brand account permissions
 
-YouTube changed how channel permissions work, so a team member who connects a channel on
-your behalf has to be added through brand account permissions first. This is also what
-allows **Trakyo** to update your video descriptions with tracking links.
+YouTube changed how channel permissions work, so a team member who connects a YouTube
+channel on the channel owner's behalf has to be added through brand account permissions
+first. This is also what allows **Trakyo** to update your video descriptions with tracking
+links.
 
 1. Log in to your channel in YouTube Studio.
 2. Go to **Settings** at the bottom left, then **Permissions**.
@@ -122,5 +127,5 @@ account.
 _[Video: setting up brand account permissions]_
 
 :::info
-Learn more about [YouTube Tracking](/docs/help/youtube-tracking/overview) here.
+Learn more about **[YouTube Tracking](/docs/help/youtube-tracking/overview)** here.
 :::

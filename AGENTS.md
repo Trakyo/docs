@@ -41,7 +41,9 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
   - `:::info` (blue) — **Learn more**, and nothing else.
 - **Every article ends with a blue `:::info` callout** pointing at another article:
   "Learn more about … here", with the link. It is the last thing on the page.
-- Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`).
+- Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`),
+  never the preview address. A link inside the same article is an anchor (`#add-brand-account-permissions`).
+- **Every hyperlink is bold**: `**[Integrations](https://app.trakyo.io/integrations)**`.
 - No customer data anywhere: names, emails, revenue, links.
 - To check your work: `npm ci && npm run fetch-spec && npm run check`, then `npm run build`.
   `npm run dev` previews the site with drafts included.

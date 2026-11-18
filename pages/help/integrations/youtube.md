@@ -120,3 +120,7 @@ in **Trakyo** and reconnects the YouTube channel using the email address tied to
 account.
 
 _[Video: setting up brand account permissions]_
+
+:::info
+Learn more about [YouTube Tracking](/docs/help/youtube-tracking/overview) here.
+:::

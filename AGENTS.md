@@ -32,7 +32,15 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
 - Separate the sections of an article with `---` on its own line between them, including
   before the first one.
 - Videos: paste the YouTube or Loom embed `<iframe>`; never commit video files.
-- Callouts: `:::tip`, `:::note`, `:::warning`, `:::danger`, closed by `:::` on its own line.
+- Callouts, closed by `:::` on its own line. A title goes in brackets: `:::note[Before you
+  start]`. Each colour has one job:
+  - `:::tip` (green) — pro tips and best practices.
+  - `:::warning` (amber) — a note the reader needs before carrying on.
+  - `:::note` (gray) — cross-references, and settings to copy exactly.
+  - `:::danger` (red) — real warnings. Rare.
+  - `:::info` (blue) — **Learn more**, and nothing else.
+- **Every article ends with a blue `:::info` callout** pointing at another article:
+  "Learn more about … here", with the link. It is the last thing on the page.
 - Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`).
 - No customer data anywhere: names, emails, revenue, links.
 - To check your work: `npm ci && npm run fetch-spec && npm run check`, then `npm run build`.

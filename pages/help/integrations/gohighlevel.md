@@ -255,8 +255,12 @@ If all of that shows up, your integration is configured properly.
 
 ![The test lead on the Leads page, with its first and last touch](./ghl-test-lead.png)
 
-:::info
+:::tip
 Even with this integration live, create a Custom Tracking content item for any form you
 share directly with leads. That is what lets you see the attribution for that specific
 placement, rather than just the submission.
+:::
+
+:::info
+Learn more about the [Leads page](/docs/help/leads/overview) here.
 :::

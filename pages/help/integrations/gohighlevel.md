@@ -34,11 +34,9 @@ the GoHighLevel card to start.
 3. Select the GHL account or sub-account you want to connect.
 4. Click **Connect to GoHighLevel** to finish.
 
-![Choosing which GoHighLevel account or sub-account to connect](./ghl-choose-account.png)
+![Choosing the account, then confirming the install and the permissions Trakyo asks for](./ghl-connect-screens.png)
 
 ![Selecting the sub-account to continue with](./ghl-select-sub-account.png)
-
-![The install confirmation, with the permissions Trakyo asks for](./ghl-install-confirmation.png)
 
 ---
 

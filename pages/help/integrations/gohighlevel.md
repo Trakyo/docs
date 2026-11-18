@@ -36,6 +36,10 @@ the GoHighLevel card to start.
 
 ![Choosing which GoHighLevel account or sub-account to connect](./ghl-choose-account.png)
 
+![Selecting the sub-account to continue with](./ghl-select-sub-account.png)
+
+![The install confirmation, with the permissions Trakyo asks for](./ghl-install-confirmation.png)
+
 ---
 
 ## Form

@@ -34,7 +34,7 @@ the GoHighLevel card to start.
 3. Select the GHL account or sub-account you want to connect.
 4. Click **Connect to GoHighLevel** to finish.
 
-_[Screenshot: the GoHighLevel Forms Integration window, step 1]_
+![Choosing which GoHighLevel account or sub-account to connect](./ghl-choose-account.png)
 
 ---
 

@@ -40,6 +40,16 @@ Open the **[Integrations](https://app.trakyo.io/integrations)** page in **Trakyo
 :::tip
 If you create a pixel during this step, always create a **new one for Trakyo**. It does not
 deduplicate data against your existing Meta pixel, so sharing one mixes the two.
+
+If you would rather not feed your pixel with data from **Trakyo**, do not create a pixel at
+all. Data then goes only to Trakyo, which is what gives you the full lead journey — and
+that is what lets you tell a lead whose first touch was organic content and last touch was
+an ad from one who came the other way round.
+:::
+
+:::note
+You can connect several Meta Business Manager accounts. Click **Connect another Meta
+account** to add the next one.
 :::
 
 ---
@@ -64,26 +74,18 @@ Then, in Meta Ads Manager:
 ![Finding URL parameters in the Edit dropdown](./meta-url-parameters-meta.png)
 
 4. Paste the parameters into the box at the top right, on the **Edit all selected ads** row,
-   to apply them to every ad at once.
+   to apply them to every ad at once. If your ads already carry parameters, add Trakyo's to
+   the end of what is there, joined with an `&` — your existing UTMs and pixels keep working
+   alongside them.
 5. Click **Save to draft**, then **Publish changes**.
 
 ![Pasting the parameters into every selected ad](./meta-paste-parameters.png)
-
-:::note
-Add the parameters to the end of whatever is already in that field, joined with an `&`.
-Your existing UTMs and pixels keep working alongside them.
-:::
 
 :::warning
 Adding tracking parameters to an ad that is already running **resets its learning phase**
 and the performance data it has built up. To avoid that, apply the parameters to a new
 batch of ads rather than running ones, or connect in receive-only mode, where Trakyo takes
 data in without feeding anything back to the pixel.
-:::
-
-:::tip
-Parameters apply to one ad at a time. Add them before you duplicate a campaign and the
-copies carry them, which saves repeating this for every new ad.
 :::
 
 ---

@@ -60,6 +60,8 @@ innocuous label such as "Reference". Trakyo still pre-fills it.
 When a booking is created, POST it to your **Trakyo** webhook. Most people do this with
 Zapier or Make, using the scheduler's "new booking" trigger.
 
+Zapier needs a paid plan for this: webhook steps are not available on its free tier.
+
 :::warning
 The webhook URL is unique to your account. Copy it from the Custom Booking card on the
 **[Integrations](https://app.trakyo.io/integrations)** page rather than from anywhere else.

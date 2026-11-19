@@ -38,7 +38,8 @@ names the form so you can tell your submissions apart.
 1. Open the form you want to track in Framer and add a **Text** input somewhere in it. You
    will hide it in a moment.
 
-![Adding a Text input to the form](./framer-add-text-input.png)
+   ![Adding a Text input to the form](./framer-add-text-input.png)
+
 2. Click the **Input** asset you just created in the left sidebar, find the **Input**
    section in the right sidebar, and set it up:
    1. **Type** — Text.

@@ -33,6 +33,9 @@ Send each payment from Zapier, Make, n8n, or a direct HTTP POST.
    address.
 4. The payment appears in your transactions and counts toward that content's revenue.
 
+Use whatever tool you like for step two, as long as it can trigger on the payment and send
+the required fields.
+
 ---
 
 ## Send the payment to Trakyo
@@ -43,6 +46,8 @@ The webhook URL is unique to your account. Copy it from the Custom Transaction c
 :::
 
 Send a POST request with a JSON body. All five of these fields are required:
+
+### Mandatory fields
 
 ```json
 {
@@ -55,8 +60,8 @@ Send a POST request with a JSON body. All five of these fields are required:
 ```
 
 **`payment_processor`** is the name shown against the payment on your dashboard. Send
-whatever you would call it — "Stripe", "PayPal", "Bank Transfer". Leave it out and the
-payment is filed under unknown, which cannot be corrected later.
+whatever you would call it — "Stripe", "PayPal", "Bank Transfer". Make sure the payment
+processor's name is there, so the payment is not filed under Unknown.
 
 **`external_id`** is how **Trakyo** tells a repeated delivery from a second payment. Send a
 value that is different for every payment, such as the payment's own id from your

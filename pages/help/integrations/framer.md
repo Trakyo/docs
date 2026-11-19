@@ -1,0 +1,132 @@
+---
+title: Framer
+description: Track form submissions from your Framer site as attributed leads in Trakyo.
+order: 5
+draft: true
+---
+
+The **Trakyo** integration with Framer tracks the leads who submit the forms on your Framer
+site, and ties each one back to the content that brought them in.
+
+_[Image: Framer + Trakyo banner]_
+
+:::tip
+Integration requires two steps:
+
+- two hidden fields on every form you want tracked,
+- the form's webhook pointed at **Trakyo**.
+
+It does not cover configuring your Framer pages, or adding the tracking script to pages
+built on Framer — that is in the Custom Domains article.
+:::
+
+:::warning
+Before you start, add the Trakyo tracking code to the head of your Framer site. Without it
+there is no visitor id for the form to carry. See
+**[Custom Domains](/docs/help/custom-domains/overview)**.
+:::
+
+---
+
+## Add the hidden fields to your form
+
+Two hidden fields go on every form you want tracked: one carries the visitor id, the other
+names the form so you can tell your submissions apart.
+
+### The trakyo_id field
+
+1. Open the form you want to track in Framer and add a **Text** input somewhere in it. You
+   will hide it in a moment.
+2. Click the **Input** asset you just created in the left sidebar, find the **Input**
+   section in the right sidebar, and set it up:
+   1. **Type** — Text.
+   2. **Name** — `trakyo_id`.
+   3. **Placeholder** — leave empty.
+   4. **Required** — No.
+   5. **Hidden** — Yes.
+
+_[Screenshot: the trakyo_id input settings]_
+
+### The form_name field
+
+Add a second hidden **Text** input. This one names the form, so you can filter your
+submissions by form on the dashboard.
+
+1. **Type** — Text.
+2. **Name** — `form_name`.
+3. **Value** — a name for this form, such as `Contact Form` or `Newsletter Signup`. Set the
+   **Value**, not the Placeholder.
+4. **Required** — No.
+5. **Hidden** — Yes.
+
+:::note
+Pick a name you will recognise on your dashboard — "Webinar opt-in" rather than "form 1".
+:::
+
+---
+
+## Point the form at Trakyo
+
+1. Select the **Form** component in the left sidebar.
+2. In the right sidebar, under **Form**, set **Send To** to **Webhook**.
+3. Paste your webhook URL into the **API** field. It is on the Custom Form card on the
+   **[Integrations](https://app.trakyo.io/integrations)** page, and it is unique to your
+   account.
+4. Enter your email address in the **Fallback** field, so you are notified if the webhook
+   ever fails.
+
+_[Screenshot: the form's webhook settings]_
+
+5. Save your changes and **publish** the site.
+
+:::warning
+A Framer site only tracks once it is published. A form that is correct in the editor but
+never published records nothing.
+:::
+
+---
+
+## If the form already sends to another tool
+
+Framer allows one webhook per form. If your form already posts to GoHighLevel, Zapier or
+another automation platform, add **Trakyo** as a further step there instead.
+
+1. In your existing automation, add a step for a webhook or HTTP POST request.
+2. Set its URL to your webhook URL from the Custom Form card on the
+   **[Integrations](https://app.trakyo.io/integrations)** page.
+3. Send JSON with these field names, mapped to the matching fields from your form
+   submission:
+
+```json
+{
+  "name": "{{visitor_name}}",
+  "email": "{{visitor_email}}",
+  "phone_number": "{{visitor_phone}}",
+  "trakyo_id": "{{trakyo_id_from_form}}",
+  "form_name": "Type Your Form Name"
+}
+```
+
+---
+
+## Test the integration
+
+1. Click one of your tracking links and let it take you to your Framer page.
+2. Check that `trakyo_id` appears in the URL as a parameter.
+3. Fill the form in and submit it.
+4. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and look for your test lead,
+   searching by the email address you entered.
+5. Open the lead and check it shows your details along with its attribution.
+
+:::warning
+If the lead arrives with no source, check the buttons on the page before the form. A Framer
+button that builds a fresh destination URL drops the `trakyo_id` parameter instead of
+passing it on. Point those buttons at a Trakyo tracking link, or have them carry the
+current URL's parameters through.
+:::
+
+---
+
+:::info
+Learn more about the **[Leads page](/docs/help/leads/overview)** here.
+:::

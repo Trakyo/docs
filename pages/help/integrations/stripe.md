@@ -32,11 +32,8 @@ Connecting Stripe gives you:
 3. Click **+ Create restricted key**.
 4. Select **Providing this key to another website**.
 5. Enter `Trakyo` as the name and `https://app.trakyo.io` as the URL.
-6. Set the permissions — Stripe now requires you to choose them:
-   1. **Webhook endpoints** → Write.
-   2. **Checkout Sessions** → Write, needed for checkout pages and the embedded checkout.
-   3. Everything else → Read, so new Trakyo features keep working without you having to
-      issue a new key.
+6. Leave the permissions as they come — **all permissions**. Do not switch to custom
+   permissions, or **Trakyo** cannot collect your transactions.
 7. Click **Create key** and copy the restricted key.
 
 ![Stripe showing the new restricted key once](./stripe-restricted-key.png)

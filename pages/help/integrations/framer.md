@@ -8,7 +8,7 @@ draft: true
 The **Trakyo** integration with Framer tracks the leads who submit the forms on your Framer
 site, and ties each one back to the content that brought them in.
 
-_[Image: Framer + Trakyo banner]_
+![Framer and Trakyo](./framer-trakyo.png)
 
 :::tip
 Integration requires two steps:
@@ -37,6 +37,8 @@ names the form so you can tell your submissions apart.
 
 1. Open the form you want to track in Framer and add a **Text** input somewhere in it. You
    will hide it in a moment.
+
+![Adding a Text input to the form](./framer-add-text-input.png)
 2. Click the **Input** asset you just created in the left sidebar, find the **Input**
    section in the right sidebar, and set it up:
    1. **Type** — Text.
@@ -45,7 +47,7 @@ names the form so you can tell your submissions apart.
    4. **Required** — No.
    5. **Hidden** — Yes.
 
-_[Screenshot: the trakyo_id input settings]_
+![The trakyo_id input, hidden and not required](./framer-input-settings.webp)
 
 ### The form_name field
 
@@ -75,7 +77,7 @@ Pick a name you will recognise on your dashboard — "Webinar opt-in" rather tha
 4. Enter your email address in the **Fallback** field, so you are notified if the webhook
    ever fails.
 
-_[Screenshot: the form's webhook settings]_
+![Sending the form to a webhook](./framer-webhook.webp)
 
 5. Save your changes and **publish** the site.
 

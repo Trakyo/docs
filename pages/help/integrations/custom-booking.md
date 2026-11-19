@@ -45,10 +45,8 @@ so leave its value empty.
 <input type="hidden" name="trakyo_id" />
 ```
 
-:::note
 Schedulers name and place custom fields differently, so where this lives varies by tool.
 In Cal.com, for instance, it is a hidden, non-required field on the booking form.
-:::
 
 :::tip
 If your scheduler does not allow hidden fields, use a visible short-text field with an
@@ -143,6 +141,9 @@ builders report success they have not delivered.
 If bookings do not arrive, check the page before the booking form first — the tracking
 script and the `trakyo_id` in the URL — before reconnecting anything. A scheduler is the
 last step in most funnels, so it inherits whatever broke earlier.
+
+If the `trakyo_id` is not carried forward from the previous page to the page the scheduler
+is embedded on, that logic has to be added in your webpage builder.
 :::
 
 ---

@@ -261,6 +261,8 @@ share directly with leads. That is what lets you see the attribution for that sp
 placement, rather than just the submission.
 :::
 
+---
+
 :::info
 Learn more about the **[Leads page](/docs/help/leads/overview)** here.
 :::

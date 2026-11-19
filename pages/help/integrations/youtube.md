@@ -126,6 +126,8 @@ account.
 
 _[Video: setting up brand account permissions]_
 
+---
+
 :::info
 Learn more about **[YouTube Tracking](/docs/help/youtube-tracking/overview)** here.
 :::

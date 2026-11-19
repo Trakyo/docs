@@ -98,6 +98,8 @@ data in without feeding anything back to the pixel.
 3. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and check your test lead is
    there, with the ad as its source.
 
+---
+
 :::info
 Learn more about **[Meta Ads Tracking](/docs/help/meta-ads-tracking/overview)** here.
 :::

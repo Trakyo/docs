@@ -28,7 +28,8 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
   so never add alignment markup.
 - A picture pairing two logos (an integration banner) shows both at the **same artwork
   height**, measured from the artwork itself, not from the file's own padding. Centre them
-  on a plain background with a `+` between.
+  with a `+` between, on a background that is **pure white or pure black, never a shade
+  in between** — repaint a logo file's own off-white backdrop to match.
 - Separate the sections of an article with `---` on its own line between them, including
   before the first one.
 - Videos: paste the YouTube or Loom embed `<iframe>`; never commit video files.
@@ -40,7 +41,8 @@ This is the public docs site at trakyo.io/docs, built with Zudoku. Read README.m
   - `:::danger` (red) — real warnings. Rare.
   - `:::info` (blue) — **Learn more**, and nothing else.
 - **Every article ends with a blue `:::info` callout** pointing at another article:
-  "Learn more about … here", with the link. It is the last thing on the page.
+  "Learn more about … here", with the link, preceded by `---` on its own line. It is the
+  last thing on the page.
 - Links to other docs pages start with `/docs/` (e.g. `/docs/help/integrations/connect-stripe`),
   never the preview address. A link inside the same article is an anchor (`#add-brand-account-permissions`).
 - **Every hyperlink is bold**: `**[Integrations](https://app.trakyo.io/integrations)**`.

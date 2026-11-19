@@ -11,8 +11,13 @@ funnel pages, and ties each one back to the content that brought them in.
 ![ClickFunnels and Trakyo](./cf-trakyo.png)
 
 :::tip
-Setting this up takes two halves, and both are needed: a hidden field on every form you
-want tracked, then one webhook that sends those submissions to **Trakyo**.
+Integration requires two steps:
+
+- a hidden field on every form you want tracked,
+- one webhook that sends those submissions to **Trakyo**.
+
+It does not cover configuring your ClickFunnels pages, or adding the tracking script to
+pages built on ClickFunnels — that is in the Custom Domains article.
 :::
 
 ---
@@ -94,6 +99,8 @@ submissions that cannot be attributed.
 4. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and look for your test lead,
    searching by the email address you entered.
 5. Open the lead and check it shows your details along with its attribution.
+
+---
 
 :::info
 Learn more about the **[Leads page](/docs/help/leads/overview)** here.

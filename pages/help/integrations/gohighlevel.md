@@ -2,7 +2,6 @@
 title: GoHighLevel
 description: Track GoHighLevel forms, surveys, quizzes and calendars as attributed leads in Trakyo.
 order: 1
-draft: true
 ---
 
 The **Trakyo** integration with GoHighLevel tracks the leads who fill in your form

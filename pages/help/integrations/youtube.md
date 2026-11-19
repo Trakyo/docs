@@ -2,7 +2,6 @@
 title: YouTube
 description: Connect your YouTube channels so Trakyo can attribute sales to the videos that earned them.
 order: 2
-draft: true
 ---
 
 The **Trakyo** integration with YouTube lets you connect one or more of your channels, loads
@@ -123,8 +122,6 @@ links.
 Your team member then opens the **[Integrations](https://app.trakyo.io/integrations)** page
 in **Trakyo** and reconnects the YouTube channel using the email address tied to that brand
 account.
-
-_[Video: setting up brand account permissions]_
 
 ---
 

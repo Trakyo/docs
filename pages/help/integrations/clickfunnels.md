@@ -2,7 +2,6 @@
 title: ClickFunnels
 description: Track ClickFunnels form submissions as attributed leads in Trakyo.
 order: 4
-draft: true
 ---
 
 The **Trakyo** integration with ClickFunnels tracks the leads who submit the forms on your

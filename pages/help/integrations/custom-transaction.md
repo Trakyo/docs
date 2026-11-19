@@ -2,7 +2,6 @@
 title: Custom Transaction
 description: Record payments Trakyo does not collect automatically, so they count toward your revenue and attribution.
 order: 8
-draft: true
 ---
 
 The **Trakyo** Custom Transaction integration records payments that reach you outside a

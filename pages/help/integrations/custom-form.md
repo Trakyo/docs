@@ -2,7 +2,6 @@
 title: Custom Form
 description: Track submissions from any form Trakyo has no direct integration with.
 order: 6
-draft: true
 ---
 
 The **Trakyo** Custom Form integration tracks submissions from any form that has no direct

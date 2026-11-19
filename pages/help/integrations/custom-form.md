@@ -9,6 +9,8 @@ The **Trakyo** Custom Form integration tracks submissions from any form that has
 integration — a form tool Trakyo does not connect to, a custom-coded HTML form, or a form
 on a site built with an AI builder.
 
+![Form tools and Trakyo](./custom-form-trakyo.png)
+
 :::tip
 There are three ways to set this up, depending on where your form lives:
 

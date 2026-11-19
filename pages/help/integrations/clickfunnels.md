@@ -22,7 +22,7 @@ pages built on ClickFunnels — that is in the Custom Domains article.
 
 ---
 
-## Add the tracking field to your form
+## Form configuration
 
 The hidden field carries the visitor id through the form, so the submission arrives in
 **Trakyo** with the click that produced it.
@@ -61,7 +61,7 @@ records the submission without the click that produced it, so its revenue lands 
 
 ---
 
-## Create the webhook
+## Form workflow automation setup
 
 The webhook is what delivers each submission to **Trakyo**.
 

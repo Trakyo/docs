@@ -20,20 +20,20 @@ It does not cover configuring your Framer pages, or adding the tracking script t
 built on Framer — that is in the Custom Domains article.
 :::
 
+---
+
+## Form configuration
+
 :::warning
 Before you start, add the Trakyo tracking code to the head of your Framer site. Without it
 there is no visitor id for the form to carry. See
 **[Custom Domains](/docs/help/custom-domains/overview)**.
 :::
 
----
-
-## Add the hidden fields to your form
-
 Two hidden fields go on every form you want tracked: one carries the visitor id, the other
 names the form so you can tell your submissions apart.
 
-### The trakyo_id field
+### Adding trakyo_id hidden field
 
 1. Open the form you want to track in Framer and add a **Text** input somewhere in it. You
    will hide it in a moment.
@@ -50,7 +50,7 @@ names the form so you can tell your submissions apart.
 
 ![The trakyo_id input, hidden and not required](./framer-input-settings.webp)
 
-### The form_name field
+### Adding form_name hidden field
 
 Add a second hidden **Text** input. This one names the form, so you can filter your
 submissions by form on the dashboard.
@@ -63,12 +63,13 @@ submissions by form on the dashboard.
 5. **Hidden** — Yes.
 
 :::note
-Pick a name you will recognise on your dashboard — "Webinar opt-in" rather than "form 1".
+Enter a form name you will recognise easily on your dashboard — "Landing page opt-in"
+rather than "form 1".
 :::
 
 ---
 
-## Point the form at Trakyo
+## Form workflow automation setup
 
 1. Select the **Form** component in the left sidebar.
 2. In the right sidebar, under **Form**, set **Send To** to **Webhook**.
@@ -102,11 +103,11 @@ another automation platform, add **Trakyo** as a further step there instead.
 
 ```json
 {
-  "name": "{{visitor_name}}",
-  "email": "{{visitor_email}}",
-  "phone_number": "{{visitor_phone}}",
-  "trakyo_id": "{{trakyo_id_from_form}}",
-  "form_name": "Type Your Form Name"
+  "email": "visitor@example.com",
+  "name": "Jane Doe",
+  "phone": "+1234567890",
+  "trakyo_id": "{{trakyo_id from hidden input}}",
+  "form_name": "Contact Form"
 }
 ```
 

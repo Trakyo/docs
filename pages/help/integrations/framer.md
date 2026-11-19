@@ -33,10 +33,13 @@ there is no visitor id for the form to carry. See
 Two hidden fields go on every form you want tracked: one carries the visitor id, the other
 names the form so you can tell your submissions apart.
 
+1. Open Framer and click the project that holds the website with your forms.
+2. Select the page in the left sidebar, then click inside the asset the form sits in. The
+   right sidebar is where you configure the hidden fields and the webhook.
+
 ### Adding trakyo_id hidden field
 
-1. Open the form you want to track in Framer and add a **Text** input somewhere in it. You
-   will hide it in a moment.
+1. Add a **Text** input somewhere in the form. You will hide it in a moment.
 
    ![Adding a Text input to the form](./framer-add-text-input.png)
 
@@ -127,6 +130,9 @@ If the lead arrives with no source, check the buttons on the page before the for
 button that builds a fresh destination URL drops the `trakyo_id` parameter instead of
 passing it on. Point those buttons at a Trakyo tracking link, or have them carry the
 current URL's parameters through.
+
+Also confirm you are not running custom code on those pages. A/B testing scripts, or any
+custom code at all, can block the tracking.
 :::
 
 ---

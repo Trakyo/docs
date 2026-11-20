@@ -57,16 +57,6 @@ Connecting Kit gives you:
 
 ---
 
-## Create a webhook for each form
-
-**Trakyo** tracks the forms you choose, one webhook per form. On the Kit card, pick a form
-under **Select Form to Monitor** and click **Create Webhook**. Repeat for every form you
-want tracked.
-
-![The Kit webhook configuration in Trakyo](./kit-webhook-config.png)
-
----
-
 ## Add the Trakyo ID field to your forms
 
 Each form also needs a hidden field that carries the visitor's Trakyo id, so a submission
@@ -126,6 +116,16 @@ can be tied to the visit that produced it.
 The label has to be `trakyo_id` exactly. Any other spelling and the id does not reach
 **Trakyo**.
 :::
+
+---
+
+## Create a webhook for each form
+
+With the field in place, the last step is telling **Trakyo** which forms to watch — one
+webhook per form. On the Kit card, pick a form under **Select Form to Monitor** and click
+**Create Webhook**. Repeat for every form you want tracked.
+
+![The Kit webhook configuration in Trakyo](./kit-webhook-config.png)
 
 ---
 

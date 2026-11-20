@@ -8,6 +8,8 @@ draft: true
 The **Trakyo** integration with Whop tracks the payments taken through your Whop account and
 attributes each one to the content that produced it.
 
+![Whop and Trakyo](./whop-trakyo.png)
+
 :::tip
 Connecting Whop gives you:
 

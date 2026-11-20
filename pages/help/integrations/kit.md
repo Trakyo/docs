@@ -74,20 +74,33 @@ can be tied to the visit that produced it.
 
 ### Create the custom field
 
-1. In Kit, open **Subscribers** and click any subscriber to open their details.
-2. Click **Add field**.
+1. In Kit, open **Grow** → **Subscribers**.
+
+![The Subscribers item in Kit's Grow menu](./kit-subscribers-menu.webp)
+
+2. Click any subscriber to open their details, then click **Add field**.
+
+![The Add field button on a subscriber](./kit-add-field.webp)
+
 3. Name it `Trakyo ID` and click **Save**.
 
 ### Add it to the form
 
-1. Go to **Landing Pages & Forms** and open the form you want to track, or create one.
-2. In the **Custom Field** section, open the dropdown and choose **Trakyo ID**.
-3. Set the **Custom field label** to exactly `trakyo_id` — lowercase, with an underscore —
+1. Open **Grow** → **Landing Pages & Forms**.
+
+![Landing Pages & Forms in Kit's Grow menu](./kit-forms-menu.webp)
+
+2. Open the form you want to track, or click **Create new**.
+
+![The list of forms in Kit](./kit-forms-list.webp)
+
+3. In the **Custom Field** section, open the dropdown and choose **Trakyo ID**.
+4. Set the **Custom field label** to exactly `trakyo_id` — lowercase, with an underscore —
    and leave **Required** unchecked.
-4. In the **Custom CSS** section, paste the CSS from the Kit card in **Trakyo**. It hides the
+5. In the **Custom CSS** section, paste the CSS from the Kit card in **Trakyo**. It hides the
    field, so your subscribers never see it.
-5. Click **Publish**.
-6. Click **Embed** and copy the code for your site — JavaScript or HTML, whichever suits your
+6. Click **Publish**.
+7. Click **Embed** and copy the code for your site — JavaScript or HTML, whichever suits your
    site builder.
 
 :::note

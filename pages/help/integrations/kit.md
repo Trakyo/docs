@@ -95,13 +95,32 @@ can be tied to the visit that produced it.
 ![The list of forms in Kit](./kit-forms-list.webp)
 
 3. In the **Custom Field** section, open the dropdown and choose **Trakyo ID**.
+
+![Choosing the Trakyo ID custom field](./kit-custom-field.webp)
+
 4. Set the **Custom field label** to exactly `trakyo_id` — lowercase, with an underscore —
    and leave **Required** unchecked.
-5. In the **Custom CSS** section, paste the CSS from the Kit card in **Trakyo**. It hides the
-   field, so your subscribers never see it.
+
+![The custom field label set to trakyo_id](./kit-field-label.webp)
+
+5. In the **Custom CSS** section, paste this. It hides the field, so your subscribers never
+   see it:
+
+   ```css
+   input[name="fields[trakyo_id]"] {display: none !important;}
+   ```
+
 6. Click **Publish**.
-7. Click **Embed** and copy the code for your site — JavaScript or HTML, whichever suits your
-   site builder.
+
+![The custom CSS in place and the form published](./kit-custom-css.webp)
+
+7. Click **Embed** and copy the code for your site. The **JavaScript** tab gives you one
+   line to paste; the **HTML** tab gives you the form's full markup, if your site builder
+   needs that instead.
+
+![The JavaScript embed code](./kit-embed-js.webp)
+
+![The HTML embed code](./kit-embed-html.webp)
 
 :::note
 The label has to be `trakyo_id` exactly. Any other spelling and the id does not reach

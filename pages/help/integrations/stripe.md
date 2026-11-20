@@ -51,6 +51,18 @@ Stripe card, paste both keys in — publishable and restricted — and click con
 
 ---
 
+## Refunds
+
+Refunds given in Stripe are taken off your revenue, whether full or partial, and so are
+chargebacks. A refund also comes off the video, post or ad that earned the sale, so those
+figures — and your ROAS — change with it.
+
+On your **[Transactions](https://app.trakyo.io/transactions)** page the refund shows with a
+minus amount, dated the day it was given, not the day of the sale. The sale itself still
+counts as a sale; it just no longer counts as revenue.
+
+---
+
 ## Test the integration
 
 1. Take a payment through Stripe, or find one you have taken recently.

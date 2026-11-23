@@ -11,11 +11,12 @@ links and attributes each booking to the content that produced it.
 ![Calendly and Trakyo](./calendly-trakyo.png)
 
 :::warning
-Calendly only allows webhooks on its **Standard**, **Teams** and **Enterprise** plans, which
-you can check under **Calendly** → **Billing**. On the Free plan **Trakyo** can connect but
-will never be told about your bookings — use
-**[Custom Booking](/docs/help/integrations/custom-booking)** instead, which tracks bookings
-without a webhook.
+Calendly only allows webhooks on its paid plans — Standard, Teams and Enterprise — which you
+can check under **Calendly** → **Billing**.
+
+If you are on the Free plan, you can still connect **Trakyo** with a Zapier, Make or n8n
+trigger that sends the booking to the webhook in
+**[Custom Booking](/docs/help/integrations/custom-booking)** instead.
 :::
 
 ---

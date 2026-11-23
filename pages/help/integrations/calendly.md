@@ -8,6 +8,8 @@ draft: true
 The **Trakyo** integration with Calendly tracks the meetings booked through your Calendly
 links and attributes each booking to the content that produced it.
 
+![Calendly and Trakyo](./calendly-trakyo.png)
+
 :::warning
 Calendly only allows webhooks on its **Standard**, **Teams** and **Enterprise** plans, which
 you can check under **Calendly** → **Billing**. On the Free plan **Trakyo** can connect but
@@ -35,7 +37,7 @@ Connecting Calendly gives you:
 
 - the meetings prospects book through your Calendly links,
 - the attendee's details, tied to their lead,
-- bookings and cancellations as they happen,
+- bookings as they happen,
 - each booking attributed to the content that produced it.
 :::
 
@@ -76,7 +78,6 @@ calendar is.
 1. Book a meeting through one of the event types you are tracking.
 2. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and check the booking is
    listed against that person, with the content that brought them in.
-3. Cancel the test booking and check the cancellation reaches **Trakyo** too.
 
 ---
 

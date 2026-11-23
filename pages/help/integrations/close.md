@@ -51,6 +51,8 @@ Every note follows the same template:
 The note is posted by one of your **Trakyo** users, so it appears in Close as that person
 having created it.
 
+![A Trakyo note on a lead's activity in Close](./close-note.png)
+
 ---
 
 ## Find the leads Trakyo has noted
@@ -59,6 +61,8 @@ having created it.
 2. Click **Filters** and type `Note` in the search bar at the top.
 3. Choose **Find Notes where…**, set it to **Any text**, **contains exact words**, and type
    `Trakyo`.
+
+![Filtering Close leads by Trakyo notes](./close-filter.png)
 
 Close then lists every lead with a **Trakyo** note on their activity.
 

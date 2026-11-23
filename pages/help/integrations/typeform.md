@@ -10,11 +10,6 @@ attributed to the content that brought that person in.
 
 ![Typeform and Trakyo](./typeform-trakyo.png)
 
-:::warning[Tracking script required]
-A submission is only tracked on a page that has the **Trakyo** tracking script in its
-`<head>` tag. Install the script on every page that holds a Typeform embed.
-:::
-
 ---
 
 ## Generate your personal access token
@@ -28,6 +23,8 @@ A submission is only tracked on a page that has the **Trakyo** tracking script i
 6. Open the **[Integrations](https://app.trakyo.io/integrations)** page in **Trakyo**, find
    the Typeform card, paste the token into **New Personal Access Token** and save. The card
    then shows as connected.
+
+![The connected Typeform card in Trakyo](./typeform-connect.png)
 
 ---
 
@@ -68,7 +65,7 @@ instance — pass the `trakyo_id` forward, or the trail stops at the form.
 
 ## Test the integration
 
-1. Open a page that holds your typeform, and check the **Trakyo** script is in its `<head>`.
+1. Open a page that holds your typeform.
 2. Submit the form with test details. If the form redirects onward, follow it through to the
    end — book the call, if that is where it goes.
 3. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and check the submission is
@@ -92,7 +89,6 @@ Work through these in order:
    and it is easy to create one against the wrong form.
 3. In Typeform, open the form and look under **Connect** → **Webhooks**. The webhook
    pointing at **Trakyo** should be there and enabled.
-4. Check the page holding the form has the tracking script in its `<head>`.
 
 If all of that is in order and submissions still do not arrive, contact support through the
 in-app chat and we will take a look.

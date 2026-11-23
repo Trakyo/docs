@@ -15,11 +15,8 @@ iClosed webhook, or Zapier or Make through Custom Booking.
 
 ## Connect with the iClosed webhook
 
-:::warning
-Webhook access is not on by default. Email iClosed support to have it turned on for your
-account, then manage it in your
+Webhooks are available on every iClosed account, and you manage them in your
 **[iClosed developer settings](https://app.iclosed.io/app/settings/developer)**.
-:::
 
 ### Add the emails to track
 
@@ -126,6 +123,8 @@ iClosed gives each lead a status as they move through the scheduling form:
 | `form_name` | a name of your own, such as `iClosed - Potential`. It is what you see on the lead's journey in **Trakyo** |
 
 6. Publish the Zap.
+
+![The finished Zap, with a path for each status](./iclosed-zap-paths.webp)
 
 :::tip
 The delay is what makes this work. Waiting 300 to 600 seconds gives a lead time to finish

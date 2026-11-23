@@ -2,6 +2,7 @@
 title: Kit
 description: Connect Kit so Trakyo tracks the people who submit your Kit forms.
 order: 15
+draft: true
 ---
 
 The **Trakyo** integration with Kit tracks the email submissions from your Kit forms and

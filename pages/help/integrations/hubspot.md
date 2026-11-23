@@ -6,11 +6,33 @@ draft: true
 ---
 
 The **Trakyo** integration with HubSpot Meetings tracks the calls booked through your
-HubSpot scheduler and attributes each one to the content that produced it.
+HubSpot scheduler and attributes each one to the content that produced it. There are two
+ways to connect: through Custom Booking, or with a custom property on the HubSpot
+scheduler itself.
+
+![HubSpot and Trakyo](./hubspot-trakyo.png)
 
 ---
 
-## How it works
+## Connect through Custom Booking
+
+Send your HubSpot bookings to the webhook in
+**[Custom Booking](/docs/help/integrations/custom-booking)** with a Zapier or Make
+automation, triggered by a new meeting in HubSpot.
+
+This is the route we would pick. HubSpot gives you little control over tracking on the
+scheduler, and its meeting forms have no hidden fields, so the other route asks you to put
+a visible field on the form and keep the scheduler embedded on your own site. Custom
+Booking avoids all of it.
+
+Follow the steps in **[Custom Booking](/docs/help/integrations/custom-booking)**, with the
+HubSpot meeting as your trigger.
+
+---
+
+## Connect with the HubSpot scheduler
+
+The other route passes the visitor's **Trakyo** id through the scheduler itself:
 
 1. The **Trakyo** tracking script adds the visitor's id to your embedded HubSpot meeting
    scheduler.
@@ -26,9 +48,7 @@ You need:
 - a Zapier or Make account, or **Operations Hub Professional** for workflow webhooks.
 :::
 
----
-
-## Create the contact property
+### Create the contact property
 
 In HubSpot, go to **Settings** → **Properties** → **Contact properties** and create a new
 **Single-line text** property.
@@ -43,9 +63,7 @@ HubSpot's own guide:
 **[Create and edit properties](https://knowledge.hubspot.com/properties/create-and-edit-properties)**.
 :::
 
----
-
-## Add the property to your booking form
+### Add the property to your booking form
 
 Open your scheduling page in HubSpot — **Sales** → **Meetings** → your meeting → the
 **Form** tab — click **+ Contact property**, and add the property you just made.
@@ -60,9 +78,7 @@ HubSpot's own guide:
 **[Create and edit scheduling pages](https://knowledge.hubspot.com/meetings-tool/create-and-edit-scheduling-pages)**.
 :::
 
----
-
-## Embed the scheduler on your site
+### Embed the scheduler on your site
 
 Use HubSpot's embed code to put the scheduler on a page of your own, one that has the
 **Trakyo** tracking script on it. The script finds the `meetings.hubspot.com` iframe, adds
@@ -81,65 +97,45 @@ and
 **[Auto-populate fields with a query string](https://knowledge.hubspot.com/forms/can-i-auto-populate-form-fields-through-a-query-string)**.
 :::
 
----
-
-## Send the booking to Trakyo
+### Send the booking to Trakyo
 
 When someone books, an automation has to send the contact's details, `trakyo_id` included,
 to your **Trakyo** webhook. Copy that webhook URL from the HubSpot card on the
 **[Integrations](https://app.trakyo.io/integrations)** page — it is unique to your account.
 
-There are three ways to send it.
-
-### Zapier or Make
-
-The one we would pick. Build a Zap or scenario triggered by **New Engagement (Meeting)** in
-HubSpot, add a step that fetches the contact's `trakyo_id`, and POST the data to your
+**With Zapier or Make.** Build a Zap or scenario triggered by **New Engagement (Meeting)**
+in HubSpot, add a step that fetches the contact's `trakyo_id`, and POST the data to your
 webhook URL. It works on any HubSpot plan.
 
-### A HubSpot workflow webhook
-
-Create a contact-based workflow triggered on **Meeting booked**, and add a **Send a
-webhook** action that POSTs the contact's properties, `trakyo_id` included, to your webhook
-URL.
-
-:::warning
-Workflow webhooks need **Operations Hub Professional** or **Enterprise**. The other two
-routes work on any plan.
-:::
-
-:::note
-HubSpot's own guide:
+**With a HubSpot workflow webhook.** Create a contact-based workflow triggered on **Meeting
+booked**, and add a **Send a webhook** action that POSTs the contact's properties,
+`trakyo_id` included, to your webhook URL. This one needs **Operations Hub Professional**
+or **Enterprise**. HubSpot's own guide:
 **[Trigger webhooks in HubSpot workflows](https://knowledge.hubspot.com/workflows/how-do-i-use-webhooks-with-hubspot-workflows)**.
-:::
 
-### The HubSpot webhooks API
-
-For developers. Subscribe to `contact.propertyChange` on the
-`engagements_last_meeting_booked` property. When it fires, read the contact's `trakyo_id`
-through the CRM API and forward it to your webhook URL. This one needs a HubSpot developer
-app.
-
-:::note
-HubSpot's own references:
+**With the HubSpot webhooks API.** For developers. Subscribe to `contact.propertyChange` on
+the `engagements_last_meeting_booked` property, read the contact's `trakyo_id` through the
+CRM API when it fires, and forward it to your webhook URL. This needs a HubSpot developer
+app. HubSpot's own references:
 **[Webhooks API](https://developers.hubspot.com/docs/api-reference/webhooks-webhooks-v3/guide)**
 and
 **[CRM Meetings API](https://developers.hubspot.com/docs/api-reference/crm-meetings-v3/guide)**.
-:::
 
 ---
 
 ## Test the integration
 
 1. Open the page that holds your embedded scheduler.
-2. Book a meeting with test details, and check the Reference ID field is already filled in
-   when the form loads.
+2. Book a meeting with test details. On the scheduler route, check the Reference ID field
+   is already filled in when the form loads.
 3. Open **[Leads](https://app.trakyo.io/leads)** in **Trakyo** and check the booking is
    listed against that person, with the content that brought them in.
 
 ---
 
 ## Known limitations
+
+These apply to the scheduler route. Custom Booking is not affected by the first two.
 
 - **The id field is visible.** HubSpot meeting forms have no hidden fields, so the booker
   sees it, labelled however you named it.

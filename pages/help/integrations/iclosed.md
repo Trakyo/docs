@@ -32,7 +32,8 @@ iClosed card, and add the host email of every closer whose bookings you want tra
 :::warning
 Use each closer's iClosed login email, not the address they connected their calendar with.
 Save the emails before you create the webhook in iClosed, too — **Trakyo** uses the closer's
-email to route each booking to your account.
+email to route each booking to your account. When you add a closer in iClosed later,
+remember to add them here as well.
 :::
 
 ### Create the webhook in iClosed
@@ -85,6 +86,58 @@ trial includes it, but the Zaps stop working when the trial ends. Check your pla
 
 Follow the steps in **[Custom Booking](/docs/help/integrations/custom-booking)**, with your
 iClosed booking as the trigger.
+
+---
+
+## Capture the leads who did not book
+
+Leads who start your iClosed form but never book a call can reach **Trakyo** too, through
+the webhook in **[Custom Form](/docs/help/integrations/custom-form)** and a Zapier
+automation.
+
+iClosed gives each lead a status as they move through the scheduling form:
+
+- **Potential** — they dropped off the form before pressing **Continue**.
+- **Qualified** — they filled the form in and pressed **Continue**, but did not book.
+- **Disqualified** — they filled the form in and pressed **Continue**, but the event's
+  disqualification criteria stopped them booking.
+- **Call booked** — the last step of the journey.
+
+### Set up the Zap
+
+1. Open the **[Integrations](https://app.trakyo.io/integrations)** page in **Trakyo**, find
+   the Custom Form card, and copy its webhook URL.
+2. In Zapier, create a Zap with the iClosed trigger **Contact by status**, configured as:
+   - **Status** — Strategy call booked
+   - **Delay** — 300 to 600 seconds
+   - **Send last active status** — Yes
+3. Add a path for each status you want to capture, filtering on **Status** → **exactly
+   matches** → `Potential`, `Qualified` or `Disqualified`.
+4. In every path, add **Webhooks by Zapier** with **POST** as the action event. Paste the
+   Custom Form webhook URL, and choose **Json** as the payload type.
+5. Map these fields in each path:
+
+| Field | Value |
+| --- | --- |
+| `email` | iClosed **Email** |
+| `name` | iClosed **First name** and **Last name**, which are two separate fields |
+| `phone` | iClosed **Phone** |
+| `trakyo_id` | iClosed **UTM Term** |
+| `form_name` | a name of your own, such as `iClosed - Potential`. It is what you see on the lead's journey in **Trakyo** |
+
+6. Publish the Zap.
+
+:::tip
+The delay is what makes this work. Waiting 300 to 600 seconds gives a lead time to finish
+the form, and **Send last active status** means that if they never book, **Trakyo** still
+gets the status they reached.
+:::
+
+### Test it
+
+Open your iClosed scheduler through a **Trakyo** tracking link, fill the form in, do not
+book, and close the tab. Wait for the delay to pass, then open
+**[Leads](https://app.trakyo.io/leads)** — the person is there as a qualified lead.
 
 ---
 

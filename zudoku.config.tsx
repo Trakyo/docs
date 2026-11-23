@@ -152,6 +152,10 @@ const config: ZudokuConfig = {
     // so it is one rule here rather than markup in every article.
     customCss: `
       .prose img { display: block; margin-inline: auto; }
+
+      /* A titled callout's body sits 1px proud of its box, which is enough for
+         the browser to draw a scrollbar inside it. Let the callout grow instead. */
+      [role="note"] .overflow-x-auto { overflow-y: hidden; }
     `,
 
     // The dashboard's shadcn palette with the docs-blue accent. Two deliberate

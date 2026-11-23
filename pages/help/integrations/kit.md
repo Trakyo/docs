@@ -2,7 +2,6 @@
 title: Kit
 description: Connect Kit so Trakyo tracks the people who submit your Kit forms.
 order: 15
-draft: true
 ---
 
 The **Trakyo** integration with Kit tracks the email submissions from your Kit forms and
@@ -15,6 +14,11 @@ The webhook does its work server-side, but a submission is only tracked on a pag
 the **Trakyo** tracking script in its `<head>` tag. Install the script on every page that
 holds a Kit form.
 :::
+
+If you do not collect subscribers through Kit forms, and only want to track the emails you
+send from Kit, you do not need this integration at all. Create tracking links in
+**[Custom Tracking](https://app.trakyo.io/custom-tracking)** instead, one for each link your
+readers click.
 
 ---
 

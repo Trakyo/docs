@@ -1,7 +1,7 @@
 ---
 title: Typeform
 description: Connect Typeform so every submission reaches Trakyo as a lead, attributed to the content that produced it.
-order: 18
+order: 5
 draft: true
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: Calendly
 description: Connect Calendly so Trakyo tracks the meetings booked on your calendar and attributes them to your content.
-order: 16
+order: 11
 draft: true
 ---
 

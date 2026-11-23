@@ -1,7 +1,7 @@
 ---
 title: SamCart
 description: Let Trakyo read the real total of a SamCart order, so order bumps and upsells are counted.
-order: 10
+order: 14
 draft: true
 ---
 

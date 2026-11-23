@@ -1,7 +1,7 @@
 ---
 title: Teachable
 description: Connect your Teachable school so Trakyo tracks its transactions and attributes them to your content.
-order: 14
+order: 18
 draft: true
 ---
 

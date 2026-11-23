@@ -1,7 +1,7 @@
 ---
 title: Whop
 description: Connect your Whop account so Trakyo tracks your Whop payments and attributes them to your content.
-order: 12
+order: 16
 draft: true
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: Kit
 description: Connect Kit so Trakyo tracks the people who submit your Kit forms.
-order: 15
+order: 7
 draft: true
 ---
 

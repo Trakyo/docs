@@ -1,7 +1,7 @@
 ---
 title: Commas
 description: Connect your Commas account so Trakyo tracks your Commas payments and attributes them to your content.
-order: 13
+order: 17
 draft: true
 ---
 

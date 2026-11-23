@@ -1,7 +1,7 @@
 ---
 title: Stripe
 description: Connect your Stripe account so Trakyo tracks payments and attributes them to your content.
-order: 11
+order: 15
 draft: true
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: YouTube
 description: Connect your YouTube channels so Trakyo can attribute sales to the videos that earned them.
-order: 2
+order: 1
 ---
 
 The **Trakyo** integration with YouTube lets you connect one or more of your channels, loads

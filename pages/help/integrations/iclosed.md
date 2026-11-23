@@ -1,7 +1,7 @@
 ---
 title: iClosed
 description: Connect iClosed so Trakyo tracks the calls your closers book and attributes them to your content.
-order: 17
+order: 10
 draft: true
 ---
 

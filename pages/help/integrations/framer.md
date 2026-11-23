@@ -1,7 +1,7 @@
 ---
 title: Framer
 description: Track form submissions from your Framer site as attributed leads in Trakyo.
-order: 5
+order: 3
 ---
 
 The **Trakyo** integration with Framer tracks the leads who submit the forms on your Framer

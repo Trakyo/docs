@@ -1,7 +1,7 @@
 ---
 title: Meta Ads
 description: Attribute sales to your Facebook and Instagram ads, with spend and ROAS.
-order: 3
+order: 2
 ---
 
 The **Trakyo** integration with Meta Ads attributes leads and sales to the Facebook and

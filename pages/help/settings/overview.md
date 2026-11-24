@@ -200,6 +200,67 @@ Mapping never relabels a payment. It stays **Self-reported**, kept apart from th
 
 ---
 
+## Spend
+
+Everything you spend on your sources and content, in one place, so the dashboard can show
+what a customer costs you.
+
+![The Spend tab](./settings-spend.png)
+
+### Add an amount
+
+Click **Add spend** and fill in the dialog:
+
+1. **Source** — which source the money went on.
+2. **Applies to** — **The whole source**, one amount for everything that source does, or
+   **One content item**, a video, a post or a link with its own cost.
+3. **Amount** and **Currency**.
+4. **Dates** — optional. Left alone, the amount is counted in full whatever dates the
+   dashboard is showing. Click **Add dates** to give it a range, and it is spread evenly
+   across those days instead. The picker offers This month, Last month, Month to date, Last
+   30 days and Year to date.
+5. **Note** — optional, for your own reference: an editor, a sponsorship, a retainer.
+
+Then click **Save spend**.
+
+![The Add spend dialog](./settings-add-spend.png)
+
+:::warning
+For any one source, spend goes either on the whole source or on its content items, never
+both. That is what stops the same money being counted twice.
+:::
+
+:::note
+Meta ad spend syncs on its own, so Meta sources take no manual entry.
+:::
+
+### Where else you can enter it
+
+You do not have to come here. Spend can be entered wherever you see the source or the
+content item: on the **YouTube Tracking** and **Custom Tracking** pages, and in the Spend
+cells of your dashboard. This tab is simply the list of everything you have entered.
+
+### What the dashboard does with it
+
+Once there is spend to work with, the dashboard can show:
+
+- **Cost per booking**.
+- **CAC** — spend divided by new customers.
+- **Return on spend** — revenue divided by spend.
+- **Booking → customer** rate.
+
+Each of those carries a "How it's calculated" explainer and a breakdown by source. The
+**Sources** table gains spend, cost per booking, CAC and ROAS alongside revenue and
+bookings, and each row opens to show how that source is credited under first touch, last
+touch and linear side by side, with a tag for whether it starts deals, closes them, or
+both. **Top content** ranks your content by revenue with the same cost columns.
+
+:::note
+These are opt-in widgets. Add them to your dashboard to see them.
+:::
+
+---
+
 :::info
 Learn more about your **[Team](/docs/help/settings/team)** here.
 :::

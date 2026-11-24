@@ -5,9 +5,15 @@ order: 1
 draft: true
 ---
 
-Settings is where you name your account, set your timezone and currency, invite new users,
-and choose how **Trakyo** talks about your numbers. It has four tabs: **General**,
-**Profile**, **Self-reported** and **Spend**.
+Settings holds everything about the account itself, across four tabs:
+
+- **General** — your brand name, invite link, timezone, currency, the words **Trakyo** uses
+  for your numbers, the theme, and cancelling or deleting the account.
+- **Profile** — your own email address, role and sign-in dates.
+- **Self-reported** — what buyers answered when asked how they heard about you, and which
+  source each answer counts as.
+- **Spend** — what you pay for your sources and content, so the dashboard can show what a
+  customer costs you.
 
 ---
 
@@ -223,6 +229,10 @@ Click **Add spend** and fill in the dialog:
 
 Then click **Save spend**.
 
+:::note
+Meta ad spend syncs on its own, so Meta sources take no manual entry.
+:::
+
 ![The Add spend dialog](./settings-add-spend.png)
 
 :::warning
@@ -230,15 +240,11 @@ For any one source, spend goes either on the whole source or on its content item
 both. That is what stops the same money being counted twice.
 :::
 
-:::note
-Meta ad spend syncs on its own, so Meta sources take no manual entry.
-:::
-
 ### Where else you can enter it
 
 You do not have to come here. Spend can be entered wherever you see the source or the
-content item: on the **YouTube Tracking** and **Custom Tracking** pages, and in the Spend
-cells of your dashboard. This tab is simply the list of everything you have entered.
+content item: on the **YouTube Tracking** page, and in the Spend cells of your dashboard.
+This tab is simply the list of everything you have entered.
 
 ### What the dashboard does with it
 
@@ -249,18 +255,18 @@ Once there is spend to work with, the dashboard can show:
 - **Return on spend** — revenue divided by spend.
 - **Booking → customer** rate.
 
+:::note
+These are opt-in widgets. Add them to your dashboard to see them.
+:::
+
 Each of those carries a "How it's calculated" explainer and a breakdown by source. The
 **Sources** table gains spend, cost per booking, CAC and ROAS alongside revenue and
 bookings, and each row opens to show how that source is credited under first touch, last
 touch and linear side by side, with a tag for whether it starts deals, closes them, or
 both. **Top content** ranks your content by revenue with the same cost columns.
 
-:::note
-These are opt-in widgets. Add them to your dashboard to see them.
-:::
-
 ---
 
 :::info
-Learn more about your **[Team](/docs/help/settings/team)** here.
+Learn more about the **[Dashboard](/docs/help/dashboard/overview)** here.
 :::

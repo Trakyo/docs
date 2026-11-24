@@ -48,6 +48,18 @@ Click the bin icon in the **Actions** column of their row. They lose access to t
 
 ---
 
+## Change someone's email address
+
+An email address cannot be edited once someone is on the list. Remove that person and
+invite the new address instead.
+
+:::note
+The account owner's address is the exception. Contact our customer care team on WhatsApp or
+Slack and we will change it for you.
+:::
+
+---
+
 :::info
 Learn more about **[Settings](/docs/help/settings/overview)** here.
 :::

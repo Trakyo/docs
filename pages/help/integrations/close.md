@@ -76,7 +76,7 @@ Close then lists every lead with a **Trakyo** note on their activity.
 
 :::note
 Want more than a note? Send whatever you like to Close with your own automation, built on
-the **[Trakyo API and MCP](/docs/help/api-and-mcp/overview)**.
+the **[Trakyo API and MCP](/docs/help/settings/api-and-mcp)**.
 :::
 
 ---

@@ -1,7 +1,7 @@
 ---
 title: API & MCP
 description: Connect Claude, ChatGPT or Codex to your Trakyo data, or build on it with the API.
-order: 1
+order: 3
 draft: true
 ---
 

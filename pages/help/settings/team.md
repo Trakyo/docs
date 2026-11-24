@@ -1,7 +1,7 @@
 ---
 title: Team
 description: Invite people to your Trakyo account and set what each of them can do.
-order: 1
+order: 2
 draft: true
 ---
 

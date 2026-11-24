@@ -30,7 +30,9 @@ key, then pick the webinar from the dropdown.
    - **Notes** — leave blank
 3. Click **Apply**.
 
-:::note[Copy these two answers exactly]
+The key has to be approved by WebinarJam, which can take up to 24 hours.
+
+:::note[If needed for the API key application, copy these two answers exactly]
 **Describe your app:** Trakyo is a marketing attribution platform. It uses the WebinarJam
 API to register webinar attendees and help track which ads and campaigns drive my webinar
 sign-ups.
@@ -38,10 +40,6 @@ sign-ups.
 **How does your app generate leads:** Visitors fill out a registration form embedded on my
 website. Trakyo collects their name and email, then uses the WebinarJam Register API to
 complete the sign-up.
-:::
-
-:::warning
-The key has to be approved by WebinarJam, which can take up to 24 hours.
 :::
 
 Once you have it, open the **[Integrations](https://app.trakyo.io/integrations)** page in

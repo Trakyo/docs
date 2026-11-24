@@ -1,6 +1,6 @@
 {
-  "title": "Settings",
-  "description": "Your account, billing and the preferences that shape your reports.",
+  "title": "Settings, API & MCP",
+  "description": "Your account and billing, your team, your client accounts, and the API.",
   "icon": "settings",
   "order": 13
 }

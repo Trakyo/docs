@@ -23,6 +23,12 @@ opens the actions for that client.
 
 ---
 
+:::note
+Running an agency and being a **Trakyo** affiliate are not exclusive — you can do both. See
+**[Affiliate program](/docs/help/affiliate-program/overview)** for how the affiliate side
+works, and get in touch to hear about the partnership.
+:::
+
 ## Switch between accounts
 
 The switcher is at the bottom left of the sidebar, under your own name.

@@ -59,15 +59,23 @@ Avoid `track`, `link`, `click` and `trk`. Those often get blocked.
 
 Two ways to do this.
 
-**Let Trakyo set it up.** Click **Connect domain**. We work out who your DNS provider is,
-you sign in to them, and the records are added for you.
-
-**Add the records yourself.** Click **I'll add the DNS records myself** and **Trakyo**
-shows you exactly what to add.
-
 ![Connecting the domain](./domain-connect.png)
 
-### Adding the records yourself
+### Let Trakyo set it up
+
+Click **Connect domain**. Your domain is checked to see who it is registered with, which
+takes a few seconds.
+
+![Checking who the domain is registered with](./domain-analyzing.png)
+
+Then click **Continue with** your provider — GoDaddy, in this example — sign in there, and
+approve the change. The records are added for you.
+
+**Connect a different way** takes you to the manual route instead.
+
+![Continuing with your domain provider](./domain-provider.png)
+
+### Add the records yourself
 
 Go to your domain provider and add both of these:
 
@@ -98,6 +106,20 @@ DNS changes can take up to 48 hours to spread, though they usually happen within
 
 ---
 
+## Step 4 — Wait for it to go live
+
+Whichever route you took, **Trakyo** now sets the domain up with your registrar. It usually
+takes a minute or two.
+
+![Trakyo setting the domain up](./domain-setting-up.png)
+
+When it is done you get **You're all set!**, with the domain your deeplinks will use. Click
+**Continue**.
+
+![The domain ready to use](./domain-ready.png)
+
+---
+
 ## If the check never finishes
 
 Work through these:
@@ -107,6 +129,87 @@ Work through these:
 - **Your DNS lives somewhere else.** If Cloudflare, GoHighLevel or another service manages
   the domain's DNS rather than the registrar, the records have to be added there.
 - **The subdomain is already in use.** Pick another one.
+
+---
+
+## Step 5 — Add the tracking script
+
+The last step is a small script on your landing pages.
+
+:::note
+Skip this if you do not send people to a landing page — if your links go straight to an
+application form or a scheduler, there is nothing to add.
+:::
+
+### What the script does
+
+- **It takes a fingerprint of the visitor**, so **Trakyo** can attribute what they do next
+  precisely.
+- **It recognises visitors who arrive without clicking a tracking link**, and usually tells
+  you the last page they were on before yours — Google, Instagram, Facebook, YouTube. Those
+  show on your dashboard as **Referrers**.
+
+Referrers are how you find the links you have missed. If YouTube keeps appearing there even
+though every video description is updated, the gap is somewhere else: your channel bio, a
+pinned comment, or another channel entirely.
+
+:::note
+When a visitor's browser blocks that information, the visit counts as **Other** on your
+dashboard.
+:::
+
+### Copy the script
+
+For an ordinary site builder — Framer, Webflow, ClickFunnels, GoHighLevel, Wix — click
+**Copy Tracking Script** and paste it into the `<head>` of every page. Most builders have
+one site-wide setting for that, so you only paste it once.
+
+![The tracking script](./domain-tracking-script.png)
+
+```html
+<script src="https://go.yourdomain.com/api/js/latest.js"></script>
+```
+
+:::note
+Copy your own script from **Trakyo**. It carries your domain, not the example above.
+:::
+
+### Copy the prompt
+
+For an AI site builder — Lovable, Replit, Netlify, Base44 — click **Copy prompt** instead
+and paste that into the builder. It covers the two things people usually miss:
+
+```text
+Add this tracking script to the header of every page, and make sure it loads on every
+visit.
+
+Here's the script:
+<script src="https://go.yourdomain.com/api/js/latest.js"></script>
+
+Additionally, allow trakyo_id to be collected from the URL by any form or third-party
+embedded tool on the site.
+
+Also, ensure URL parameters — especially trakyo_id — are passed forward with every page
+navigation and redirect.
+```
+
+### Carry the id across your pages
+
+Every click adds that visitor's own `trakyo_id` to the URL, alongside your other
+parameters such as the ones Meta adds. Your pages have to pass those parameters on with
+every navigation and every redirect, so the id survives to whatever comes next.
+
+That is what lets a form or a scheduler collect the fingerprint and attach it to the
+booking or the submission. The AI prompt above asks for it. On a builder like Framer you
+add the logic yourself.
+
+:::warning
+How much of this you need depends on your funnel. A redirect handled by your site, a button
+that opens a scheduler, and a form that redirects on submit all behave differently.
+:::
+
+Articles on each builder — where the script goes, and how to carry parameters forward —
+are on their way.
 
 ---
 

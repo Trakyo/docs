@@ -1,11 +1,11 @@
 ---
 title: Tracking conversions
-description: Report purchases, signups, and bookings from your backend — attributed to the click that earned them.
+description: Report purchases, signups, bookings and attendance from your backend — attributed to the click that earned them.
 ---
 
 `POST /v1/conversions` records a conversion that happened **on your server** — a
-purchase, a signup, or a booking — and attributes it to the visitor Trakyo
-already tracked. It is the server-side counterpart to the browser pixel: use it
+purchase, a signup, a booking, or someone attending your webinar — and attributes
+it to the visitor Trakyo already tracked. It is the server-side counterpart to the browser pixel: use it
 when the outcome is known to your backend (a payment processor webhook, a CRM
 marking a deal won) rather than to a page in the visitor's browser.
 
@@ -31,7 +31,7 @@ curl "https://api.trakyo.io/v1/conversions" \
   -H "Idempotency-Key: 8f2c1a90-..." \
   -d '{
     "identity": {
-      "trakyo_id": "9f2c8b1e-...",
+      "trakyo_id": "k3TqZ9bV1xLm7PwA",
       "email": "buyer@example.com"
     },
     "event": {
@@ -192,13 +192,14 @@ Send an identifier **and** the email together whenever you have both: the email
 merges this conversion with the rest of the person's history, and the
 `trakyo_id` / `click_id` supplies the attribution.
 
-## The three kinds
+## The four kinds
 
 | `kind` | Carries a value? | Use it for |
 | -- | -- | -- |
 | `purchase` | **yes** — `value` (decimal string, > 0) or a `conversion_id` | A sale. |
 | `signup` | no | A free registration. |
 | `booking` | no | A booked call or meeting. |
+| `attendance` | no | A webinar or event the person attended, live or on replay. See [Attendance](#attendance). |
 
 ### Name your conversions
 
@@ -221,6 +222,44 @@ supports; crypto is rejected with [`unsupported_currency`](/docs/errors/unsuppor
 pass a `conversion_id` for a saved Custom Conversion and let Trakyo resolve the
 price.
 
+## Attendance
+
+Send `attendance` when someone who registered actually showed up: a live webinar
+session, or its replay.
+
+```json
+{
+  "identity": {
+    "trakyo_id": "k3TqZ9bV1xLm7PwA",
+    "email": "attendee@example.com"
+  },
+  "event": {
+    "kind": "attendance",
+    "external_id": "reg_5521:live:sess_7",
+    "name": "Masterclass, day 1",
+    "occurred_at": "2026-11-24T18:00:00Z",
+    "metadata": { "watch_seconds": 2710, "session_id": "sess_7" }
+  }
+}
+```
+
+It shows on the lead's journey as **Attended**, with the `name` you sent, next to
+the registration and everything else that person did. Four things set it apart
+from the other kinds:
+
+- **It is not counted as an opt-in, a booking or a sale.** The registration was
+  the opt-in. Your dashboard totals and opt-in rate do not change.
+- **Send the same identity as the registration.** The same `trakyo_id` and email
+  put the attendance on the same lead as the signup.
+- **One event per person per session.** An event cannot be changed after it is
+  recorded, so put the session in the `external_id` (`reg_5521:live:sess_7`), and
+  send a replay as its own event (`reg_5521:replay:sess_7`). Put watch time and
+  join and leave times in `metadata`.
+- **Do not send no-shows.** A no-show is a signup with no attendance event.
+
+An attendance event has no value and cannot be reversed. It is not sent to Meta
+unless you choose it as a conversion event yourself.
+
 ## external_id is required — it is your dedupe and reversal handle
 
 Every conversion needs `event.external_id` (your order or invoice id). It does
@@ -229,7 +268,9 @@ two jobs:
 - **Dedupe.** A second conversion with the same `external_id` returns the first,
   with HTTP `200` and `Idempotent-Replayed: true` instead of `201` — so two
   processors reporting the same order, or a retry, never double-count. This holds
-  across all three kinds for one account. It covers conversions sent to this
+  across `purchase`, `signup` and `booking` together for one account. `attendance`
+  events are deduplicated among themselves only, so an attendance event may reuse
+  the `external_id` of the signup it follows, and both are recorded. It covers conversions sent to this
   endpoint only — see [Sales a direct integration already records](#sales-a-direct-integration-already-records).
 - **Reversal handle.** Refunds reference the original by its `external_id`.
 
@@ -267,8 +308,9 @@ time; `created_at` is when Trakyo recorded it, and the two are stored separately
 Once a conversion lands **with `trakyo_id` or `click_id`**, its revenue is attributed to
 the ad, video, or link that earned the click — visible in your dashboard,
 content and source leaderboards, and Meta CAPI (a `purchase` maps to Meta's
-`Purchase`, `signup` to `CompleteRegistration`, `booking` to `Schedule`). No
-extra wiring beyond passing `identity.trakyo_id`.
+`Purchase`, `signup` to `CompleteRegistration`, `booking` to `Schedule`; an
+`attendance` is not sent by default). No extra wiring beyond passing
+`identity.trakyo_id`.
 
 Without one, the conversion is still recorded, deduped, reversible and counted
 in your totals — it simply has no content to credit, so it sits in **Other**.
@@ -339,7 +381,7 @@ correctly. Key rules:
 - The body's `external_id` is the PSP **refund** id — distinct from the path's
   order id — and dedupes the reversal itself.
 - `currency` must match the original, else [`currency_mismatch`](/docs/errors/currency_mismatch) (409).
-- Over-reversing returns [`reversal_exceeds_original`](/docs/errors/reversal_exceeds_original) (400); an unknown order returns [`unknown_conversion`](/docs/errors/unknown_conversion) (404).
+- Over-reversing returns [`reversal_exceeds_original`](/docs/errors/reversal_exceeds_original) (400); an unknown order returns [`unknown_conversion`](/docs/errors/unknown_conversion) (404). So does the `external_id` of an `attendance` event: only a purchase can be reversed.
 
 The reversal **inherits the original's exchange rate**, so a full refund of a
 non-USD sale nets to exactly `$0.00` USD. The response carries `amount_reversed`

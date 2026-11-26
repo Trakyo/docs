@@ -2,7 +2,6 @@
 title: Custom Domains
 description: Connect a domain so your Trakyo tracking links run on it.
 order: 1
-draft: true
 ---
 
 Connecting a custom domain is the most important step of your setup. It is what **Trakyo**
@@ -14,14 +13,18 @@ scheduler, that is fine. What you do need is a domain, so we can add DNS records
 subdomain of it.
 :::
 
+---
+
+## Step by step guide
+
+Follow the steps below to configure the DNS records for your subdomain.
+
 :::warning[Before you start]
 You need access to your domain registrar — where the domain is registered, which is not
 necessarily where your site is built — with permission to change its DNS records.
 :::
 
----
-
-## Step 1 — Enter your domain
+### Step 1 — Enter your domain
 
 Type your domain as `www.example.com` or `example.com`, then click **Continue**.
 
@@ -29,7 +32,7 @@ Type your domain as `www.example.com` or `example.com`, then click **Continue**.
 
 ---
 
-## Step 2 — Pick your subdomain
+### Step 2 — Pick your subdomain
 
 This is what your links will start with. **Trakyo** suggests three:
 
@@ -55,13 +58,13 @@ Avoid `track`, `link`, `click` and `trk`. Those often get blocked.
 
 ---
 
-## Step 3 — Connect it
+### Step 3 — Connect it
 
 Two ways to do this.
 
 ![Connecting the domain](./domain-connect.png)
 
-### Let Trakyo set it up
+#### Let Trakyo set it up
 
 Click **Connect domain**. Your domain is checked to see who it is registered with, which
 takes a few seconds.
@@ -75,7 +78,7 @@ approve the change. The records are added for you.
 
 ![Continuing with your domain provider](./domain-provider.png)
 
-### Add the records yourself
+#### Add the records yourself
 
 Go to your domain provider and add both of these:
 
@@ -106,7 +109,7 @@ DNS changes can take up to 48 hours to spread, though they usually happen within
 
 ---
 
-## Step 4 — Wait for it to go live
+### Step 4 — Wait for it to go live
 
 Whichever route you took, **Trakyo** now sets the domain up with your registrar. It usually
 takes a minute or two.
@@ -132,7 +135,7 @@ Work through these:
 
 ---
 
-## Step 5 — Add the tracking script
+## Add the tracking script
 
 The last step is a small script on your landing pages.
 
@@ -166,12 +169,9 @@ one site-wide setting for that, so you only paste it once.
 
 ![The tracking script](./domain-tracking-script.png)
 
-```html
-<script src="https://go.yourdomain.com/api/js/latest.js"></script>
-```
-
 :::note
-Copy your own script from **Trakyo**. It carries your domain, not the example above.
+Always copy the script from **Trakyo** itself. It carries your own domain, so a copy taken
+from anywhere else will not work.
 :::
 
 ### Copy the prompt
@@ -179,21 +179,26 @@ Copy your own script from **Trakyo**. It carries your domain, not the example ab
 For an AI site builder — Lovable, Replit, Netlify, Base44 — click **Copy prompt** instead
 and paste that into the builder. It covers the two things people usually miss:
 
-```text
-Add this tracking script to the header of every page, and make sure it loads on every
-visit.
+> Add this tracking script to the header of every page, and make sure it loads on every
+> visit.
+>
+> Here's the script:
+> `<script src="…"></script>`
+>
+> Additionally, allow trakyo_id to be collected from the URL by any form or third-party
+> embedded tool on the site.
+>
+> Also, ensure URL parameters — especially trakyo_id — are passed forward with every page
+> navigation and redirect.
 
-Here's the script:
-<script src="https://go.yourdomain.com/api/js/latest.js"></script>
+:::warning
+Use the **Copy prompt** button in **Trakyo**. The version above is only to show you what it
+asks for — it has your script line removed, so copying it from here will not work.
+:::
 
-Additionally, allow trakyo_id to be collected from the URL by any form or third-party
-embedded tool on the site.
+---
 
-Also, ensure URL parameters — especially trakyo_id — are passed forward with every page
-navigation and redirect.
-```
-
-### Carry the id across your pages
+## Final piece — carry trakyo_id across all pages
 
 Every click adds that visitor's own `trakyo_id` to the URL, alongside your other
 parameters such as the ones Meta adds. Your pages have to pass those parameters on with
@@ -220,6 +225,21 @@ registrar and every deeplink breaks — leads can no longer reach your destinati
 
 ---
 
+## How to test
+
+### Testing the tracking script
+
+Any of these will tell you whether the script is doing its job:
+
+1. **Open your landing page in a Chrome incognito window.** Then check your **Trakyo**
+   dashboard: the visit should appear under clicks, as **Other** or with a referrer.
+2. **Look at the page source.** Open **View Page Source**, or **Inspect** in your browser's
+   developer tools, and search with Ctrl+F or Cmd+F for the script's URL.
+3. **Ask an AI.** Give it your page's address and ask whether the **Trakyo** script is in
+   the page's `<head>`.
+
+---
+
 :::info
-Learn more about **[Custom Tracking](/docs/help/custom-tracking/overview)** here.
+Learn more about **[Integrations](/docs/help/integrations/gohighlevel)** here.
 :::

@@ -49,14 +49,16 @@ curl "https://api.trakyo.io/v1/links?limit=100&starting_after=00000000-0000-0000
 
 Forward-only, `limit` 1–100 (default 50). `GET /v1/domains` uses the same envelope but is **not paginated** — accounts have few domains, so you always get all of them (`has_more` is always `false`).
 
-## 3. Offset — content & sources leaderboards
+## 3. Offset — content, sources & destinations leaderboards
 
-`GET /v1/content` and `GET /v1/sources` are ranked leaderboards, so they page by position: `limit` (1–100, default 50) + `offset` (default 0):
+`GET /v1/content`, `GET /v1/sources` and `GET /v1/destinations` are ranked leaderboards, so they page by position: `limit` (1–100, default 50) + `offset` (default 0):
 
 ```bash
 curl "https://api.trakyo.io/v1/content?period=30d&limit=50&offset=50" \
   -H "Authorization: Bearer tky_live_..."
 ```
+
+`GET /v1/destinations` also returns `total_clicks` and `total_destinations` for the whole range, not only the page, so each row's `share` is of the full total.
 
 Leaderboard rows can shift between requests as new events arrive — for a consistent snapshot, fetch pages quickly and treat the ranking as of the time you read it.
 

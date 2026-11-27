@@ -110,6 +110,30 @@ in the panel but stops running.
 
 ---
 
+## WordPress
+
+WordPress has no built-in field for head code, so use a plugin. **WPCode** — formerly
+Insert Headers and Footers — is the usual choice.
+
+1. Copy the script in **Trakyo**.
+2. In your WordPress admin, go to **Plugins** → **Add New**, install **WPCode** and
+   activate it.
+3. Go to **Code Snippets** → **Header & Footer** in the left menu.
+4. Paste the script into the **Header** box.
+5. Click **Save Changes**.
+
+:::warning
+The plugin has to stay active. Deactivate it and the script stops loading, so tracking
+stops with it.
+:::
+
+:::note
+If your theme has its own header-code field, you can use that instead. Avoid editing
+`header.php` directly — a theme update overwrites it.
+:::
+
+---
+
 ## Google Tag Manager
 
 Worth using only if Tag Manager is already on every page of your site. If it is not, paste

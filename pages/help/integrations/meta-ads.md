@@ -89,6 +89,42 @@ data in without feeding anything back to the pixel.
 
 ---
 
+## Best practice — which pixel to send to
+
+Every advertiser has a Meta pixel, which Meta also calls a dataset. Think of it as your
+inbox at Meta for conversions. Your website already drops events in there — someone
+registered, someone bought. **Trakyo**'s Conversions API drops our copy of those same
+conversions into whichever pixel you pick in the app.
+
+:::danger
+Meta only merges two reports of the same conversion when both carry the same event id. A
+website event and a **Trakyo** event never share one, so Meta counts both. The same
+registration becomes two rows, and your cost per registration reads as half of what it
+really is — which is an easy number to scale a budget on.
+:::
+
+So the rule is simple: never send **Trakyo** into a pixel your website is already sending
+the same events to. There are two clean setups.
+
+1. **A new dataset for Trakyo.** In Meta Events Manager, create an empty dataset, name it
+   `Trakyo`, and pick that one in the **Add dataset** dialog. This is the one we recommend.
+2. **One pixel, one sender.** Keep your existing pixel, and turn those events off on your
+   website, so **Trakyo** is the only thing sending them.
+
+Before you connect the Conversions API, ask yourself one question: does my website already
+send Lead, Purchase, Schedule or CompleteRegistration to this pixel? If the answer is yes,
+or you are not sure, make a new dataset.
+
+:::note
+**Send Trakyo's default events** starts unchecked in the **Add dataset** dialog. Leave it
+that way unless you know your website is not already sending those events to that pixel.
+:::
+
+If your Meta numbers suddenly double after connecting **Trakyo**, this is the first thing
+to check.
+
+---
+
 ## Test the integration
 
 1. Open the **[Meta Ad Library](https://www.facebook.com/ads/library/)** and find your ad.

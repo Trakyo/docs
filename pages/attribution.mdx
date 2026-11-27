@@ -42,6 +42,26 @@ The **content and source leaderboards return both revenues on every row** — no
 }
 ```
 
+## Which link earned it
+
+`GET /v1/destinations` goes one level below content: it lists every URL your tracking links point to, with its clicks and the `form_submissions`, `bookings` and `revenue` that came through that link. Use it to compare the links under one video (apply, free training, newsletter) by what they earn, not only by clicks.
+
+A conversion counts for a link when the content it is attributed to was reached by clicking that link:
+
+- with `attribution=first_touch`, the lead's **earliest** click on a link of that content;
+- with `attribution=last_touch`, their **latest** such click before the conversion.
+
+Three things follow, and they are by design:
+
+- **The links can add up to less than the content.** A lead who reached the content another way (a website visit, an ad form, an import, a manual attribution) is counted in `GET /v1/content` and in no destination row.
+- **A row can have `clicks: 0`.** The link was clicked before your date range and earned a conversion inside it.
+- **Revenue is net of refunds**, and a refund lands on the link its sale was credited to.
+
+```bash
+curl "https://api.trakyo.io/v1/destinations?period=30d&attribution=last_touch&currency=EUR" \
+  -H "Authorization: Bearer tky_live_..."
+```
+
 ## Why the numbers disagree — and what that tells you
 
 That example above is real: one video drove **$21,973 first-touch but only $6,473 last-touch**. Same video, same transactions — different question being asked.

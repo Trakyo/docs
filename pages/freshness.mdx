@@ -26,7 +26,7 @@ Heavy analytics are cached per unique query (account + endpoint + all parameters
 | `GET /v1/content`, `/v1/sources` (leaderboards) and the metric blocks of `GET /v1/content/{id}`, `/v1/sources/{id}` | 60 s |
 | `GET /v1/leads/{id}/events` (the journey aggregate) | 60 s |
 | `GET /v1/links/{domain_id}/{key}/clicks` | 60 s |
-| `GET /v1/destinations` (clicks per destination URL) | 60 s |
+| `GET /v1/destinations` (clicks, form submissions, bookings and revenue per destination URL) | 60 s |
 
 The `X-Cache` response header tells you what happened:
 
